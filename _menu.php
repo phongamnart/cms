@@ -41,7 +41,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="approval.php" class="nav-link <?php if($current_menu == "approval"){ echo "active";}?>">
+              <a href="approval.php" class="nav-link <?php if($current_menu == "approvals"){ echo "active";}?>">
                 <img src="dist/img/icon/new-moon.png" width="16" style="margin: 5px 10px 5px 5px;"/>
                 <p>Approvals</p>
               </a>

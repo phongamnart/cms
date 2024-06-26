@@ -24,7 +24,7 @@
                 doc_id: doc_id,
                 table: table
             })
-            .done(function (data) {
+            .done(function(data) {
                 window.location.reload();
             });
         return false;
@@ -36,7 +36,7 @@
                 id: id,
                 table: table
             })
-            .done(function (data) {
+            .done(function(data) {
                 //console.log(data);
                 window.location.reload();
             });
@@ -49,7 +49,7 @@
                 id: id,
                 table: table
             })
-            .done(function (data) {
+            .done(function(data) {
                 window.location.reload();
             });
         return false;
@@ -65,7 +65,7 @@
                 unitprice: unitprice,
                 table: table,
             })
-            .done(function (data) {
+            .done(function(data) {
                 console.log(data);
                 window.location.reload();
             });
@@ -78,19 +78,20 @@
                 id: id,
                 table: table
             })
-            .done(function (data) {
+            .done(function(data) {
                 console.log(data);
                 window.location.reload();
             });
         return false;
     }
+
     function slecetDeliveryorder(doc_id, id, table) {
         $.post("services/selectdeliveryorder.php", {
                 doc_id: doc_id,
                 id: id,
                 table: table
             })
-            .done(function (data) {
+            .done(function(data) {
                 console.log(data);
                 window.location.reload();
             });
@@ -103,7 +104,7 @@
                 id: id,
                 table: table
             })
-            .done(function (data) {
+            .done(function(data) {
                 console.log(data);
                 window.location.reload();
             });
@@ -115,7 +116,7 @@
                 param: param,
                 value: value
             })
-            .done(function (data) {
+            .done(function(data) {
                 console.log(value);
                 window.location.reload();
             });
@@ -124,8 +125,8 @@
 
     function updateValue(table, id, field, value) {
         $('#success-alert').hide();
-        let myPromise = new Promise(function (myResolve, myReject) {
-            setTimeout(function () {
+        let myPromise = new Promise(function(myResolve, myReject) {
+            setTimeout(function() {
                 myResolve(true);
             }, 100);
         });
@@ -135,13 +136,13 @@
                 field: field,
                 value: value
             })
-            .done(function (data) {
-                myPromise.then(function (value) {
+            .done(function(data) {
+                myPromise.then(function(value) {
                     var divElement = document.getElementById("success-alert");
                     divElement.style.display = "block";
                     console.log(data);
                     setValue(data);
-                    $('#success-alert').fadeOut(3000, function () {
+                    $('#success-alert').fadeOut(3000, function() {
                         $('#success-alert').hide();
                     });
                 });
@@ -155,7 +156,7 @@
                 seriesid: seriesid,
                 table: table
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     document.getElementById('message').innerHTML = myObj.alerts;
@@ -196,7 +197,7 @@
                 field: field,
                 value: value
             })
-            .done(function (data) {
+            .done(function(data) {
                 setValue(data);
             });
         return false;
@@ -205,7 +206,7 @@
     function setDelete(table, id, name, redirect) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to delete this <span class=\"text-danger\">"' + name +
-            '"</span> <?php echo "<em>Yes or No?</em>";?></p>' +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
             '</div>' +
             '<button type="button" class="btn btn-primary" onclick="deletePost(' + "'" + table + "','" + id + "','" +
             redirect + "'" + ')">Yes</button> ' +
@@ -216,7 +217,7 @@
     function setCopy(table, id, name) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to copy this <span class=\"text-primary\">"' + name +
-            '"</span> <?php echo "<em>Yes or No?</em>";?></p>' +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
             '</div>' +
             '<button type="button" class="btn btn-primary" onclick="copyPost(' + "'" + table + "','" + id + "'" +
             ')">Yes</button> ' +
@@ -227,7 +228,7 @@
     function setCopy2(table, id, name) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to copy this <span class=\"text-primary\">"' + name +
-            '"</span> <?php echo "<em>Yes or No?</em>";?></p>' +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
             '</div>' +
             '<button type="button" class="btn btn-primary" onclick="copy2Post(' + "'" + table + "','" + id + "'" +
             ')">Yes</button> ' +
@@ -239,17 +240,51 @@
     function setCreate(table, name) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to create this <span class=\"text-info\">"' + name +
-            '"</span> <?php echo "<em>Yes or No?</em>";?></p>' +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
             '</div>' +
             '<button type="button" class="btn btn-primary" onclick="createPage(' + "'" + table + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
 
+    function Approve(id, doc_no, value) {
+        let approved = Number(value) + 1;
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Approve or reject document: ' + doc_no +
+            '</p></div>' +
+            '<div class="col-sm-12">' +
+            '<textarea id="reason" class="form-control" rows="3" name="reason" placeholder="Reason reject..."></textarea>' +
+            '</div><br>' +
+            '<button type="button" class="btn btn-success" onclick="postApproved(' + "'" + id + "'" + ',' + "'" + approved + "'" + ')">Approve</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="postReject(' + "'" + id + "'" + ')">Reject</button>';
+        $('#messageModal').modal('show');
+    }
+
+    function postApproved(id, approved) {
+        updateValue('documents', id, 'approved', approved);
+        window.location.reload();
+    }
+
+    function postReject(id) {
+        let reason = document.getElementById('reason').value;
+        if (!reason) {
+            alert("Please provide a reason for rejection.");
+            return;
+        }
+        updateValue('documents', id, 'reason_reject', reason);
+        updateValue('documents', id, 'approved', '0');
+        window.location.reload();
+    }
+
+    function saveWord(id) {
+        updateValue('documents', id, 'approved', '1');
+        window.location.href='save_word.php?no='+ id;
+    }
+
     function setCreateInput(table, name, field) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to create this <span class=\"text-info\">"' + name +
-            '"</span> <?php echo "<em>Yes or No?</em>";?></p>' +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
             '</div>' +
             '<div class="row">' +
             '<div class="form-group col-md-12">' +
@@ -266,7 +301,7 @@
     function setCancelDoc(table, name, id) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to cancel this <span class=\"text-info\">"' + name +
-            '"</span> <?php echo "<em>Yes or No?</em>";?></p>' +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
             '</div>' +
             '<div class="row">' +
             '<div class="form-group col-md-12">' +
@@ -291,7 +326,7 @@
                 field: 'posted',
                 value: '1'
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     alert(myObj.alerts);
@@ -312,7 +347,7 @@
                 table: table,
                 id: id
             })
-            .done(function (data) {
+            .done(function(data) {
                 console.log(data)
                 if (redirect == '') {
                     window.location.reload();
@@ -329,7 +364,7 @@
                 table: table,
                 id: id,
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     console.log(myObj.alerts);
@@ -345,7 +380,7 @@
                 table: table,
                 id: id,
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     console.log(myObj.alerts);
@@ -361,7 +396,7 @@
                 table: table,
                 id: id,
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     console.log(myObj.alerts);
@@ -376,7 +411,7 @@
         $.post("services/create.php", {
                 table: table,
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     document.getElementById('message').innerHTML = myObj.alerts;
@@ -398,7 +433,7 @@
                 field: field,
                 value: value,
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     document.getElementById('message').innerHTML = myObj.alerts;
@@ -416,7 +451,7 @@
                 id: id,
                 value: value,
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     document.getElementById('message').innerHTML = myObj.alerts;
@@ -443,7 +478,7 @@
                 content_id: content_id,
                 value: value
             })
-            .done(function (data) {
+            .done(function(data) {
                 console.log(data)
             });
         return false;
@@ -452,9 +487,9 @@
     function reloadContent(doc_id) {
         $.post("services/updatedoc_content.php", {
                 doc_id: doc_id,
-                
+
             })
-            .done(function (data) {
+            .done(function(data) {
                 window.location.reload()
                 console.log(data)
             });
@@ -462,13 +497,13 @@
     }
 
     function changeCompany() {
-        $('#change_company').submit(function () {
+        $('#change_company').submit(function() {
             $.ajax({
                     type: 'POST',
                     url: 'services/change_company.php',
                     data: $(this).serialize()
                 })
-                .done(function (data) {
+                .done(function(data) {
                     var myObj = JSON.parse(data);
                     if (myObj.alerts != null) {
                         document.getElementById('message').innerHTML = myObj.alerts;
@@ -478,7 +513,7 @@
                     }
                     return false;
                 })
-                .fail(function () {
+                .fail(function() {
                     alert("การโพสต์ล้มเหลว");
                 });
             return false;
@@ -490,7 +525,7 @@
         document.getElementById('doc_id').value = id;
         document.getElementById('redirect').value = redirect;
     }
-    $("#form_uploadfile").on("submit", function (e) {
+    $("#form_uploadfile").on("submit", function(e) {
         e.preventDefault();
         uploadFile();
     });
@@ -515,7 +550,7 @@
                 po_line_id: po_line_id,
                 qty: qty,
             })
-            .done(function (data) {
+            .done(function(data) {
                 var myObj = JSON.parse(data);
                 if (myObj.alerts != null) {
                     console.log(myObj.alerts);

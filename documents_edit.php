@@ -78,9 +78,10 @@ include("_check_session.php");
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
                     </button>
-                    <button type="button" class="btn btn-app flat" onClick="window.open('save_word.php?no=<?php echo md5($doc_id); ?>');" title="Save word">
-                        <img src="dist/img/icon/doc.png" width="24"><br>
-                        Save word
+                    <!-- <button type="button" class="btn btn-app flat" onClick="window.location.href='save_word.php?no=<?php echo md5($doc_id);?>';" title="Save word"> -->
+                    <button type="button" class="btn btn-app flat" onclick="saveWord('<?php echo md5($doc_id);?>')" title="Save word">
+                        <img src="dist/img/icon/save.svg" width="24"><br>
+                        Save
                     </button>
                 </div><!-- /menu header -->
                 <div class="row" style="padding: 0px 10px;">

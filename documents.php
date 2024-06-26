@@ -18,6 +18,7 @@ $documents_discipline = isset($_SESSION['documents_discipline']) ? $_SESSION['do
 $documents_work = isset($_SESSION['documents_work']) ? $_SESSION['documents_work'] : '';
 $documents_type= isset($_SESSION['documents_type']) ? $_SESSION['documents_type'] : '';
 $prepared_by = $_SESSION['user_name'];
+$mail = $_SESSION['user_mail'];
 if ($documents_start_date == "") {
     $documents_start_date = date("Y-01-01");
 }
@@ -44,7 +45,7 @@ if ($documents_type!= "") {
 } else {
     $condition .= "";
 }
-$strSQL = "SELECT * FROM `documents` WHERE `prepared_by` = '$prepared_by'" . $condition;
+$strSQL = "SELECT * FROM `documents` WHERE `created_by` = '$mail'" . $condition;
 $objQuery = $conDB->sqlQuery($strSQL);
 ?>
 </head>
@@ -134,13 +135,14 @@ $objQuery = $conDB->sqlQuery($strSQL);
                                     <table id="datatable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th width="50">No.<br><em></em></th>
-                                                <th width="100">Tools<br><em></em></th>
-                                                <th width="150">Discipline​<br><em></em></th>
-                                                <th width="150">Document No.​<br><em></em></th>
-                                                <th width="500">Document Title<br><em></em></th>
-                                                <th width="150">Date<br><em></em></th>
+                                                <th width="20">No.<br><em></em></th>
+                                                <th width="60">Tools<br><em></em></th>
+                                                <th width="80">Discipline​<br><em></em></th>
+                                                <th width="90">Document No.​<br><em></em></th>
+                                                <th width="300">Document Title<br><em></em></th>
+                                                <th width="80">Date<br><em></em></th>
                                                 <th width="100">Status<br><em></em></th>
+                                                <th width="150">Reason reject<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -166,13 +168,19 @@ $objQuery = $conDB->sqlQuery($strSQL);
                                                 <td><?php echo $objResult['method_statement'] ?></td>
                                                 <td><?php echo $objResult['date'] ?></td>
                                                 <td>
-                                                    <?php if ($objResult['approved'] == 1) { ?>
-                                                        Approved
-                                                    <?php } else {?>
+                                                    <?php if ($objResult['approved'] == 0) { ?>
                                                         Not Approved
+                                                    <?php } elseif ($objResult['approved'] == 1) {?>
+                                                        Prepared
+                                                    <?php } elseif ($objResult['approved'] == 2) {?>
+                                                        Checked
+                                                    <?php } elseif ($objResult['approved'] == 3) {?>
+                                                        ISO Review
+                                                    <?php } elseif ($objResult['approved'] == 4) {?>
+                                                        Approved
                                                     <?php } ?>
-                                                    <!-- <?php echo $objResult['approved'] ?> -->
                                                 </td>
+                                                <td><?php echo $objResult['reason_reject'] ?></td>
                                             <?php }?>
                                         </tbody>
                                     </table>

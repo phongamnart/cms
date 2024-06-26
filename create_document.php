@@ -16,6 +16,7 @@ include("_check_session.php");
     $work = isset($_SESSION['work']) ? $_SESSION['work'] : '';
     $type = isset($_SESSION['type']) ? $_SESSION['type'] : '';
     $prepared_by = $_SESSION['user_name'];
+    $mail = $_SESSION['user_mail'];
     ?>
 </head>
 
@@ -36,6 +37,10 @@ include("_check_session.php");
             <section class="content">
                 <div>
                     <form action="services/create.php" method="post">
+                        <button type="button" class="btn btn-app flat" onClick="window.location.href='documents.php'" title="<?php echo BTN_DISCARD; ?>">
+                            <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
+                            <?php echo BTN_DISCARD; ?>
+                        </button>
                         <button type="submit" class="btn btn-app flat" title="Save">
                             <img src="dist/img/icon/save.svg" style="padding:3px;" width="24"><br>
                             Save
@@ -111,32 +116,43 @@ include("_check_session.php");
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-sm-12">
+                                                <div class="col-sm-8">
                                                     <div class="form-group">
                                                         <label for="">Document Title</label>
-                                                        <input type="text" class="form-control" name="document_title" id="document_title" required>
+                                                        <input type="text" class="form-control" name="document_title" id="document_title" required />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label for="">Prepare By</label>
+                                                        <input type="text" class="form-control" name="prepared_by" id="prepared_by" value="<?php echo $prepared_by ?>" disabled />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="">Prepared By</label>
-                                                        <input type="text" class="form-control" name="prepared_by" id="prepared_by" value="<?php echo $prepared_by ?>" disabled>
+                                                        <label for="">Create By</label>
+                                                        <input type="text" class="form-control" name="created_by" id="created_by" value="<?php echo $mail; ?>" disabled />
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="">Checked By</label>
-                                                        <input type="text" class="form-control" name="checked_by" id="checked_by" required>
+                                                        <label for="">Check By</label>
+                                                        <input type="text" class="form-control" name="checked_by" id="checked_by" required />
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-4">
-                                                    <div class="form-group">
-                                                        <label for="">Approved</label>
-                                                        <input type="text" class="form-control" name="approved" id="approved" value="Phongamnart" disabled>
+                                                <?php
+                                                $sql = "SELECT * FROM approvals_template WHERE `role` = 'QMR'";
+                                                $result = $conDB->sqlQuery($sql);
+                                                while ($obj = mysqli_fetch_assoc($result)) { ?>
+                                                    <div class="col-sm-4">
+                                                        <div class="form-group">
+                                                            <label for="">Approve By</label>
+                                                            <input type="text" class="form-control" name="approved" id="approved" value="<?php echo $obj['name']; ?>" disabled />
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                <?php } ?>
                                             </div>
                                             <div class="row">
                                                 <div class="col-sm-4">
@@ -153,8 +169,8 @@ include("_check_session.php");
                             </div>
                             <!-- /.row -->
                         </div>
+                    </form>
                 </div>
-
             </section>
             <!-- /.content -->
         </div>

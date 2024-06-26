@@ -73,4 +73,5 @@ $randomNum = uniqid();
 $doc_file = 'test_upload/word/' . $currentTime . '_' . $randomNum . '.docx';
 $phpWord->save($doc_file);
 
-echo "<script>alert('Files saved successfully as " . basename($doc_file) . "'); window.close();</script>";
+// echo "<script>alert('Files saved successfully as " . basename($doc_file) . "'); window.close();</script>";
+header("Location: documents.php");

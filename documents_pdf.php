@@ -6,28 +6,23 @@ use Mpdf\Mpdf;
 include("_check_session.php");
 $conDB = new db_conn();
 
-$line_id = $_GET['line_id'];
+$get_id = $_GET['no'];
 
-$sql1 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$line_id'";
-$result = $conDB->sqlQuery($sql1);
-$contents = [];
-while ($objResult = mysqli_fetch_assoc($result)) {
-    $contents[] = [
-        'content' => $objResult['content'],
-        'is_image' => $objResult['is_image']
-    ];
-}
+$strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`id` ASC";
+$objQuery = $conDB->sqlQuery($strSQL);
 $htmlContent = '';
-
-foreach ($contents as $index => $content) {
-    if ($content['is_image'] == 0) {
-        $plainTextContent = htmlspecialchars_decode(strip_tags($content['content'])); // Decode HTML to text
-        $plainTextContent = str_replace('&nbsp;', ' ', $plainTextContent); // Replace &nbsp; with space
-        $encodedText = htmlspecialchars($plainTextContent, ENT_QUOTES, 'UTF-8'); // Encode special characters
-        $htmlContent .= '<p>' . $encodedText . '</p>';
-    } elseif ($content['is_image'] == 1) {
-        $imagePath = substr($content['content'], 3);
-        $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style="width: 200px; height: 200px;" alt="Image"></div>';
+while ($objResult = mysqli_fetch_assoc($objQuery)) {
+    $htmlContent .= '<div style="font-size: 20px;"><b>' . $objResult['id'] . ". " . $objResult['name'] . '</b></div>';
+    echo $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE `line_id` = '" . $objResult['id'] . "'";
+    $objQuery_line = $conDB->sqlQuery($strSQL2);
+    while ($objResult_content = mysqli_fetch_assoc($objQuery_line)) {
+        if ($objResult_content['is_image'] == 0) {
+            $encodedText = html_entity_decode($objResult_content['content']);
+            $htmlContent .= '<div>' . $encodedText . '</div>';
+        } elseif ($objResult_content['is_image'] == 1) {
+            $imagePath = substr($objResult_content['content'], 3);
+            $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style=" height: 200px;" alt="Image"></div>';
+        }
     }
 }
 
@@ -46,7 +41,34 @@ $mpdf = new Mpdf([
     ],
     'default_font' => 'thsarabunnew'
 ]);
+$mpdf->SetHTMLHeader('
+    <div>
+    <table style="width: 100%";>
+        <tr>
+            <th rowspan="2" style="border: 1px solid black">
+                <img src="dist/img/logo.svg" alt="logo" width="50">
+            </th>
+            <th colspan="2" style="border: 1px solid black">
+                Title :
+            </th>
+            <th style="border: 1px solid black">
+                Page {PAGENO} of {nb}
+            </th>
+        </tr>
+        <tr>
+            <th style="border: 1px solid black">
+                Document No. : <span class="underline"></span>
+            </th>
+            <th style="border: 1px solid black">
+                Effective Date : <span class="underline"></span>
+            </th>
+            <th style="border: 1px solid black">
+                Revision : <span class="underline"></span>
+            </th>
+        </tr>
+    </table>
+    </div>
+');
 $mpdf->WriteHTML($htmlContent);
 // $pdf_file = 'test_upload/pdf/' . $currentTime . '_' . $randomNum . '.pdf';
 $mpdf->Output('document.pdf', 'I');
-?>

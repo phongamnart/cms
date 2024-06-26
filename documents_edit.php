@@ -30,7 +30,7 @@ include("_check_session.php");
             $date = date("d/m/Y", strtotime($objResult['date']));
         }
     }
-    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1";
+    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
     $objQuery_line = $conDB->sqlQuery($strSQL);
 
     $sql = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
@@ -74,9 +74,13 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?line_id=<?php echo md5($line_id); ?>', '_blank');" title="PDF">
+                    <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
+                    </button>
+                    <button type="button" class="btn btn-app flat" onClick="window.open('save_word.php?no=<?php echo md5($doc_id); ?>');" title="Save word">
+                        <img src="dist/img/icon/doc.png" width="24"><br>
+                        Save word
                     </button>
                 </div><!-- /menu header -->
                 <div class="row" style="padding: 0px 10px;">
@@ -220,7 +224,7 @@ include("_check_session.php");
                                                     <span><?php echo $index; ?></span>
                                                     <?php if ($mode != "readonly") { ?>
                                                 <td align="center">
-                                                    <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($doc_id); ?>&content_id=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id'] ?>" width="25" style="padding-right: 10px;cursor: pointer;"/>
+                                                    <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id'] ?>" width="25" style="padding-right: 10px;cursor: pointer;"/>
                                                 </td>
                                             <?php } ?>
                                             <td>

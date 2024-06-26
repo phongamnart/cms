@@ -11,7 +11,7 @@ include("_check_session.php");
     $ismenu = 1;
     $current_menu = "documents_line";
     $get_id = $_GET['no'];
-    $content_id = $_GET['content_id'];
+    // $content_id = $_GET['content_id'];
     include_once('_head.php');
     $conDB = new db_conn();
     $strSQL = "SELECT `documents_line`.`id` AS `id`, `documents_line`.`doc_id` AS `doc_id`, `contents`.`name` AS `name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`documents_line`.`id`) = '$get_id' LIMIT 1";
@@ -19,8 +19,11 @@ include("_check_session.php");
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
         $id = $objResult['id'];
         $doc_id = $objResult['doc_id'];
+        $name = $objResult['name'];
+
     }
-    $strSQL = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' LIMIT 1";
+    $doc_no = '';
+    $strSQL = "SELECT * FROM `documents` WHERE `id` = '$doc_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
         $doc_no = $objResult['doc_no'];
@@ -28,11 +31,10 @@ include("_check_session.php");
     $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
 
-    $strSQL3 = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`documents_line`.`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 AND md5(`documents_line`.`id`) = '$content_id'";
-    $objQuery_content = $conDB->sqlQuery($strSQL3);
-    while ($objResult = mysqli_fetch_assoc($objQuery_content)) {
-        $name = $objResult['name'];
-    }
+    // $strSQL3 = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`documents_line`.`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 AND md5(`documents_line`.`id`) = '$content_id'";
+    // $objQuery_content = $conDB->sqlQuery($strSQL3);
+    // while ($objResult = mysqli_fetch_assoc($objQuery_content)) {
+    // }
 
     ?>
 </head>

@@ -149,6 +149,57 @@
             });
     }
 
+    function updateValue_lineid(table, id, field, value) {
+        $('#success-alert').hide();
+        let myPromise = new Promise(function(myResolve, myReject) {
+            setTimeout(function() {
+                myResolve(true);
+            }, 100);
+        });
+        $.post("services/updatevalue_lineid.php", {
+                table: table,
+                id: id,
+                field: field,
+                value: value
+            })
+            .done(function(data) {
+                myPromise.then(function(value) {
+                    var divElement = document.getElementById("success-alert");
+                    divElement.style.display = "block";
+                    console.log(data);
+                    setValue(data);
+                    $('#success-alert').fadeOut(3000, function() {
+                        $('#success-alert').hide();
+                    });
+                });
+            });
+    }
+
+    function postValue(table, field, value) {
+        $('#success-alert').hide();
+        let myPromise = new Promise(function(myResolve, myReject) {
+            setTimeout(function() {
+                myResolve(true);
+            }, 100);
+        });
+        $.post("services/postvalue.php", {
+                table: table,
+                field: field,
+                value: value
+            })
+            .done(function(data) {
+                myPromise.then(function(value) {
+                    var divElement = document.getElementById("success-alert");
+                    divElement.style.display = "block";
+                    console.log(data);
+                    setValue(data);
+                    $('#success-alert').fadeOut(3000, function() {
+                        $('#success-alert').hide();
+                    });
+                });
+            });
+    }
+
     function selectno(noseries, id, seriesid, table) {
         $.post("services/selectnoseries.php", {
                 noseries: noseries,
@@ -247,22 +298,68 @@
         $('#messageModal').modal('show');
     }
 
-    function Approve(id, doc_no, value) {
+    function Approved(id, doc_no, value) {
         let approved = Number(value) + 1;
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
-            '<p>Approve or reject document: ' + doc_no +
+            '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
-            '<div class="col-sm-12">' +
-            '<textarea id="reason" class="form-control" rows="3" name="reason" placeholder="Reason reject..."></textarea>' +
-            '</div><br>' +
-            '<button type="button" class="btn btn-success" onclick="postApproved(' + "'" + id + "'" + ',' + "'" + approved + "'" + ')">Approve</button> ' +
-            '<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="postReject(' + "'" + id + "'" + ')">Reject</button>';
+            '<button type="button" class="btn btn-success" onclick="checkApproved(' + "'" + id + "'" + ',' + "'" + approved + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
 
-    function postApproved(id, approved) {
-        updateValue('documents', id, 'approved', approved);
+    function checkApproved(id, approved) {
+        $.post("services/checkApproved.php", {
+            id: id
+        }).done(function(data) {
+            var result = JSON.parse(data);
+            if (result.approved) {
+                updateValue('documents', id, 'approved', approved);
+            } else {
+                alert("Not all content are approved.");
+            }
+            $('#messageModal').modal('hide');
+        });
+    }
+
+
+    function approvedContent(id, doc_no) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to approve this document: ' + doc_no +
+            '</p></div>' +
+            '<button type="button" class="btn btn-success" onclick="postApproved(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+
+    function postApproved(id) {
+        let reason = document.getElementById('reason').value;
+        if (!reason) {
+            updateValue_lineid('documents_line_cont', id, 'approved', '2');
+            updateValue_lineid('documents_line_cont', id, 'reason_reject', null);
+        } else {
+            alert("Please clear reason");
+            return;
+        }
         window.location.reload();
+    }
+
+    function rejectContent(id, doc_no) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to approve this document: ' + doc_no +
+            '</p></div>' +
+            '<button type="button" class="btn btn-success" onclick="postReject(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+
+    function Reject(id, doc_no) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to reject this content: ' + doc_no +
+            '</p></div>' +
+            '<button type="button" class="btn btn-success" onclick="postReject(' + "'" + id + "'" + ',' + "'" + doc_no + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
     }
 
     function postReject(id) {
@@ -271,14 +368,15 @@
             alert("Please provide a reason for rejection.");
             return;
         }
-        updateValue('documents', id, 'reason_reject', reason);
-        updateValue('documents', id, 'approved', '0');
+        updateValue('documents_line_cont', id, 'reason_reject', reason);
+        updateValue('documents_line_cont', id, 'approved', '1');
+        // window.location.href='preview.php?no='+ id;
         window.location.reload();
     }
 
     function saveWord(id) {
         updateValue('documents', id, 'approved', '1');
-        window.location.href='save_word.php?no='+ id;
+        window.location.href = 'save_word.php?no=' + id;
     }
 
     function setCreateInput(table, name, field) {

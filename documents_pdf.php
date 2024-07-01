@@ -39,7 +39,8 @@ $mpdf = new Mpdf([
             'BI' => "THSarabunNew BoldItalic.ttf",
         ],
     ],
-    'default_font' => 'thsarabunnew'
+    'default_font' => 'thsarabunnew',
+    'margin_top' => 30
 ]);
 $mpdf->SetHTMLHeader('
     <div>

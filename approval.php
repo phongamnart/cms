@@ -57,8 +57,11 @@ include("_check_session.php");
         } elseif ($obj['role'] == 'QMR') {
             $strSQL = "SELECT * FROM `documents` WHERE `approved` = 3" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
+        } elseif ($obj['role'] == 'ADMIN') {
+            $strSQL = "SELECT * FROM `documents` WHERE `approved` = 1 OR `approved` = 2 OR `approved` = 3" . $condition;
+            $objQuery = $conDB->sqlQuery($strSQL);
         } else {
-            $strSQL = "SELECT * FROM `documents` WHERE `approved` = 5" . $condition;
+            $strSQL = "SELECT * FROM `documents`  WHERE `approved` = 5" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         }
     }
@@ -155,7 +158,7 @@ include("_check_session.php");
                                                 <th width="300">Document Title<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
                                                 <th width="100">Prepared By<br><em></em></th>
-                                                <th width="150">Status<br><em></em></th>
+                                                <th width="100">Status<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -166,8 +169,8 @@ include("_check_session.php");
                                                 <tr onDblClick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');">
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/pdf.png" onClick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');" title="Preview" width="35" style="padding: 5px;cursor: pointer;" />
-                                                        <img src="dist/img/icon/approved.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="Approve('<?php echo md5($objResult['id']); ?>','<?php echo $objResult['doc_no']; ?>','<?php echo $objResult['approved']; ?>')" title="Approve">
+                                                        <!-- <img src="dist/img/icon/pdf.png" onClick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');" title="Preview" width="35" style="padding: 5px;cursor: pointer;" /> -->
+                                                        <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='preview.php?no=<?php echo md5($objResult['id']); ?>'" title="Approve">
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>

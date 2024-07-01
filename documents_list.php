@@ -45,6 +45,7 @@ include("_check_session.php");
     }
     $strSQL = "SELECT * FROM `documents` WHERE `approved` = 4" . $condition;
     $objQuery = $conDB->sqlQuery($strSQL);
+
     ?>
 </head>
 
@@ -147,8 +148,7 @@ include("_check_session.php");
                                                 <tr onDblClick="window.location.href='documents_list_edit.php?no=<?php echo md5($objResult['id']); ?>'">
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/doc.png" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Download Word" width="30" style="padding: 2px;cursor: pointer;" />
-                                                        <img src="dist/img/icon/pdf.png" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Download Pdf" width="30" style="padding: 2px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/pdf.png" onclick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']) ?>', '_blank');" title="Download Pdf" width="30" style="padding: 2px;cursor: pointer;" />
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>

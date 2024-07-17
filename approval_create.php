@@ -7,9 +7,8 @@ include("_check_session.php");
 <head>
     <?php
     $document  = 2;
-    $ismenu = 1;
-
-    $current_menu = "approvals";
+    $ismenu = 2;
+    $current_menu = "approval_create";
     include_once('_head.php');
     $conDB = new db_conn();
     $documents_start_date = isset($_SESSION['documents_start_date']) ? $_SESSION['documents_start_date'] : '';
@@ -17,7 +16,7 @@ include("_check_session.php");
     $documents_discipline = isset($_SESSION['documents_discipline']) ? $_SESSION['documents_discipline'] : '';
     $documents_work = isset($_SESSION['documents_work']) ? $_SESSION['documents_work'] : '';
     $documents_type = isset($_SESSION['documents_type']) ? $_SESSION['documents_type'] : '';
-    $prepared_by = $_SESSION['user_name'];
+    $preparedby = $_SESSION['user_name'];
     $mail = $_SESSION['user_mail'];
     if ($documents_start_date == "") {
         $documents_start_date = date("Y-01-01");
@@ -25,27 +24,27 @@ include("_check_session.php");
     if ($documents_end_date == "") {
         $documents_end_date = date('Y-m-d');
     }
-    $strSQLDisc = "SELECT DISTINCT `discipline` FROM `documents` WHERE `prepared_by` = '$prepared_by'";
+    $strSQLDisc = "SELECT DISTINCT `discipline` FROM `documents` WHERE `preparedby` = '$preparedby'";
     if ($documents_discipline != "") {
         $condition = " AND `discipline` = '" . $documents_discipline . "'";
     } else {
         $condition = "";
     }
-    $strSQLWork = "SELECT DISTINCT `work` FROM `documents` WHERE `prepared_by` = '$prepared_by'" . $condition;
+    $strSQLWork = "SELECT DISTINCT `work` FROM `documents` WHERE `preparedby` = '$preparedby'" . $condition;
     if ($documents_work != "") {
         $condition2 = " AND `work` = '" . $documents_work . "'";
         $condition .= $condition2;
     } else {
         $condition .= "";
     }
-    $strSQLType = "SELECT DISTINCT `type` FROM `documents` WHERE `prepared_by` = '$prepared_by'" . $condition2;
+    $strSQLType = "SELECT DISTINCT `type` FROM `documents` WHERE `preparedby` = '$preparedby'" . $condition2;
     if ($documents_type != "") {
         $condition2 .= " AND `type` = '" . $documents_type . "'";
         $condition .= $condition2;
     } else {
         $condition .= "";
     }
-    $sql = "SELECT * FROM `approvals_template` WHERE `mail` = '$mail'";
+    $sql = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
     $result = $conDB->sqlQuery($sql);
     while ($obj = mysqli_fetch_assoc($result)) {
         if ($obj['role'] == 'Check') {
@@ -61,7 +60,7 @@ include("_check_session.php");
             $strSQL = "SELECT * FROM `documents` WHERE `approved` = 1 OR `approved` = 2 OR `approved` = 3" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         } else {
-            $strSQL = "SELECT * FROM `documents`  WHERE `approved` = 5" . $condition;
+            $strSQL = "SELECT * FROM `documents`  WHERE `approved` = 999" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         }
     }
@@ -78,7 +77,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Approve List</h1>
+                            <h1>Approve Create Document</h1>
                         </div>
                     </div>
                 </div>
@@ -176,9 +175,7 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
                                                     <td><?php echo $objResult['date'] ?></td>
-                                                    <td>
-                                                        <?php echo $objResult['prepared_by'] ?>
-                                                    </td>
+                                                    <td><?php echo $objResult['preparedby'] ?></td>
                                                     <td>
                                                         <?php if ($objResult['approved'] == 1) { ?>
                                                             Prepared

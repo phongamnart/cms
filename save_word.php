@@ -64,13 +64,28 @@ while ($objResult = mysqli_fetch_assoc($objQuery)) {
         } elseif ($objResult_line['is_image'] == 1) {
             $imagePath = substr($objResult_line['content'], 3);
             $section->addImage($imagePath, array('height' => 200, 'alignment' => Jc::CENTER));
+        } elseif ($objResult_line['is_image'] == 2) {
+            $imagePath = substr($objResult_line['content'], 3);
+            $section->addImage($imagePath, array('height' => 700, 'alignment' => Jc::CENTER));
         }
     }
 }
 
+$sql = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' ";
+$result = $conDB->sqlQuery($sql);
+while ($obj = mysqli_fetch_assoc($result)) {
+    $doc_no = $obj['doc_no'];
+}
+
+$upload_path = "upload/files/word/" . $doc_no;
+
+if (!file_exists($upload_path)) {
+    mkdir($upload_path, 0777, true);
+}
+
 $currentTime = date("YmdHis");
 $randomNum = uniqid();
-$doc_file = 'test_upload/word/' . $currentTime . '_' . $randomNum . '.docx';
+$doc_file =  $upload_path . '/' . $doc_no . '.docx';
 $phpWord->save($doc_file);
 
 // echo "<script>alert('Files saved successfully as " . basename($doc_file) . "'); window.close();</script>";

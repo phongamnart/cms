@@ -8,8 +8,8 @@ include("_check_session.php");
     <?php
     $documents  = 2;
     $doc_type  = "documents";
-    $ismenu = 1;
-    $current_menu = "approvals";
+    $ismenu = 2;
+    $current_menu = "approval_create";
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
@@ -22,15 +22,14 @@ include("_check_session.php");
         $work = $objResult['work'];
         $type = $objResult['type'];
         $method_statement = $objResult['method_statement'];
-        $prepared_by = $objResult['prepared_by'];
-        $checked_by = $objResult['checked_by'];
+        $preparedby = $objResult['preparedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
         if ($objResult['date'] != "") {
             $date = date("d/m/Y", strtotime($objResult['date']));
         }
     }
-    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name`, `documents_line_cont`.`approved` FROM `documents_line`
+    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line`
     LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id`
     LEFT JOIN `documents_line_cont` ON `documents_line`.`id` = `documents_line_cont`.`line_id`
     WHERE md5(`documents_line`.`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 GROUP BY `documents_line`.`id` ORDER BY `documents_line`.`content_id` ASC";
@@ -73,7 +72,7 @@ include("_check_session.php");
                 <!-- Main content -->
                 <div>
                     <!-- menu header -->
-                    <button type="button" class="btn btn-app flat" onClick="window.location.href='approval.php'" title="<?php echo BTN_DISCARD; ?>">
+                    <button type="button" class="btn btn-app flat" onClick="window.location.href='approval_create.php'" title="<?php echo BTN_DISCARD; ?>">
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
@@ -86,7 +85,7 @@ include("_check_session.php");
                         <img src="dist/img/icon/approved.svg" width="24"><br>
                         Approve
                     </button>
-                    <button type="button" class="btn btn-app flat" onclick="" title="Save word">
+                    <button type="button" class="btn btn-app flat" onclick="Reject('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>')" title="Reject">
                         <img src="dist/img/icon/error.svg" width="24"><br>
                         Reject
                     </button>
@@ -104,20 +103,6 @@ include("_check_session.php");
                                 </div>
                             </div>
                             <div class="card-body row">
-                                <div class="col-md-12">
-                                    <?php
-                                    $strSQL_cancel = "SELECT * FROM `cancel_log` WHERE md5(`doc_id`) = '$get_id' AND `doc_type` = 'documents' LIMIT 1";
-                                    $objQuery_cancel = $conDB->sqlQuery($strSQL_cancel);
-                                    while ($objResult_cancel = mysqli_fetch_assoc($objQuery_cancel)) {
-                                    ?>
-                                        <div class="alert alert-danger alert-dismissible">
-                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                            <h5><i class="icon fas fa-ban"></i> Cancel!</h5>
-                                            <?php echo $objResult_cancel['description']; ?></br>
-                                            <?php echo $objResult_cancel['createdby']; ?>, <?php echo $objResult_cancel['created']; ?>
-                                        </div>
-                                    <?php } ?>
-                                </div>
                                 <div class="col-md-8">
                                     <form method="post" id="documents" enctype="multipart/form-data">
                                         <div class="row">
@@ -156,25 +141,25 @@ include("_check_session.php");
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Discipline <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?>/>
+                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Works <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?>/>
+                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Type <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?>/>
+                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Prepared By <em></em></label>
-                                                    <input type="text" class="form-control" name="prepared_by" value="<?php echo $prepared_by; ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -216,18 +201,12 @@ include("_check_session.php");
                                         while ($objResult = mysqli_fetch_assoc($objQuery_line)) {
                                         ?>
                                             <tr>
-                                                <td>
+                                                <td align="center">
                                                     <span><?php echo $index; ?></span>
                                                 </td>
                                                 <?php if ($mode != "readonly") { ?>
                                                     <td align="center">
-                                                        <?php if ($objResult['approved'] == 0) { ?>
-                                                            <img src="dist/img/icon/warning.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id'] ?>" width="40" style="padding-right: 10px;cursor: pointer;" />
-                                                        <?php } elseif ($objResult['approved'] == 1) { ?>
-                                                            <img src="dist/img/icon/error.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id'] ?>" width="40" style="padding-right: 10px;cursor: pointer;" />
-                                                        <?php } else { ?>
-                                                            <img src="dist/img/icon/approved.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id'] ?>" width="40" style="padding-right: 10px;cursor: pointer;" />
-                                                        <?php } ?>
+                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id'];?>" width="40" style="padding-right: 10px;cursor: pointer;" />
                                                     </td>
                                                 <?php } ?>
                                                 <td>

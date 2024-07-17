@@ -1,5 +1,5 @@
 ﻿<?php
 session_start();
-header( "location:documents_list.php" );
+header( "location:dashboard.php" );
 exit(0);
 ?>

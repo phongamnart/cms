@@ -9,7 +9,7 @@ include("_check_session.php");
     $documents_line  = 2;
     $doc_type  = "documents_line";
     $ismenu = 1;
-    $current_menu = "approvals";
+    $current_menu = "documents";
     $get_id = $_GET['no'];
     $mail = $_SESSION['user_mail'];
     include_once('_head.php');
@@ -27,20 +27,13 @@ include("_check_session.php");
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
         $doc_no = $objResult['doc_no'];
     }
-    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id' AND `doc_id` = '$doc_id'";
+    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
 
     $strSQL3 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
     $objQuery3 = $conDB->sqlQuery($strSQL3);
     while ($objResult = mysqli_fetch_assoc($objQuery3)) {
         $line_id = $objResult['line_id'];
-        $next_id = $line_id + 1;
-    }
-
-    $strSQL4 = "SELECT * FROM `documents_line_cont` WHERE `doc_id` = '$doc_id' ORDER BY `id` DESC LIMIT 1";
-    $objQuery4 = $conDB->sqlQuery($strSQL4);
-    while ($objResult = mysqli_fetch_assoc($objQuery4)) {
-        $last_line_id = $objResult['line_id'];
     }
 
     ?>
@@ -67,7 +60,6 @@ include("_check_session.php");
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h1><?php echo $doc_no . " : " . $name; ?></h1>
-                            <!-- <h1><?php echo $id . " = " . $last_line_id; ?></h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -76,21 +68,10 @@ include("_check_session.php");
                 <!-- Main content -->
                 <div>
                     <!-- menu header -->
-                    <button type="button" class="btn btn-app flat" onclick="window.location.href='preview.php?no=<?php echo md5($doc_id); ?>'" title="Discard">
+                    <button type="button" class="btn btn-app flat" onclick="window.location.href='view_notapproved.php?no=<?php echo md5($doc_id); ?>'" title="Discard">
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         Discard
                     </button>
-                    <?php if ($id < $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="nextComment('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>')" title="Next">
-                            <img src="dist/img/icon/forward.png" width="24"><br>
-                            Next
-                        </button>
-                    <?php } elseif ($id = $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="saveComment('<?php echo md5($line_id); ?>','<?php echo $doc_no; ?>')" title="Save">
-                            <img src="dist/img/icon/save.svg" width="24"><br>
-                            Save
-                        </button>
-                    <?php } ?>
 
                 </div><!-- /menu header -->
                 <div class="row" style="padding: 0px 10px;">
@@ -101,29 +82,23 @@ include("_check_session.php");
                                 <div class="col-md-12">
                                     <?php
                                     $index = 0;
-                                    $comment = '';
+                                    $reason_reject = '';
                                     while ($objResult_line = mysqli_fetch_assoc($objQuery_line)) {
                                         $index++;
                                     ?>
-                                        <?php if ($objResult_line['is_image'] == 0) { ?>
+                                        <?php if ($objResult_line['is_image'] != 1) { ?>
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <div class="form-group">
                                                         <label>Content <?php echo $index; ?><em></em></label>
+                                                        <img src="dist/img/icon/edit.svg" onclick="setTextEditor(<?php echo $objResult_line['id'] ?>)" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/save.svg" id="submit<?php echo $objResult_line['id'] ?>" title="Save" width="30" style="padding: 5px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','Content','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
                                                         <div class="editor-container" style="display: flex;">
                                                             <div class="editorTextArea" style="border: 1px solid #b3b7bb; padding: 12px;" name="editor_content[]" id="editor<?php echo $objResult_line['id'] ?>">
                                                                 <?php echo $objResult_line['content']; ?>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php } elseif ($objResult_line['is_image'] == 1) { ?>
-                                            <div class="row">
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label><br>
-                                                        <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -138,11 +113,11 @@ include("_check_session.php");
                                             </div>
                                         <?php } ?>
                                         <input type="hidden" name="" id="input_id<?php echo $objResult_line['id'] ?>" value="<?php echo md5($objResult_line['id']) ?>">
-                                        <?php $comment = $objResult_line['comment']; ?>
+                                        <?php $reason_reject = $objResult_line['reason_reject']; ?>
                                     <?php } ?>
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <textarea class="form-control" name="comment" id="comment" placeholder="Comment..."><?php echo $comment ?></textarea>
+                                            <textarea class="form-control" name="reason" id="reason" placeholder="Reason reject..."><?php echo $reason_reject ?></textarea>
                                         </div>
                                     </div>
                                 </div>

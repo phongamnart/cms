@@ -3,7 +3,7 @@ date_default_timezone_set("Asia/Bangkok");
 define('DB_SERVER','localhost');
 define('DB_USER','root');
 //define('DB_PASS' ,'');
-define('DB_PASS' ,'');
+define('DB_PASS' ,'tamarin17');
 define('DB_NAME', 'cms');
 define('URL_SERV', $_SERVER['HTTP_HOST']."/cms/");
 class db_conn{

@@ -13,7 +13,7 @@ $objQuery = $conDB->sqlQuery($strSQL);
 $htmlContent = '';
 while ($objResult = mysqli_fetch_assoc($objQuery)) {
     $htmlContent .= '<div style="font-size: 20px;"><b>' . $objResult['id'] . ". " . $objResult['name'] . '</b></div>';
-    echo $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE `line_id` = '" . $objResult['id'] . "'";
+    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE `line_id` = '" . $objResult['id'] . "'";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
     while ($objResult_content = mysqli_fetch_assoc($objQuery_line)) {
         if ($objResult_content['is_image'] == 0) {
@@ -22,6 +22,9 @@ while ($objResult = mysqli_fetch_assoc($objQuery)) {
         } elseif ($objResult_content['is_image'] == 1) {
             $imagePath = substr($objResult_content['content'], 3);
             $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style=" height: 200px;" alt="Image"></div>';
+        } elseif ($objResult_content['is_image'] == 2) {
+            $imagePath = substr($objResult_content['content'], 3);
+            $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style=" height: 700px;" alt="Image"></div>';
         }
     }
 }
@@ -71,5 +74,4 @@ $mpdf->SetHTMLHeader('
     </div>
 ');
 $mpdf->WriteHTML($htmlContent);
-// $pdf_file = 'test_upload/pdf/' . $currentTime . '_' . $randomNum . '.pdf';
 $mpdf->Output('document.pdf', 'I');

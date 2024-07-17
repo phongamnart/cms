@@ -1,5 +1,6 @@
 <?php
 include("_check_session.php");
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -116,34 +117,29 @@ include("_check_session.php");
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-sm-8">
+                                                <div class="col-sm-12">
                                                     <div class="form-group">
                                                         <label for="">Document Title</label>
                                                         <input type="text" class="form-control" name="document_title" id="document_title" required />
                                                     </div>
                                                 </div>
+                                                
+                                            </div>
+                                            <div class="row">
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="">Prepare By</label>
                                                         <input type="text" class="form-control" name="prepared_by" id="prepared_by" value="<?php echo $prepared_by ?>" disabled />
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-sm-4">
-                                                    <div class="form-group">
-                                                        <label for="">Create By</label>
-                                                        <input type="text" class="form-control" name="created_by" id="created_by" value="<?php echo $mail; ?>" disabled />
-                                                    </div>
-                                                </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="">Check By</label>
-                                                        <input type="text" class="form-control" name="checked_by" id="checked_by" required />
+                                                        <input type="text" class="form-control" name="checkedby" id="checkedby" required />
                                                     </div>
                                                 </div>
                                                 <?php
-                                                $sql = "SELECT * FROM approvals_template WHERE `role` = 'QMR'";
+                                                $sql = "SELECT * FROM approval WHERE `role` = 'QMR'";
                                                 $result = $conDB->sqlQuery($sql);
                                                 while ($obj = mysqli_fetch_assoc($result)) { ?>
                                                     <div class="col-sm-4">

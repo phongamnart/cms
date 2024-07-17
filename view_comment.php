@@ -9,7 +9,7 @@ include("_check_session.php");
     $documents_line  = 2;
     $doc_type  = "documents_line";
     $ismenu = 1;
-    $current_menu = "approvals";
+    $current_menu = "documents";
     $get_id = $_GET['no'];
     $mail = $_SESSION['user_mail'];
     include_once('_head.php');
@@ -76,21 +76,18 @@ include("_check_session.php");
                 <!-- Main content -->
                 <div>
                     <!-- menu header -->
-                    <button type="button" class="btn btn-app flat" onclick="window.location.href='preview.php?no=<?php echo md5($doc_id); ?>'" title="Discard">
+                    <button type="button" class="btn btn-app flat" onclick="window.location.href='view_notapproved.php?no=<?php echo md5($doc_id); ?>'" title="Discard">
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         Discard
                     </button>
                     <?php if ($id < $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="nextComment('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>')" title="Next">
+                        <button type="button" class="btn btn-app flat" onclick="nextReject('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>')" title="Next">
                             <img src="dist/img/icon/forward.png" width="24"><br>
                             Next
                         </button>
-                    <?php } elseif ($id = $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="saveComment('<?php echo md5($line_id); ?>','<?php echo $doc_no; ?>')" title="Save">
-                            <img src="dist/img/icon/save.svg" width="24"><br>
-                            Save
-                        </button>
-                    <?php } ?>
+                    <?php } elseif ($id = $last_line_id) {
+                        //nothing
+                    } ?>
 
                 </div><!-- /menu header -->
                 <div class="row" style="padding: 0px 10px;">

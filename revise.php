@@ -9,7 +9,7 @@ include("_check_session.php");
     $documents  = 2;
     $doc_type  = "documents";
     $ismenu = 1;
-    $current_menu = "documents";
+    $current_menu = "request";
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
@@ -60,7 +60,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1><?php echo "Document No. : " . $doc_no; ?></h1>
+                            <h1><?php echo "Revise Document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -69,11 +69,11 @@ include("_check_session.php");
                 <!-- Main content -->
                 <div>
                     <!-- menu header -->
-                    <button type="button" class="btn btn-app flat" onclick="window.location.href='documents.php'" title="<?php echo BTN_DISCARD; ?>">
+                    <button type="button" class="btn btn-app flat" onClick="window.location.href='request.php'" title="<?php echo BTN_DISCARD; ?>">
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onclick="window.open('documents_pdf.php?no=<?php echo md5($doc_id);?>', '_blank');" title="PDF">
+                    <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
                     </button>
@@ -209,7 +209,7 @@ include("_check_session.php");
                                                     <span><?php echo $index; ?></span>
                                                     <?php if ($mode != "readonly") { ?>
                                                 <td align="center">
-                                                    <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="25" style="padding-right: 10px;cursor: pointer;"/>
+                                                    <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="25" style="padding-right: 10px;cursor: pointer;"/>
                                                 </td>
                                             <?php } ?>
                                             <td>

@@ -29,13 +29,16 @@ include("_check_session.php");
             $date = date("d/m/Y", strtotime($objResult['date']));
         }
     }
-    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
+    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line`
+    LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id`
+    LEFT JOIN `documents_line_cont` ON `documents_line`.`id` = `documents_line_cont`.`line_id`
+    WHERE md5(`documents_line`.`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 GROUP BY `documents_line`.`id` ORDER BY `documents_line`.`content_id` ASC";
     $objQuery_line = $conDB->sqlQuery($strSQL);
 
     $sql = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
-    $objQuery_cont = $conDB->sqlQuery($sql);
-    while ($objResult = mysqli_fetch_assoc($objQuery_cont)) {
-        $line_id = $objResult['line_id'];
+    $result = $conDB->sqlQuery($sql);
+    while ($obj = mysqli_fetch_assoc($result)) {
+        $line_id = $obj['line_id'];
     }
     ?>
 </head>
@@ -69,17 +72,13 @@ include("_check_session.php");
                 <!-- Main content -->
                 <div>
                     <!-- menu header -->
-                    <button type="button" class="btn btn-app flat" onclick="window.location.href='documents.php'" title="<?php echo BTN_DISCARD; ?>">
+                    <button type="button" class="btn btn-app flat" onClick="window.location.href='documents.php'" title="<?php echo BTN_DISCARD; ?>">
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onclick="window.open('documents_pdf.php?no=<?php echo md5($doc_id);?>', '_blank');" title="PDF">
+                    <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
-                    </button>
-                    <button type="button" class="btn btn-app flat" onclick="saveWord('<?php echo md5($doc_id);?>','<?php echo $doc_no;?>')" title="Save word">
-                        <img src="dist/img/icon/save.svg" width="24"><br>
-                        Save
                     </button>
                 </div><!-- /menu header -->
                 <div class="row" style="padding: 0px 10px;">
@@ -133,19 +132,19 @@ include("_check_session.php");
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Discipline <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" />
+                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Works <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $work ?>" />
+                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Type <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $type ?>" />
+                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
@@ -177,18 +176,6 @@ include("_check_session.php");
                             </div>
                             <div class="card-body">
                                 <!-- .card-body -->
-                                <div class="row">
-                                    <?php if ($mode != "readonly") { ?>
-                                        <button type="button" class="btn btn-app flat" title="Add Contents" data-toggle="modal" data-target="#selectcontents">
-                                            <img src="dist/img/icon/list.png" width="20"><br>
-                                            Add Contents
-                                        </button>
-                                        <button type="button" class="btn btn-app flat" title="Reload Contents" onclick="reloadContent(<?php echo $doc_id ?>)">
-                                            <img src="dist/img/icon/renew.svg" width="20"><br>
-                                            Reload Contents
-                                        </button>
-                                    <?php } ?>
-                                </div>
                                 <table id="lineItem" class="table table-bordered" style="font-size: 0.8em;">
                                     <thead>
                                         <tr>
@@ -207,14 +194,15 @@ include("_check_session.php");
                                             <tr>
                                                 <td>
                                                     <span><?php echo $index; ?></span>
-                                                    <?php if ($mode != "readonly") { ?>
-                                                <td align="center">
-                                                    <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="25" style="padding-right: 10px;cursor: pointer;"/>
                                                 </td>
-                                            <?php } ?>
-                                            <td>
-                                                <span><?php echo $objResult['name']; ?></span>
-                                            </td>
+                                                <?php if ($mode != "readonly") { ?>
+                                                    <td align="center">
+                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='view_comment.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="40" style="padding-right: 10px;cursor: pointer;" />
+                                                    </td>
+                                                <?php } ?>
+                                                <td>
+                                                    <span><?php echo $objResult['name']; ?></span>
+                                                </td>
                                             </tr>
                                         <?php $index++;
                                         } ?>

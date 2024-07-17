@@ -13,8 +13,7 @@
       <span class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     </li>
     <li class="nav-item dropdown">
-      <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-        class="nav-link dropdown-toggle"><?php echo $_SESSION['user_name']."  "; ?></a>
+      <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><?php echo $_SESSION['user_name'] . "  "; ?></a>
       <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
         <li><a class="dropdown-item">Mannual</a></li>
         <li><a class="dropdown-item" data-toggle="modal" data-target="#signoutModal">Sign out</a>
@@ -27,8 +26,7 @@
 </nav>
 <!-- /.navbar -->
 
-<div id="changepassModal" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
-  aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+<div id="changepassModal" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -58,14 +56,12 @@
   </div>
 </div>
 
-<div id="success-alert" class="alert alert-success alert-dismissible col-8 float-right modal-sm shadow-1"
-  style="z-index:99999;position: absolute; right:15px; top:75px; max-width: 300px; display:none;">
+<div id="success-alert" class="alert alert-success alert-dismissible col-8 float-right modal-sm shadow-1" style="z-index:99999;position: absolute; right:15px; top:75px; max-width: 300px; display:none;">
   <h5><i class="icon fas fa-check"></i>Alert!</h5>
   Updated Successfully!
 </div>
 
-<div class="modal fade" id="signoutModal" tabindex="-1" role="dialog" aria-labelledby="signoutModalLabel"
-  aria-hidden="true">
+<div class="modal fade" id="signoutModal" tabindex="-1" role="dialog" aria-labelledby="signoutModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -78,16 +74,14 @@
         <div class="row col-md-12">
           <p>Do you want to signout <em>Yes or No?</em></p>
         </div>
-        <button type="button" class="btn btn-primary"
-          onclick="window.location.href = 'logout.php'">Yes</button>
+        <button type="button" class="btn btn-primary" onclick="window.location.href = 'logout.php'">Yes</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel"
-  aria-hidden="true">
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -101,8 +95,7 @@
     </div>
   </div>
 </div>
-<div id="uploadfile" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-  aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+<div id="uploadfile" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -118,9 +111,11 @@
               <label>Choose file <em>เลือกไฟล์</em></label><span class="text-danger"> * file size maximum 30mb</span>
               <div class="input-group mb-3">
                 <input type="file" class="form-control" id="file" name="file" required />
+                <input type="hidden" class="form-control" id="id" name="id" />
                 <input type="hidden" class="form-control" id="doc_id" name="doc_id" />
                 <input type="hidden" class="form-control" id="type" name="type" />
                 <input type="hidden" class="form-control" id="redirect" name="redirect" />
+                <input type="hidden" class="form-control" id="selectSize" name="selectSize" />
               </div>
             </div>
             <div class="col-sm-12">
@@ -133,4 +128,3 @@
     </div>
   </div>
 </div>
-

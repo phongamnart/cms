@@ -13,6 +13,7 @@ include("_check_session.php");
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
+    $from = $_SESSION['user_name'];
     $strSQL = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
@@ -23,6 +24,7 @@ include("_check_session.php");
         $type = $objResult['type'];
         $method_statement = $objResult['method_statement'];
         $preparedby = $objResult['preparedby'];
+        $checkedby = $objResult['checkedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
         if ($objResult['date'] != "") {
@@ -32,11 +34,12 @@ include("_check_session.php");
     $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
     $objQuery_line = $conDB->sqlQuery($strSQL);
 
-    $sql = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
-    $objQuery_cont = $conDB->sqlQuery($sql);
-    while ($objResult = mysqli_fetch_assoc($objQuery_cont)) {
-        $line_id = $objResult['line_id'];
+    $strSQL2 = "SELECT * FROM `approval` WHERE `mail` = '$checkedby' ";
+    $objQuery2 = $conDB->sqlQuery($strSQL2);
+    while ($objResult = mysqli_fetch_assoc($objQuery2)) {
+        $approval_name = $objResult['name'];
     }
+
     ?>
 </head>
 
@@ -73,11 +76,13 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onclick="window.open('documents_pdf.php?no=<?php echo md5($doc_id);?>', '_blank');" title="PDF">
+                    <button type="button" class="btn btn-app flat" onclick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
                     </button>
-                    <button type="button" class="btn btn-app flat" onclick="saveWord('<?php echo md5($doc_id);?>','<?php echo $doc_no;?>')" title="Save word">
+                    <button type="button" class="btn btn-app flat" 
+                    onclick="saveWord('<?php echo md5($doc_id); ?>','<?php echo $checkedby; ?>','<?php echo $approval_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create','<?php echo $from; ?>')" 
+                    title="Save word">
                         <img src="dist/img/icon/save.svg" width="24"><br>
                         Save
                     </button>
@@ -209,7 +214,7 @@ include("_check_session.php");
                                                     <span><?php echo $index; ?></span>
                                                     <?php if ($mode != "readonly") { ?>
                                                 <td align="center">
-                                                    <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="25" style="padding-right: 10px;cursor: pointer;"/>
+                                                    <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="25" style="padding-right: 10px;cursor: pointer;" />
                                                 </td>
                                             <?php } ?>
                                             <td>

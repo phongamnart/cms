@@ -17,7 +17,7 @@ function generateDocNo($discipline, $conDB)
             break;
     }
 
-    $sql = "SELECT `doc_no` FROM `documents` WHERE `discipline`='$discipline' ORDER BY id DESC LIMIT 1";
+    $sql = "SELECT `doc_no` FROM `documents` WHERE `discipline`='$discipline' ORDER BY `id` DESC LIMIT 1";
     $result = $conDB->sqlQuery($sql);
     $latest_doc_no = mysqli_fetch_assoc($result);
 
@@ -31,18 +31,19 @@ function generateDocNo($discipline, $conDB)
     return $prefix . str_pad($new_number, 4, '0', STR_PAD_LEFT);
 }
 
-$prepared_by = $_SESSION['user_name'];
+$preparedby = $_SESSION['user_name'];
+$createdby = $_SESSION['user_mail'];
 $discipline = isset($_POST['discipline']) ? $_POST['discipline'] : '';
 $doc_no = generateDocNo($discipline, $conDB);
 $work = isset($_POST['work']) ? $_POST['work'] : '';
 $type = isset($_POST['type']) ? $_POST['type'] : '';
 $title = isset($_POST['document_title']) ? $_POST['document_title'] : '';
-$checked_by = isset($_POST['checked_by']) ? $_POST['checked_by'] : '';
+$checkedby = isset($_POST['checkedby']) ? $_POST['checkedby'] : '';
 $remark = isset($_POST['remark']) ? $_POST['remark'] : '';
 $date = date('Y-m-d');
 
-$strSQL2 = "INSERT INTO `documents` (`doc_no`, `discipline`, `work`, `type`, `method_statement`, `date`, `remark`, `prepared_by`, `checked_by`) 
-            VALUES ('$doc_no', '$discipline', '$work', '$type', '$title', '$date', '$remark', '$prepared_by', '$checked_by')";
+$strSQL2 = "INSERT INTO `documents` (`doc_no`, `discipline`, `work`, `type`, `method_statement`, `date`, `remark`, `preparedby`, `createdby`, `checkedby`) 
+            VALUES ('$doc_no', '$discipline', '$work', '$type', '$title', '$date', '$remark', '$preparedby', '$createdby', '$checkedby')";
 $conDB->sqlQuery($strSQL2);
 
 header("Location: ../documents.php")

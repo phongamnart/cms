@@ -11,7 +11,6 @@ include("_check_session.php");
     $ismenu = 1;
     $current_menu = "documents";
     $get_id = $_GET['no'];
-    // $content_id = $_GET['content_id'];
     include_once('_head.php');
     $conDB = new db_conn();
     $strSQL = "SELECT `documents_line`.`id` AS `id`, `documents_line`.`doc_id` AS `doc_id`, `contents`.`name` AS `name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`documents_line`.`id`) = '$get_id' LIMIT 1";
@@ -70,6 +69,9 @@ include("_check_session.php");
                 <div class="row" style="padding: 0px 10px;">
                     <!-- General 1 -->
                     <div class="col-md-12">
+                        <div style="text-align: right; font-size: 16px">
+                            <span class="text-danger"> * ฟอนต์ 20 ในเว็บ = ฟอนต์ 15 ใน word</span>
+                        </div>
                         <div class="card">
                             <div class="card-body row">
                                 <div class="col-md-12">
@@ -99,7 +101,7 @@ include("_check_session.php");
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
                                                         <label>Content <?php echo $index; ?><em></em></label>
-                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','<?php echo $objResult_line['id']; ?>','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
+                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
@@ -109,7 +111,7 @@ include("_check_session.php");
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
                                                         <label>Content <?php echo $index; ?><em></em></label>
-                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','<?php echo $objResult_line['id']; ?>','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
+                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
@@ -123,11 +125,11 @@ include("_check_session.php");
                                             <img src="dist/img/icon/text.svg" width="24"><br>
                                             Add Text
                                         </button>
-                                        <button type="button" class="btn btn-app flat" data-toggle="modal" data-target="#uploadfile" onclick="setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','1')" title="Add Image">
+                                        <button type="button" class="btn btn-app flat" data-toggle="modal" data-target="#uploadfile" onclick="setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','1', '<?php echo $doc_no; ?>')" title="Add Image">
                                             <img src="dist/img/icon/image.png" width="24"><br>
                                             Add Image
                                         </button>
-                                        <button type="button" class="btn btn-app flat" data-toggle="modal" data-target="#uploadfile" onclick="setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','2')" title="Add Image Full Page">
+                                        <button type="button" class="btn btn-app flat" data-toggle="modal" data-target="#uploadfile" onclick="setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','2', '<?php echo $doc_no; ?>')" title="Add Image Full Page">
                                             <img src="dist/img/icon/image.png" width="24"><br>
                                             Add Image Full Page
                                         </button>

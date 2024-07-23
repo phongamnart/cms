@@ -1,6 +1,5 @@
 <?php
 include("_check_session.php");
-session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,6 +15,7 @@ session_start();
     $discipline = isset($_SESSION['discipline']) ? $_SESSION['discipline'] : '';
     $work = isset($_SESSION['work']) ? $_SESSION['work'] : '';
     $type = isset($_SESSION['type']) ? $_SESSION['type'] : '';
+    $checkedby = isset($_SESSION['checkedby']) ? $_SESSION['checkedby'] : '';
     $prepared_by = $_SESSION['user_name'];
     $mail = $_SESSION['user_mail'];
     ?>
@@ -54,11 +54,11 @@ session_start();
                                             <div class="row">
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="discipline">Discipline</label>
+                                                        <label for="discipline">Discipline</label><span class="text-danger"> *</span>
                                                         <select name="discipline" id="discipline" class="custom-select" style="width: 100%;" onchange="setFilter('discipline',this.value)">
                                                             <option value="" <?php if ($discipline == '') {
                                                                                     echo "selected";
-                                                                                } ?>>All</option>
+                                                                                } ?>>Select</option>
                                                             <?php
                                                             $sql2 = "SELECT DISTINCT `discipline` FROM `type`";
                                                             $objQuery = $conDB->sqlQuery($sql2);
@@ -73,11 +73,11 @@ session_start();
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="work">Works</label>
+                                                        <label for="work">Work</label><span class="text-danger"> *</span>
                                                         <select name="work" id="work" class="custom-select" style="width: 100%;" onchange="setFilter('work',this.value)">
                                                             <option value="" <?php if ($work == '') {
                                                                                     echo "selected";
-                                                                                } ?>>All</option>
+                                                                                } ?>>Select</option>
                                                             <?php
                                                             if ($discipline != "") {
                                                                 $condition2 = " AND `discipline` = '$discipline'";
@@ -95,11 +95,11 @@ session_start();
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="type">Type</label>
+                                                        <label for="type">Type</label><span class="text-danger"> *</span>
                                                         <select name="type" id="type" class="custom-select" style="width: 100%;" onchange="setFilter('type',this.value)">
                                                             <option value="" <?php if ($type == '') {
                                                                                     echo "selected";
-                                                                                } ?>>All</option>
+                                                                                } ?>>Select</option>
                                                             <?php
                                                             if ($work != "") {
                                                                 $condition2 = " AND `work` = '$work'";
@@ -117,15 +117,6 @@ session_start();
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-sm-12">
-                                                    <div class="form-group">
-                                                        <label for="">Document Title</label>
-                                                        <input type="text" class="form-control" name="document_title" id="document_title" required />
-                                                    </div>
-                                                </div>
-                                                
-                                            </div>
-                                            <div class="row">
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="">Prepare By</label>
@@ -134,8 +125,21 @@ session_start();
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="">Check By</label>
-                                                        <input type="text" class="form-control" name="checkedby" id="checkedby" required />
+                                                        <label for="checkedby">Check By</label><span class="text-danger"> *</span>
+                                                        <select name="checkedby" id="checkedby" class="custom-select" style="width: 100%;" onchange="setFilter('checkedby',this.value)">
+                                                            <option value="" <?php if ($checkedby == '') {
+                                                                                    echo "selected";
+                                                                                } ?>>Select</option>
+                                                            <?php
+                                                            $sql2 = "SELECT `mail` FROM `checker`";
+                                                            $objQuery = $conDB->sqlQuery($sql2);
+
+                                                            while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
+                                                                <option value="<?php echo $objResult['mail']; ?>" <?php if ($checkedby == $objResult['mail']) {
+                                                                                                                            echo "selected";
+                                                                                                                        } ?>><?php echo $objResult['mail']; ?></option>
+                                                            <?php } ?>
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <?php
@@ -149,6 +153,14 @@ session_start();
                                                         </div>
                                                     </div>
                                                 <?php } ?>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="">Document Title</label><span class="text-danger"> *</span>
+                                                        <input type="text" class="form-control" name="document_title" id="document_title" required />
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-sm-4">

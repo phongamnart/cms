@@ -8,8 +8,8 @@ include("_check_session.php");
     <?php
     $documents_line  = 2;
     $doc_type  = "documents_line";
-    $ismenu = 1;
-    $current_menu = "approvals";
+    $ismenu = 2;
+    $current_menu = "approval_create";
     $get_id = $_GET['no'];
     $mail = $_SESSION['user_mail'];
     include_once('_head.php');

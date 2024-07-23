@@ -8,11 +8,13 @@ $conDB = new db_conn();
 
 $get_id = $_GET['no'];
 
-$strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`id` ASC";
+$strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
 $objQuery = $conDB->sqlQuery($strSQL);
 $htmlContent = '';
+$index = 0;
 while ($objResult = mysqli_fetch_assoc($objQuery)) {
-    $htmlContent .= '<div style="font-size: 20px;"><b>' . $objResult['id'] . ". " . $objResult['name'] . '</b></div>';
+    $index++;
+    $htmlContent .= '<div style="font-size: 20px;"><b>' . $index . ". " . $objResult['name'] . '</b></div>';
     $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE `line_id` = '" . $objResult['id'] . "'";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
     while ($objResult_content = mysqli_fetch_assoc($objQuery_line)) {

@@ -3,20 +3,14 @@ session_start();
 include("../config/app.php");
 $conDB = new db_conn();
 $myObj = (object)array();
-$id ="";
 $table ="";
 $field ="";
 $value ="";
-$id = $conDB->sqlEscapestr($_POST['id']);
 $table = $conDB->sqlEscapestr($_POST['table']);
 $field = $conDB->sqlEscapestr($_POST['field']);
 $value = $conDB->sqlEscapestr($_POST['value']);
-if($value == '') {
-    $value = 'NULL';
-}else{
-    $value = "'".$value."'";
-}
-$str = "UPDATE `".$table."` SET `".$field."` = ".$value." WHERE md5(`id`) = '".$id."'";
+
+$str = "INSERT INTO `".$table."` (`".$field."`) VALUES ('".$value."')";
 $conDB->sqlQuery($str);
 $myObj->alerts = $str;
 

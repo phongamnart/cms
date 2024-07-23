@@ -1,6 +1,5 @@
 <?php
 include("_check_session.php");
-session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,6 +20,7 @@ session_start();
     while ($obj = mysqli_fetch_assoc($result)) {
         $name = $obj['name'];
         $mail = $obj['mail'];
+        $depart = $obj['depart'];
     }
 
     ?>
@@ -35,7 +35,7 @@ session_start();
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Edit User</h1>
+                            <h1>Edit Informations User</h1>
                         </div>
                     </div>
                 </div>
@@ -79,14 +79,22 @@ session_start();
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
+                                                        <label for="">Depart</label>
+                                                        <input type="text" class="form-control" name="depart" id="depart" value="<?php echo $depart ?>" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
                                                         <label for="">Name</label>
-                                                        <input type="text" class="form-control" name="name" id="name" value="<?php echo $name ?>"/>
+                                                        <input type="text" class="form-control" name="name" id="name" value="<?php echo $name ?>" />
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
-                                                        <label for="">mail</label>
-                                                        <input type="text" class="form-control" name="mail" id="mail" value="<?php echo $mail ?>"/>
+                                                        <label for="">Email</label>
+                                                        <input type="text" class="form-control" name="mail" id="mail" value="<?php echo $mail ?>" />
                                                     </div>
                                                 </div>
                                             </div>

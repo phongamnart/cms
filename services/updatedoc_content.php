@@ -8,7 +8,7 @@ $redirect = "";
 $doc_id = $conDB->sqlEscapestr($_POST['doc_id']);
 $doc_id = isset($doc_id) ? $doc_id : '';
 
-$createdby = $_SESSION['user_name'];
+$createdby = $_SESSION['user_mail'];
 
 $strSQL_content = "SELECT * FROM `contents` WHERE `enable` = 1 AND `checked` = 1";
 $objQuery_content = $conDB->sqlQuery($strSQL_content);

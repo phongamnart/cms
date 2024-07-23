@@ -109,7 +109,7 @@ include("_check_session.php");
                                             <div class="col-sm-6">
                                                 <div class="form-group">
                                                     <label>Title <em></em></label>
-                                                    <input type="text" class="form-control" name="method_statement" onchange="dataPost('method_statement', this.value)" value="<?php echo htmlentities($method_statement); ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" name="method_statement" onchange="dataPost('method_statement', this.value)" value="<?php echo htmlentities($method_statement); ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
@@ -129,7 +129,7 @@ include("_check_session.php");
                                                 <div class="form-group">
                                                     <label>Date <em></em></label>
                                                     <div class="input-group date" id="date" data-target-input="nearest">
-                                                        <input type="text" onchange="dataPost('date', convertDateFormat(this.value))" value="<?php echo $date; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date">
+                                                        <input type="text" onchange="dataPost('date', convertDateFormat(this.value))" value="<?php echo $date; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date" disabled>
                                                         <div class="input-group-append" data-target="#date" data-toggle="datetimepicker">
                                                             <div class="input-group-text"><i class="fa fa-calendar"></i>
                                                             </div>
@@ -141,25 +141,25 @@ include("_check_session.php");
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Discipline <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> disabled/>
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Works <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> disabled/>
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Type <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?> disabled/>
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Prepared By <em></em></label>
-                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> disabled/>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">

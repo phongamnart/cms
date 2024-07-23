@@ -1,3 +1,4 @@
+
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
   <!-- Left navbar links -->
   <ul class="navbar-nav">
@@ -15,7 +16,7 @@
     <li class="nav-item dropdown">
       <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><?php echo $_SESSION['user_name'] . "  "; ?></a>
       <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-        <li><a class="dropdown-item">Mannual</a></li>
+        <li><a class="dropdown-item" href="#" onclick="window.open('/cms/upload/files/manual_cms.pdf', '_blank');">Manual</a></li>
         <li><a class="dropdown-item" data-toggle="modal" data-target="#signoutModal">Sign out</a>
         </li>
       </ul>
@@ -116,6 +117,7 @@
                 <input type="hidden" class="form-control" id="type" name="type" />
                 <input type="hidden" class="form-control" id="redirect" name="redirect" />
                 <input type="hidden" class="form-control" id="selectSize" name="selectSize" />
+                <input type="hidden" class="form-control" id="doc_no" name="doc_no" />
               </div>
             </div>
             <div class="col-sm-12">

@@ -45,7 +45,7 @@ include("_check_session.php");
                                     <div class="info-box-content">
                                         <span class="info-box-text">CIVIL</span>
                                         <?php
-                                        $strSQL = "SELECT COUNT(*) as civil FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Civil'";
+                                        $strSQL = "SELECT COUNT(*) as civil FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Civil' AND `enable` = 1";
                                         $objQuery = $conDB->sqlQuery($strSQL);
                                         while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
                                             <span class="info-box-number"><?php echo $objResult['civil']?></span>
@@ -62,7 +62,7 @@ include("_check_session.php");
                                     <div class="info-box-content">
                                         <span class="info-box-text">ELECTRICAL</span>
                                         <?php
-                                        $strSQL = "SELECT COUNT(*) as electrical FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Electrical'";
+                                        $strSQL = "SELECT COUNT(*) as electrical FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Electrical' AND `enable` = 1";
                                         $objQuery = $conDB->sqlQuery($strSQL);
                                         while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
                                             <span class="info-box-number"><?php echo $objResult['electrical']?></span>
@@ -79,7 +79,7 @@ include("_check_session.php");
                                     <div class="info-box-content">
                                         <span class="info-box-text">MECHANICAL</span>
                                         <?php
-                                        $strSQL = "SELECT COUNT(*) as mechanical FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Mechanical'";
+                                        $strSQL = "SELECT COUNT(*) as mechanical FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Mechanical' AND `enable` = 1";
                                         $objQuery = $conDB->sqlQuery($strSQL);
                                         while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
                                             <span class="info-box-number"><?php echo $objResult['mechanical']?></span>
@@ -96,7 +96,7 @@ include("_check_session.php");
                                     <div class="info-box-content">
                                         <span class="info-box-text">ALL</span>
                                         <?php
-                                        $strSQL = "SELECT COUNT(*) as all_rows FROM `documents` WHERE `approved` = 4";
+                                        $strSQL = "SELECT COUNT(*) as all_rows FROM `documents` WHERE `approved` = 4 AND `enable` = 1";
                                         $objQuery = $conDB->sqlQuery($strSQL);
                                         while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
                                             <span class="info-box-number"><?php echo $objResult['all_rows']?></span>

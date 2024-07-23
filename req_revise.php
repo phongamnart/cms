@@ -9,10 +9,11 @@ include("_check_session.php");
     $documents  = 2;
     $doc_type  = "documents";
     $ismenu = 1;
-    $current_menu = "documents";
+    $current_menu = "documents_list";
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
+    $from = $_SESSION['user_name'];
     $strSQL = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
@@ -23,6 +24,7 @@ include("_check_session.php");
         $type = $objResult['type'];
         $method_statement = $objResult['method_statement'];
         $preparedby = $objResult['preparedby'];
+        $checkedby = $objResult['checkedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
         if ($objResult['date'] != "") {
@@ -42,6 +44,13 @@ include("_check_session.php");
     $objQuery_req = $conDB->sqlQuery($sql2);
     while ($objResult = mysqli_fetch_assoc($objQuery_req)) {
         $request = $objResult['request'];
+    }
+
+    $sql3 = "SELECT * FROM `approval` WHERE `role` = 'ADMIN'";
+    $objQuery3 = $conDB->sqlQuery($sql3);
+    while ($objResult = mysqli_fetch_assoc($objQuery3)) {
+        $approval_name = $objResult['name'];
+        $approval_mail = $objResult['mail'];
     }
     ?>
 </head>
@@ -75,11 +84,12 @@ include("_check_session.php");
                 <!-- Main content -->
                 <div>
                     <!-- menu header -->
-                    <button type="button" class="btn btn-app flat" onClick="window.location.href='documents.php'" title="<?php echo BTN_DISCARD; ?>">
+                    <button type="button" class="btn btn-app flat" onClick="window.location.href='documents_list.php'" title="<?php echo BTN_DISCARD; ?>">
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onclick="RequestRevise('<?php echo md5($doc_id)?>','<?php echo $doc_no?>')" title="Send Request">
+                    <button type="button" class="btn btn-app flat" 
+                    onclick="RequestRevise('<?php echo md5($doc_id)?>','<?php echo $approval_mail?>','<?php echo $approval_name?>','<?php echo $method_statement?>','<?php echo $doc_no?>','<?php echo $preparedby?>','<?php echo $date?>','Revise','<?php echo $from?>')" title="Send Request">
                         <img src="dist/img/icon/forward.png" width="24"><br>
                         Send Request
                     </button>

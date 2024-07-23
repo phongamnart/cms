@@ -62,7 +62,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Approve Request Download</h1>
+                            <h1>Approve for download document</h1>
                         </div>
                     </div>
                 </div>
@@ -170,7 +170,14 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
-                                                    <td><?php echo $objResult['date_req'] ?></td>
+                                                    <td>
+                                                        <?php
+                                                        $date = $objResult['date_req'];
+                                                        $convertDate = strtotime($date);
+                                                        $newDate = date("d-m-Y", $convertDate);
+                                                        echo $newDate;
+                                                        ?>
+                                                    </td>
                                                     <td><?php echo $objResult['createdby'] ?></td>
                                                     <td>
                                                         <?php if ($objResult['status_req'] == 1) { ?>

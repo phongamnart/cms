@@ -42,6 +42,7 @@ include("_check_session.php");
     while ($objResult = mysqli_fetch_assoc($objQuery4)) {
         $last_line_id = $objResult['line_id'];
     }
+    $last_line_id = "";
 
     ?>
 </head>

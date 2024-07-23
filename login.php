@@ -4,8 +4,8 @@ include("config/app.php");
 $conDB = new db_conn();
 
 $_SESSION['user_id'] = '';
-// $_SESSION['user_mail'] = 'phongamnart@italthaiengineering.com';
-// $_SESSION['user_name'] = 'PHONGAMNART KEAWPANYA';
+$_SESSION['user_mail'] = 'phongamnart@italthaiengineering.com';
+$_SESSION['user_name'] = 'PHONGAMNART KEAWPANYA';
 
 // $_SESSION['user_mail'] = 'test@mail.com';
 // $_SESSION['user_name'] = 'Test';
@@ -22,14 +22,16 @@ $_SESSION['user_id'] = '';
 // $_SESSION['user_mail'] = 'qmr@mail.com';
 // $_SESSION['user_name'] = 'QMR';
 
-$_SESSION['user_mail'] = 'admin@mail.com';
-$_SESSION['user_name'] = 'ADMIN';
+// $_SESSION['user_mail'] = 'admin@mail.com';
+// $_SESSION['user_name'] = 'ADMIN';
 
 $_SESSION['user_depart'] = 'ITDP';
 $_SESSION['user_language'] = 'en';
 $mail = $_SESSION['user_mail'];
 $name = $_SESSION['user_name'];
 $date = date('Y-m-d');
+$convertDate = strtotime($date);
+$newDate = date("d-m-Y", $convertDate);
 
 $sql = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
 $result = $conDB->sqlQuery($sql);
@@ -40,7 +42,7 @@ if($result && mysqli_num_rows($result) > 0){
     }
 } else {
     $strSQL3 = "INSERT INTO `approval` (`role`, `name`, `mail`, `date`)
-    VALUES ('Prepared', '$name', '$mail', '$date')";
+    VALUES ('Prepared', '$name', '$mail', '$newDate')";
     $conDB->sqlQuery($strSQL3);
 }
 

@@ -54,7 +54,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Method Statement List</h1>
+                            <h1>Document List</h1>
                         </div>
                     </div>
                 </div>
@@ -89,7 +89,7 @@ include("_check_session.php");
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
-                                                <label>Works <em></em></label>
+                                                <label>Work <em></em></label>
                                                 <select class="custom-select" onchange="setFilter('documents_list_work',this.value)">
                                                     <option value="" <?php if ($documents_list_work == '') {
                                                                             echo "selected";
@@ -163,7 +163,14 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
-                                                    <td><?php echo $objResult['date'] ?></td>
+                                                    <td>
+                                                        <?php 
+                                                        $date = $objResult['date'];
+                                                        $convertDate = strtotime($date);
+                                                        $newDate = date("d-m-Y", $convertDate); 
+                                                        echo $newDate;
+                                                        ?>
+                                                    </td>
                                                     <td><?php echo $objResult['preparedby'] ?></td>
                                                 <?php } ?>
                                         </tbody>

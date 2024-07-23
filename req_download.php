@@ -13,6 +13,7 @@ include("_check_session.php");
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
+    $from = $_SESSION['user_name'];
     $strSQL = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
@@ -23,6 +24,7 @@ include("_check_session.php");
         $type = $objResult['type'];
         $method_statement = $objResult['method_statement'];
         $preparedby = $objResult['preparedby'];
+        $checkedby = $objResult['checkedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
         if ($objResult['date'] != "") {
@@ -42,6 +44,13 @@ include("_check_session.php");
     $objQuery_req = $conDB->sqlQuery($sql2);
     while ($objResult = mysqli_fetch_assoc($objQuery_req)) {
         $request = $objResult['request'];
+    }
+
+    $sql3 = "SELECT * FROM `approval` WHERE `role` = 'ADMIN'";
+    $objQuery3 = $conDB->sqlQuery($sql3);
+    while ($objResult = mysqli_fetch_assoc($objQuery3)) {
+        $approval_name = $objResult['name'];
+        $approval_mail = $objResult['mail'];
     }
     ?>
 </head>
@@ -66,7 +75,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1><?php echo "Request Document No. : " . $doc_no; ?></h1>
+                            <h1><?php echo "Request download document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -79,7 +88,8 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onclick="RequestDownload('<?php echo md5($doc_id)?>','<?php echo $doc_no?>')" title="Send Request">
+                    <button type="button" class="btn btn-app flat" 
+                    onclick="RequestDownload('<?php echo md5($doc_id)?>','<?php echo $approval_mail?>','<?php echo $approval_name?>','<?php echo $method_statement?>','<?php echo $doc_no?>','<?php echo $preparedby?>','<?php echo $date?>','Download','<?php echo $from?>')" title="Send Request">
                         <img src="dist/img/icon/forward.png" width="24"><br>
                         Send Request
                     </button>

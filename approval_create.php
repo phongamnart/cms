@@ -48,7 +48,7 @@ include("_check_session.php");
     $result = $conDB->sqlQuery($sql);
     while ($obj = mysqli_fetch_assoc($result)) {
         if ($obj['role'] == 'Check') {
-            $strSQL = "SELECT * FROM `documents` WHERE `approved` = 1" . $condition;
+            $strSQL = "SELECT * FROM `documents` WHERE `approved` = 1 AND `checkedby` = '$mail'" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         } elseif ($obj['role'] == 'ISO') {
             $strSQL = "SELECT * FROM `documents` WHERE `approved` = 2" . $condition;
@@ -77,7 +77,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Approve Create Document</h1>
+                            <h1>Approve for create document</h1>
                         </div>
                     </div>
                 </div>
@@ -174,7 +174,14 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
-                                                    <td><?php echo $objResult['date'] ?></td>
+                                                    <td>
+                                                        <?php
+                                                        $date = $objResult['date'];
+                                                        $convertDate = strtotime($date);
+                                                        $newDate = date("d-m-Y", $convertDate);
+                                                        echo $newDate;
+                                                        ?>
+                                                    </td>
                                                     <td><?php echo $objResult['preparedby'] ?></td>
                                                     <td>
                                                         <?php if ($objResult['approved'] == 1) { ?>

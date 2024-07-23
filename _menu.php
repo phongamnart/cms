@@ -1,3 +1,83 @@
+<?php
+$mail = $_SESSION['user_mail'];
+$notify_group = 0;
+$sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+    $result_approve_download = $conDB->sqlQuery($sql_approve_download);
+    while ($obj_approve_download = mysqli_fetch_assoc($result_approve_download)) {
+        if ($obj_approve_download['role'] == 'ADMIN' || $obj_approve_download['role'] == 'ISO') {
+            $strSQL_approve_download = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 1";
+            $notify_approve_download = $conDB->sqlNumrows($strSQL_approve_download);
+            $notify_group += $notify_approve_download;
+        } else {
+            $strSQL_approve_download = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 999";
+            $notify_approve_download = $conDB->sqlNumrows($strSQL_approve_download);
+            $notify_group += $notify_approve_download;
+        }
+    }
+
+    $sql_approve_rev = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+    $result_approve_rev = $conDB->sqlQuery($sql_approve_rev);
+    while ($obj_approve_rev = mysqli_fetch_assoc($result_approve_rev)) {
+        if ($obj_approve_rev['role'] == 'ADMIN' || $obj_approve_rev['role'] == 'ISO') {
+            $strSQL_approve_rev = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents` 
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_rev` = 1 AND `documents`.`enable` = 1";
+            $notify_approve_rev = $conDB->sqlNumrows($strSQL_approve_rev);
+            $notify_group += $notify_approve_rev;
+        } else {
+            $strSQL_approve_rev = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_rev` = 999 AND `documents`.`enable` = 1";
+            $notify_approve_rev = $conDB->sqlNumrows($strSQL_approve_rev);
+            $notify_group += $notify_approve_rev;
+        }
+    }
+
+    $sql_approve_create = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+    $result_approve_create = $conDB->sqlQuery($sql_approve_create);
+    while ($obj_approve_create = mysqli_fetch_assoc($result_approve_create)) {
+        if ($obj_approve_create['role'] == 'Check') {
+            $strSQL_approve_create = "SELECT * FROM `documents` WHERE `approved` = 1 AND `checkedby` = '$mail'";
+            $notify_approve_create = $conDB->sqlNumrows($strSQL_approve_create);
+            $notify_group += $notify_approve_create;
+        } elseif ($obj_approve_create['role'] == 'ISO') {
+            $strSQL_approve_create = "SELECT * FROM `documents` WHERE `approved` = 2";
+            $notify_approve_create = $conDB->sqlNumrows($strSQL_approve_create);
+            $notify_group += $notify_approve_create;
+        } elseif ($obj_approve_create['role'] == 'QMR') {
+            $strSQL_approve_create = "SELECT * FROM `documents` WHERE `approved` = 3";
+            $notify_approve_create = $conDB->sqlNumrows($strSQL_approve_create);
+            $notify_group += $notify_approve_create;
+        } elseif ($obj_approve_create['role'] == 'ADMIN') {
+            $strSQL_approve_create = "SELECT * FROM `documents` WHERE `approved` = 1 OR `approved` = 2 OR `approved` = 3";
+            $notify_approve_create = $conDB->sqlNumrows($strSQL_approve_create);
+            $notify_group += $notify_approve_create;
+        } else {
+            $strSQL_approve_create = "SELECT * FROM `documents`  WHERE `approved` = 999";
+            $notify_approve_create = $conDB->sqlNumrows($strSQL_approve_create);
+            $notify_group += $notify_approve_create;
+        }
+    }
+
+    $sql_approve_del = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+    $result_approve_del = $conDB->sqlQuery($sql_approve_del);
+    while ($obj_approve_del = mysqli_fetch_assoc($result_approve_del)) {
+        if ($obj_approve_del['role'] == 'ADMIN' || $obj_approve_del['role'] == 'ISO') {
+            $strSQL_approve_del = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_del` = 1";
+            $notify_approve_del = $conDB->sqlNumrows($strSQL_approve_del);
+            $notify_group += $notify_approve_del;
+        } else {
+            $strSQL_approve_del = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_del` = 999";
+            $notify_approve_del = $conDB->sqlNumrows($strSQL_approve_del);
+            $notify_group += $notify_approve_del;
+        }
+    }
+
+
+?>
+
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
   <!-- Brand Logo -->
   <a href="index.php" class="brand-link">
@@ -53,31 +133,32 @@
           <img src="dist/img/icon/approve_menu.png" width="30" style="margin-right: 5px;"/>
             <p>Approvals
               <i class="right fas fa-angle-left"></i>
+              <?php if($notify_group > 0){ echo '<span class="right badge badge-danger">'.$notify_group.'</span>'; }?>
             </p>
           </a>
           <ul class="nav nav-treeview">
           <li class="nav-item">
               <a href="approval_create.php" class="nav-link <?php if($current_menu == "approval_create"){ echo "active";}?>">
                 <img src="dist/img/icon/add.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>Create</p>
+                <p>Create<?php if($notify_approve_create > 0){ echo '<span class="right badge badge-danger">'.$notify_approve_create.'</span>'; }?></p>
               </a>
             </li>
             <li class="nav-item">
               <a href="approval_download.php" class="nav-link <?php if($current_menu == "approval_download"){ echo "active";}?>">
                 <img src="dist/img/icon/download.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>Download</p>
+                <p>Download<?php if($notify_approve_download > 0){ echo '<span class="right badge badge-danger">'.$notify_approve_download.'</span>'; }?></p>
               </a>
             </li>
             <li class="nav-item">
               <a href="approval_del.php" class="nav-link <?php if($current_menu == "approval_del"){ echo "active";}?>">
                 <img src="dist/img/icon/delete_menu.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>Delete</p>
+                <p>Delete<?php if($notify_approve_del > 0){ echo '<span class="right badge badge-danger">'.$notify_approve_del.'</span>'; }?></p>
               </a>
             </li>
             <li class="nav-item">
               <a href="approval_revise.php" class="nav-link <?php if($current_menu == "approval_revise"){ echo "active";}?>">
                 <img src="dist/img/icon/pen.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>Revise</p>
+                <p>Revise<?php if($notify_approve_rev > 0){ echo '<span class="right badge badge-danger">'.$notify_approve_rev.'</span>'; }?></p>
               </a>
             </li>
           </ul>

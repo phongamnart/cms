@@ -175,8 +175,8 @@ include("_check_session.php");
                                                             <img src="dist/img/icon/search.svg" onclick="window.location.href='view_notapproved.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
                                                             <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
                                                             <img src="dist/img/icon/delete.png" onclick="setDelete('documents','<?php echo $objResult['id']; ?>','<?php echo $objResult['doc_no']; ?>','documents.php')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
-                                                        <?php } elseif ($objResult['approved'] == 4) {?>
-                                                            <img src="dist/img/icon/bin.png" onclick="window.location.href='req_delete.php?no=<?php echo md5($objResult['id']);?>'" width="30" style="padding: 5px;cursor: pointer;" title="Delete"/>
+                                                        <?php } elseif ($objResult['approved'] == 4) { ?>
+                                                            <img src="dist/img/icon/bin.png" onclick="window.location.href='req_delete.php?no=<?php echo md5($objResult['id']); ?>'" width="30" style="padding: 5px;cursor: pointer;" title="Delete" />
                                                         <?php } else { ?>
                                                             <img src="dist/img/icon/delete.png" onclick="setDelete('documents','<?php echo $objResult['id']; ?>','<?php echo $objResult['doc_no']; ?>','documents.php')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
                                                         <?php } ?>
@@ -184,7 +184,14 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
-                                                    <td><?php echo $objResult['date'] ?></td>
+                                                    <td>
+                                                        <?php
+                                                        $date = $objResult['date'];
+                                                        $convertDate = strtotime($date);
+                                                        $newDate = date("d-m-Y", $convertDate);
+                                                        echo $newDate;
+                                                        ?>
+                                                    </td>
                                                     <td>
                                                         <?php if ($objResult['approved'] == 0 || $objResult['approved'] == 5) { ?>
                                                             Not Approved

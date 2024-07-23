@@ -13,6 +13,8 @@ include("_check_session.php");
     include_once('_head.php');
     $conDB = new db_conn();
     $current_time = date('Y-m-d');
+    $convertDate = strtotime($current_time);
+    $newCurrentTime = date("d-m-Y", $convertDate);
 
     $req_discipline = isset($_SESSION['req_discipline']) ? $_SESSION['req_discipline'] : '';
     $req_work = isset($_SESSION['req_work']) ? $_SESSION['req_work'] : '';
@@ -180,11 +182,26 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['method_statement'] ?></td>
                                                     <td>
                                                         <?php if ($objResult['type_request'] == 'Download') { ?>
-                                                            <?php echo $objResult['date_req'] ?>
+                                                            <?php
+                                                            $date = $objResult['date_req'];
+                                                            $convertDate = strtotime($date);
+                                                            $newDate = date("d-m-Y", $convertDate);
+                                                            echo $newDate;
+                                                            ?>
                                                         <?php } elseif ($objResult['type_request'] == 'Delete') { ?>
-                                                            <?php echo $objResult['date_delete'] ?>
+                                                            <?php
+                                                            $date = $objResult['date_delete'];
+                                                            $convertDate = strtotime($date);
+                                                            $newDate = date("d-m-Y", $convertDate);
+                                                            echo $newDate;
+                                                            ?>
                                                         <?php } else { ?>
-                                                            <?php echo $objResult['date_revise'] ?>
+                                                            <?php
+                                                            $date = $objResult['date_revise'];
+                                                            $convertDate = strtotime($date);
+                                                            $newDate = date("d-m-Y", $convertDate);
+                                                            echo $newDate;
+                                                            ?>
                                                         <?php } ?>
                                                     </td>
                                                     <td><?php echo $objResult['createdby'] ?></td>
@@ -192,11 +209,13 @@ include("_check_session.php");
                                                         <?php if ($objResult['type_request'] == 'Download') { ?>
                                                             <?php if ($objResult['status_req'] == 2) {
                                                                 $expire = $objResult['expire'];
-                                                                if ($current_time > $expire) {
+                                                                $convertDate = strtotime($expire);
+                                                                $newExpire = date("d-m-Y", $convertDate);
+                                                                if ($newCurrentTime > $newExpire) {
                                                                     $exp = "UPDATE `request` SET `status_req` = '0'";
                                                                     $conDB->sqlQuery($exp);
                                                                 } else {
-                                                                    echo "Expire " . $expire;
+                                                                    echo "Expire " . $newExpire;
                                                                 }
                                                             ?>
                                                             <?php } elseif ($objResult['status_req'] == 1) { ?>
@@ -205,7 +224,9 @@ include("_check_session.php");
                                                                 Not approved
                                                             <?php } ?>
                                                         <?php } elseif ($objResult['type_request'] == 'Delete') { ?>
-                                                            <?php if ($objResult['status_del'] == 1) { ?>
+                                                            <?php if ($objResult['status_del'] == 2) { ?>
+                                                                Approved
+                                                            <?php } elseif ($objResult['status_del'] == 1) { ?>
                                                                 Wait approved
                                                             <?php } else { ?>
                                                                 Not approved

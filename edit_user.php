@@ -15,12 +15,12 @@ include("_check_session.php");
     $get_id = $_GET['no'];
     $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
 
-    $sql = "SELECT * FROM `approval` WHERE md5(`id`) = '$get_id'";
-    $result = $conDB->sqlQuery($sql);
-    while ($obj = mysqli_fetch_assoc($result)) {
-        $name = $obj['name'];
-        $mail = $obj['mail'];
-        $depart = $obj['depart'];
+    $strSQL = "SELECT * FROM `approval` WHERE md5(`id`) = '$get_id'";
+    $objQuery = $conDB->sqlQuery($strSQL);
+    while ($objResult = mysqli_fetch_assoc($objQuery)) {
+        $name = $objResult['name'];
+        $mail_user = $objResult['mail'];
+        $depart = $objResult['depart'];
     }
 
     ?>
@@ -94,7 +94,7 @@ include("_check_session.php");
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="">Email</label>
-                                                        <input type="text" class="form-control" name="mail" id="mail" value="<?php echo $mail ?>" />
+                                                        <input type="text" class="form-control" name="mail" id="mail" value="<?php echo $mail_user ?>" />
                                                     </div>
                                                 </div>
                                             </div>

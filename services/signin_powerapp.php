@@ -14,7 +14,7 @@ $_SESSION['user_mail'] = $email;
 $_SESSION['user_name'] = $name;
 $_SESSION['user_depart'] = $depart;
 $_SESSION['user_language'] = 'en';
-$date = date('d-m-Y');
+$date = date('Y-m-d');
 
 $sql = "SELECT * FROM `approval` WHERE `mail` = '$email'";
 $result = $conDB->sqlQuery($sql);

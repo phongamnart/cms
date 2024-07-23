@@ -13,6 +13,8 @@ include("_check_session.php");
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
+    $mail = $_SESSION['user_mail'];
+    $name = $_SESSION['user_name'];
     $strSQL = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
@@ -39,6 +41,27 @@ include("_check_session.php");
     $result = $conDB->sqlQuery($sql);
     while ($obj = mysqli_fetch_assoc($result)) {
         $line_id = $obj['line_id'];
+    }
+
+    $sql1 = "SELECT * FROM `approval` WHERE `role` = 'ISO'";
+    $result1 = $conDB->sqlQuery($sql1);
+    while ($obj1 = mysqli_fetch_assoc($result1)) {
+        $mail_iso = $obj1['mail'];
+        $name_iso = $obj1['name'];
+    }
+
+    $sql2 = "SELECT * FROM `approval` WHERE `role` = 'QMR'";
+    $result2 = $conDB->sqlQuery($sql2);
+    while ($obj2 = mysqli_fetch_assoc($result2)) {
+        $mail_qmr = $obj2['mail'];
+        $name_qmr = $obj2['name'];
+
+    }
+
+    $sql3 = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+    $result3 = $conDB->sqlQuery($sql3);
+    while ($obj3 = mysqli_fetch_assoc($result3)) {
+        $role = $obj3['role'];
     }
     ?>
 </head>
@@ -80,11 +103,24 @@ include("_check_session.php");
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
                     </button>
-                    <!-- <button type="button" class="btn btn-app flat" onClick="window.location.href='save_word.php?no=<?php echo md5($doc_id); ?>';" title="Save word"> -->
-                    <button type="button" class="btn btn-app flat" onclick="Approved('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>','<?php echo $approved; ?>')" title="Approve">
+                    <?php if ($role == 'ADMIN' || $role == 'Check') { ?>
+                        <button type="button" class="btn btn-app flat"
+                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_iso; ?>','<?php echo $name_iso; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create','<?php echo $name; ?>')" title="Approve">
+                            <img src="dist/img/icon/approved.svg" width="24"><br>
+                            Approve
+                        </button>
+                    <?php } elseif ($role == 'ADMIN' || $role == 'ISO') {?>
+                        <button type="button" class="btn btn-app flat" 
+                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_qmr; ?>','<?php echo $name_qmr; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create','<?php echo $name; ?>')" title="Approve">
+                            <img src="dist/img/icon/approved.svg" width="24"><br>
+                            Approve
+                        </button>
+                    <?php } elseif ($role == 'ADMIN' || $role == 'QMR') {?>
+                        <button type="button" class="btn btn-app flat" onclick="Approved('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>','<?php echo $approved; ?>')" title="Approve">
                         <img src="dist/img/icon/approved.svg" width="24"><br>
                         Approve
                     </button>
+                    <?php } ?>
                     <button type="button" class="btn btn-app flat" onclick="Reject('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>')" title="Reject">
                         <img src="dist/img/icon/error.svg" width="24"><br>
                         Reject
@@ -141,25 +177,25 @@ include("_check_session.php");
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Discipline <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> disabled/>
+                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Works <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> disabled/>
+                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Type <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?> disabled/>
+                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Prepared By <em></em></label>
-                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> disabled/>
+                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -206,7 +242,7 @@ include("_check_session.php");
                                                 </td>
                                                 <?php if ($mode != "readonly") { ?>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id'];?>" width="40" style="padding-right: 10px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="40" style="padding-right: 10px;cursor: pointer;" />
                                                     </td>
                                                 <?php } ?>
                                                 <td>

@@ -86,7 +86,7 @@ include("_check_session.php");
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">General</h3>
+                                <h3 class="card-title">Title Head</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                         <i class="fas fa-minus"></i>
@@ -137,7 +137,7 @@ include("_check_session.php");
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
-                                                    <label>Works <em></em></label>
+                                                    <label>Work <em></em></label>
                                                     <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>

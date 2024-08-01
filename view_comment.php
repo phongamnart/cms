@@ -107,7 +107,7 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
                                                         <div class="editor-container" style="display: flex;">
                                                             <div class="editorTextArea" style="border: 1px solid #b3b7bb; padding: 12px;" name="editor_content[]" id="editor<?php echo $objResult_line['id'] ?>">
                                                                 <?php echo $objResult_line['content']; ?>
@@ -120,7 +120,7 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label><br>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
@@ -129,7 +129,7 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label><br>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>

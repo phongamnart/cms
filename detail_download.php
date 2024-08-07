@@ -17,7 +17,7 @@ include("_check_session.php");
     LEFT JOIN `documents` ON `request`.`doc_no` = `documents`.`doc_no` WHERE md5(`request`.`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
-        $doc_id = $objResult['id'];
+        $doc_id = $objResult['doc_id'];
         $doc_no = $objResult['doc_no'];
         $discipline = $objResult['discipline'];
         $work = $objResult['work'];
@@ -79,7 +79,7 @@ include("_check_session.php");
                             <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                             <?php echo BTN_DISCARD; ?>
                         </button>
-                        <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
+                        <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id) ?>', '_blank');" title="PDF">
                             <img src="dist/img/icon/pdf.png" width="24"><br>
                             PDF
                         </button>
@@ -98,7 +98,7 @@ include("_check_session.php");
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h3 class="card-title">General</h3>
+                                    <h3 class="card-title">Title Head</h3>
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                             <i class="fas fa-minus"></i>
@@ -149,7 +149,7 @@ include("_check_session.php");
                                                 </div>
                                                 <div class="col-sm-3">
                                                     <div class="form-group">
-                                                        <label>Works <em></em></label>
+                                                        <label>Work <em></em></label>
                                                         <input type="text" class="form-control" name="work" value="<?php echo $work ?>" readonly />
                                                     </div>
                                                 </div>

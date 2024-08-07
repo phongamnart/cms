@@ -57,7 +57,7 @@
   </div>
 </div>
 
-<div id="success-alert" class="alert alert-success alert-dismissible col-8 float-right modal-sm shadow-1" style="z-index:99999;position: absolute; right:15px; top:75px; max-width: 300px; display:none;">
+<div id="success-alert" class="alert alert-success alert-dismissible col-8 float-right modal-sm shadow-1" style="z-index:99999;position: fixed; right:15px; top:20px; max-width: 300px; display:none;">
   <h5><i class="icon fas fa-check"></i>Alert!</h5>
   Updated Successfully!
 </div>
@@ -96,6 +96,7 @@
     </div>
   </div>
 </div>
+
 <div id="uploadfile" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">

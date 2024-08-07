@@ -33,9 +33,12 @@ while ($objResult = mysqli_fetch_assoc($objQuery3)) {
 }
 
 $phpWord = new PhpWord();
-$section = $phpWord->addSection();
+$phpWord->getSettings()->setThemeFontLang(new \PhpOffice\PhpWord\Style\Language('th-TH'));
 
-$phpWord->addFontStyle('myBrowalliaStyle', array('name' => 'Browallia New', 'size' => 14));
+$phpWord->setDefaultFontName('Browallia New');
+$phpWord->setDefaultFontSize(15);
+
+$section = $phpWord->addSection();
 
 $header = $section->addHeader();
 $tableStyle = array(
@@ -53,40 +56,51 @@ $cellStyle = array('valign' => 'center', 'borderSize' => 6, 'borderColor' => '00
 $cellHCentered = array('alignment' => Jc::LEFT);
 
 $table->addRow();
-$table->addCell(Converter::cmToTwip(2), $cellRowSpan)->addImage('dist/img/icon/doc.png', array('width' => 50));
-$table->addCell(Converter::cmToTwip(10), $cellColSpan)->addText('Title : ' . $method_statement, array('bold' => true), $cellHCentered);
-$table->addCell(Converter::cmToTwip(4), $cellStyle)->addPreserveText('Page {PAGE} of {NUMPAGES}', array(), $cellHCentered);
+$table->addCell(Converter::cmToTwip(2), $cellRowSpan)->addImage('dist/img/ITE TH logo.png', array('width' => 50));
+$table->addCell(Converter::cmToTwip(10), $cellColSpan)->addText('Title : ' . $method_statement, array('bold' => true, 'size' => 15), $cellHCentered);
+$table->addCell(Converter::cmToTwip(4), $cellStyle)->addPreserveText('Page {PAGE} of {NUMPAGES}', array('bold' => true, 'size' => 15), $cellHCentered);
 
 $table->addRow();
 $table->addCell(null, $cellRowContinue);
-$table->addCell(Converter::cmToTwip(5), $cellStyle)->addText('Document No. :' . $doc_no, null, $cellHCentered);
-$table->addCell(Converter::cmToTwip(5), $cellStyle)->addText('Effective Date :' . $newDate, null, $cellHCentered);
-$table->addCell(Converter::cmToTwip(4), $cellStyle)->addText('Revision :', null, $cellHCentered);
+$table->addCell(Converter::cmToTwip(5), $cellStyle)->addText('Document No. :' . $doc_no, array('bold' => true, 'size' => 15), $cellHCentered);
+$table->addCell(Converter::cmToTwip(5), $cellStyle)->addText('Effective Date :' . $newDate, array('bold' => true, 'size' => 15), $cellHCentered);
+$table->addCell(Converter::cmToTwip(4), $cellStyle)->addText('Revision :', array('bold' => true, 'size' => 15), $cellHCentered);
 
-$section->addTextBreak(1);
+$header->addTextBreak(1);
+
 $index = 0;
 while ($objResult = mysqli_fetch_assoc($objQuery)) {
     $index++;
     $name = htmlspecialchars_decode(strip_tags($objResult['name']));
     $name = str_replace('&nbsp;', ' ', $name);
     $encodedName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-    $section->addText($index . ". " . $encodedName, array('bold' => true, 'size' => 10));
+    $section->addText($index . ". " . $encodedName, array('bold' => true, 'size' => 15), array('spaceAfter' => 0));
 
     $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE `line_id` = '" . $objResult['id'] . "'";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
 
     while ($objResult_line = mysqli_fetch_assoc($objQuery_line)) {
         if ($objResult_line['is_image'] == 0) {
-            $plainTextContent = htmlspecialchars_decode(strip_tags($objResult_line['content']));
-            $plainTextContent = str_replace('&nbsp;', ' ', $plainTextContent);
-            $encodedText = htmlspecialchars($plainTextContent, ENT_QUOTES, 'UTF-8');
-            $section->addText($encodedText);
+            $htmlContent = $objResult_line['content'];
+            parseHtmlToWord($phpWord, $section, $htmlContent);
         } elseif ($objResult_line['is_image'] == 1) {
             $imagePath = substr($objResult_line['content'], 3);
-            $section->addImage($imagePath, array('height' => 200, 'alignment' => Jc::CENTER));
+            $section->addImage($imagePath, array('height' => 420, 'alignment' => Jc::CENTER));
         } elseif ($objResult_line['is_image'] == 2) {
             $imagePath = substr($objResult_line['content'], 3);
-            $section->addImage($imagePath, array('height' => 700, 'alignment' => Jc::CENTER));
+            if (file_exists($imagePath)) {
+                $imageInfo = getimagesize($imagePath);
+                if ($imageInfo !== false) {
+                    $width = $imageInfo[0];
+                    $height = $imageInfo[1];
+                    if ($width > 500) {
+                        $section->addImage($imagePath, array('width' => 500, 'alignment' => Jc::CENTER));
+                    } else {
+                        $section->addImage($imagePath, array('height' => 650, 'alignment' => Jc::CENTER));
+                    }
+                }
+            }
+            $section->addPageBreak();
         }
     }
 }
@@ -103,4 +117,36 @@ $phpWord->save($doc_file);
 
 header("Location: documents.php");
 
+function parseHtmlToWord($phpWord, $section, $htmlContent)
+{
+    if (empty($htmlContent)) {
+        $section->addText('', array('name' => 'Browallia New', 'size' => 15));
+        return;
+    }
+    $dom = new DOMDocument();
+    @$dom->loadHTML(mb_convert_encoding($htmlContent, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+    foreach ($dom->getElementsByTagName('p') as $paragraph) {
+        $textrun = $section->addTextRun();
+        foreach ($paragraph->childNodes as $node) {
+            $text = htmlspecialchars($node->nodeValue);
+            if ($node->nodeType === XML_TEXT_NODE) {
+                $style = array('name' => 'Browallia New', 'size' => 15);
+                $textrun->addText($text, $style);
+            } elseif ($node->nodeName === 'span') {
+                $style = array('name' => 'Browallia New', 'size' => 15);
+                if ($node->hasAttribute('style')) {
+                    if (strpos($node->getAttribute('style'), 'font-weight:bold') !== false) {
+                        $style['bold'] = true;
+                    }
+                }
+                $textrun->addText($text, $style);
+            } elseif ($node->nodeName === 'strong') {
+                
+                $style = array('name' => 'Browallia New', 'size' => 15, 'bold' => true);
+                $textrun->addText($text, $style);
+            }
+        }
+    }
+}
 ?>

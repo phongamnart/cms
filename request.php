@@ -9,7 +9,7 @@ include("_check_session.php");
     $document = 2;
     $ismenu = 1;
     $condition2 = "";
-    $current_menu = "request";
+    $current_menu = "documents";
     include_once('_head.php');
     $conDB = new db_conn();
     $current_time = date('Y-m-d');
@@ -43,11 +43,11 @@ include("_check_session.php");
     while ($obj = mysqli_fetch_assoc($result)) {
         if ($obj['role'] == 'ADMIN') {
             $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` as `reqID` FROM `documents` LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no`
-            WHERE `documents`.`admin` = 1 AND `request`.`status_req` != 0 OR `request`.`status_del` != 0 OR `request`.`status_rev` != 0 AND `documents`.`enable` = 1" . $condition;
+            WHERE `documents`.`admin` = 1 AND `documents`.`enable` = 1" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         } else {
             $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` as `reqID` FROM `documents` LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no`
-            WHERE `documents`.`enable` = 1 AND `request`.`createdby` = '$mail' AND (`request`.`status_req` != 0 OR `request`.`status_del` != 0 OR `request`.`status_rev` != 0)" . $condition;
+            WHERE `documents`.`enable` = 1 AND `request`.`createdby` = '$mail'" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         }
     }
@@ -64,12 +64,18 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>My Request</h1>
+                            <h1>History request</h1>
                         </div>
                     </div>
                 </div>
             </section>
             <section class="content">
+                <div>
+                    <button type="button" class="btn btn-app flat" onclick="window.location.href='documents.php'" title="<?php echo BTN_DISCARD; ?>">
+                        <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
+                        <?php echo BTN_DISCARD; ?>
+                    </button>
+                </div>
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
@@ -99,7 +105,7 @@ include("_check_session.php");
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
-                                                <label>Works <em></em></label>
+                                                <label>Work <em></em></label>
                                                 <select class="custom-select" onchange="setFilter('req_work',this.value)">
                                                     <option value="" <?php if ($req_work == '') {
                                                                             echo "selected";
@@ -150,14 +156,15 @@ include("_check_session.php");
                                         <thead>
                                             <tr>
                                                 <th width="30">No.<br><em></em></th>
-                                                <th width="60">Tools<br><em></em></th>
+                                                <th width="30">Tools<br><em></em></th>
                                                 <th width="80">Discipline​<br><em></em></th>
                                                 <th width="90">Document No.​<br><em></em></th>
-                                                <th width="200">Document Title<br><em></em></th>
+                                                <th width="500">Document Title<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
-                                                <th width="150">Create By<br><em></em></th>
-                                                <th width="80">Status<br><em></em></th>
-                                                <th width="80">type of request<br><em></em></th>
+                                                <th width="200">Create By<br><em></em></th>
+                                                <th width="150">Status<br><em></em></th>
+                                                <th width="150">Type of request<br><em></em></th>
+                                                <th width="500">Reject reason<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -165,17 +172,23 @@ include("_check_session.php");
                                             $index = 1;
                                             while ($objResult = mysqli_fetch_assoc($objQuery)) {
                                             ?>
-                                                <tr onDblClick="window.location.href='documents_list_edit.php?no=<?php echo md5($objResult['id']); ?>'">
+                                                <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
                                                         <?php if ($objResult['type_request'] == 'Download') { ?>
                                                             <?php if ($objResult['status_req'] == 2) { ?>
-                                                                <img src="dist/img/icon/doc.png" onclick="window.location.href='download.php?no=<?php echo md5($objResult['id']) ?>'" title="Download word" width="30" style="padding: 2px;cursor: pointer;" />
-                                                            <?php } else { ?>
-                                                                <img src="dist/img/icon/doc.png" width="30" style="padding: 2px;cursor: not-allowed; opacity: 0.5;" />
+                                                                <?php
+                                                                $expire = $objResult['expire'];
+                                                                $convertDate = strtotime($expire);
+                                                                $newExpire = date("d-m-Y", $convertDate);
+                                                                ?>
+                                                                <?php if ($newCurrentTime < $newExpire) { ?>
+                                                                    <img src="dist/img/icon/doc.png" onclick="window.location.href='download.php?no=<?php echo md5($objResult['id']) ?>'" title="Word" width="35" style="padding: 5px;cursor: pointer;" />
+                                                                <?php } else { ?>
+                                                                    <img src="dist/img/icon/doc.png" onclick="" title="Word" width="35" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
+                                                                <?php } ?>
                                                             <?php } ?>
                                                         <?php } ?>
-                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('request','<?php echo $objResult['reqID']; ?>','<?php echo $objResult['doc_no']; ?>','request.php')" title="Delete" width="35" style="padding: 5px;cursor: pointer;" />
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
@@ -218,30 +231,39 @@ include("_check_session.php");
                                                                     echo "Expire " . $newExpire;
                                                                 }
                                                             ?>
-                                                            <?php } elseif ($objResult['status_req'] == 1) { ?>
-                                                                Wait approved
-                                                            <?php } else { ?>
-                                                                Not approved
+                                                            <?php } elseif ($objResult['status_req'] == 1) {
+                                                                $class = 'class="text-primary"' ?>
+                                                                <span <?php echo $class ?>>Wait approve</span>
+                                                            <?php } else {
+                                                                $class = 'class="text-danger"' ?>
+                                                                <span <?php echo $class ?>>Not approved</span>
                                                             <?php } ?>
                                                         <?php } elseif ($objResult['type_request'] == 'Delete') { ?>
-                                                            <?php if ($objResult['status_del'] == 2) { ?>
-                                                                Approved
-                                                            <?php } elseif ($objResult['status_del'] == 1) { ?>
-                                                                Wait approved
-                                                            <?php } else { ?>
-                                                                Not approved
+                                                            <?php if ($objResult['status_del'] == 2) {
+                                                                $class = 'class="text-success"' ?>
+                                                                <span <?php echo $class ?>>Approved</span>
+                                                            <?php } elseif ($objResult['status_del'] == 1) {
+                                                                $class = 'class="text-primary"' ?>
+                                                                <span <?php echo $class ?>>Wait approve</span>
+                                                            <?php } else {
+                                                                $class = 'class="text-danger"' ?>
+                                                                <span <?php echo $class ?>>Not approved</span>
                                                             <?php } ?>
                                                         <?php } else { ?>
-                                                            <?php if ($objResult['status_rev'] == 2) { ?>
-                                                                Approved
-                                                            <?php } elseif ($objResult['status_rev'] == 1) { ?>
-                                                                Wait approved
-                                                            <?php } else { ?>
-                                                                Not approved
+                                                            <?php if ($objResult['status_rev'] == 2) {
+                                                                $class = 'class="text-success"' ?>
+                                                                <span <?php echo $class ?>>Approved</span>
+                                                            <?php } elseif ($objResult['status_rev'] == 1) {
+                                                                $class = 'class="text-primary"' ?>
+                                                                <span <?php echo $class ?>>Wait approve</span>
+                                                            <?php } else {
+                                                                $class = 'class="text-danger"' ?>
+                                                                <span <?php echo $class ?>>Not approved</span>
                                                             <?php } ?>
                                                         <?php } ?>
                                                     </td>
                                                     <td><?php echo $objResult['type_request'] ?></td>
+                                                    <td><?php echo $objResult['comment'] ?></td>
                                                 <?php } ?>
                                         </tbody>
                                     </table>
@@ -273,6 +295,7 @@ include("_check_session.php");
                     "autoWidth": true,
                     "ordering": true,
                     "info": true,
+                    "scrollX": true,
                 });
             },
             500);

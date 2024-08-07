@@ -73,6 +73,10 @@ include("_check_session.php");
                             <img src="dist/img/icon/add.svg" style="padding:3px;" width="24"><br>
                             New
                         </button>
+                        <button type="button" class="btn btn-app flat" onclick="window.location.href='request.php'" title="New">
+                            <img src="dist/img/icon/refresh.png" style="padding:3px;" width="24"><br>
+                            History
+                        </button>
                     </div>
                 <?php } ?>
                 <div class="container-fluid">
@@ -104,7 +108,7 @@ include("_check_session.php");
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
-                                                <label>Works <em></em></label>
+                                                <label>Work <em></em></label>
                                                 <select class="custom-select" onchange="setFilter('documents_work',this.value)">
                                                     <option value="" <?php if ($documents_work == '') {
                                                                             echo "selected";
@@ -155,12 +159,13 @@ include("_check_session.php");
                                         <thead>
                                             <tr>
                                                 <th width="20">No.<br><em></em></th>
-                                                <th width="90">Tools<br><em></em></th>
+                                                <th width="200">Tools<br><em></em></th>
                                                 <th width="80">Discipline​<br><em></em></th>
-                                                <th width="90">Document No.​<br><em></em></th>
-                                                <th width="300">Document Title<br><em></em></th>
+                                                <th width="120">Document No.​<br><em></em></th>
+                                                <th width="500">Document Title<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
-                                                <th width="100">Status<br><em></em></th>
+                                                <th width="200">Status<br><em></em></th>
+                                                <th width="300">Waiting for<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -168,17 +173,27 @@ include("_check_session.php");
                                             $index = 1;
                                             while ($objResult = mysqli_fetch_assoc($objQuery)) {
                                             ?>
-                                                <tr onDblClick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'">
+                                                <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <?php if ($objResult['approved'] == 0) { ?>
-                                                            <img src="dist/img/icon/search.svg" onclick="window.location.href='view_notapproved.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
-                                                            <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                        <?php if ($objResult['approved'] == 0 || $objResult['approved'] == 5) { ?>
+                                                            <img src="dist/img/icon/search.svg" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']) . '&m=' . md5($objResult['doc_no'] . '1'); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/doc.png" onclick="window.location.href='download.php?no=<?php echo md5($objResult['id']) ?>'" title="Word" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/pdf.png" onclick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');" title="PDF" width="30" style="padding: 5px;cursor: pointer;" />
                                                             <img src="dist/img/icon/delete.png" onclick="setDelete('documents','<?php echo $objResult['id']; ?>','<?php echo $objResult['doc_no']; ?>','documents.php')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
                                                         <?php } elseif ($objResult['approved'] == 4) { ?>
-                                                            <img src="dist/img/icon/bin.png" onclick="window.location.href='req_delete.php?no=<?php echo md5($objResult['id']); ?>'" width="30" style="padding: 5px;cursor: pointer;" title="Delete" />
+                                                            <img src="dist/img/icon/search.svg" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/edit.svg" onclick="" title="Not allow edit" width="30" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
+                                                            <img src="dist/img/icon/doc.png" onclick="window.location.href='download.php?no=<?php echo md5($objResult['id']) ?>'" title="Word" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/pdf.png" onclick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');" title="PDF" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/delete.png" onclick="window.location.href='req_delete.php?no=<?php echo md5($objResult['id']); ?>'" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
                                                         <?php } else { ?>
-                                                            <img src="dist/img/icon/delete.png" onclick="setDelete('documents','<?php echo $objResult['id']; ?>','<?php echo $objResult['doc_no']; ?>','documents.php')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/search.svg" onclick="window.location.href='documents_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/edit.svg" onclick="" title="Not allow edit" width="30" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
+                                                            <img src="dist/img/icon/doc.png" onclick="window.location.href='download.php?no=<?php echo md5($objResult['id']) ?>'" title="Word" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/pdf.png" onclick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');" title="PDF" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/delete.png" onclick="" title="Not allow delete" width="30" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
                                                         <?php } ?>
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
@@ -193,16 +208,50 @@ include("_check_session.php");
                                                         ?>
                                                     </td>
                                                     <td>
+                                                        <?php if ($objResult['approved'] == 0) { $class='class="text-info"'?>
+                                                            <span <?php echo $class?>>Draft</span>
+                                                        <?php } elseif ($objResult['approved'] == 1) { $class='class="text-primary"'?>
+                                                            <span <?php echo $class?>>Pending Check</span>
+                                                        <?php } elseif ($objResult['approved'] == 2) { $class='class="text-primary"'?>
+                                                            <span <?php echo $class?>>Pending ISO</span>
+                                                        <?php } elseif ($objResult['approved'] == 3) { $class='class="text-primary"'?>
+                                                            <span <?php echo $class?>>Pending QMR</span>
+                                                        <?php } elseif ($objResult['approved'] == 4) { $class='class="text-success"'?>
+                                                            <span <?php echo $class?>>Approved</span>
+                                                        <?php } elseif ($objResult['approved'] == 5) { $class='class="text-warning"'?>
+                                                            <span <?php echo $class?>>Reject</span>
+                                                        <?php } ?>
+                                                    </td>
+                                                    <td>
                                                         <?php if ($objResult['approved'] == 0 || $objResult['approved'] == 5) { ?>
-                                                            Not Approved
+                                                            
                                                         <?php } elseif ($objResult['approved'] == 1) { ?>
-                                                            Prepared
+                                                            <?php
+                                                            $strSQL2 = "SELECT * FROM `approval` WHERE `mail` = '" . $objResult['checkedby'] . "'";
+                                                            $objQuery2 = $conDB->sqlQuery($strSQL2);
+                                                            while ($objResult2 = mysqli_fetch_assoc($objQuery2)) {
+                                                                $name_check = $objResult2['name'];
+                                                            }
+                                                            ?>
+                                                            <?php echo $name_check ?>
                                                         <?php } elseif ($objResult['approved'] == 2) { ?>
-                                                            Checked
+                                                            <?php
+                                                            $strSQL3 = "SELECT * FROM `approval` WHERE `role` = 'ISO'";
+                                                            $objQuery3 = $conDB->sqlQuery($strSQL3);
+                                                            while ($objResult3 = mysqli_fetch_assoc($objQuery3)) {
+                                                                $name_iso = $objResult3['name'];
+                                                            }
+                                                            ?>
+                                                            <?php echo $name_iso ?>
                                                         <?php } elseif ($objResult['approved'] == 3) { ?>
-                                                            ISO Review
-                                                        <?php } elseif ($objResult['approved'] == 4) { ?>
-                                                            Approved
+                                                            <?php
+                                                            $strSQL4 = "SELECT * FROM `approval` WHERE `role` = 'QMR'";
+                                                            $objQuery4 = $conDB->sqlQuery($strSQL4);
+                                                            while ($objResult4 = mysqli_fetch_assoc($objQuery4)) {
+                                                                $name_qmr = $objResult4['name'];
+                                                            }
+                                                            ?>
+                                                            <?php echo $name_qmr ?>
                                                         <?php } ?>
                                                     </td>
                                                 <?php } ?>
@@ -236,6 +285,10 @@ include("_check_session.php");
                     "autoWidth": true,
                     "ordering": true,
                     "info": true,
+                    "scrollX": true,
+                    // "fixedColumns": {
+                    //     left: 3
+                    // }
                 });
             },
             500);

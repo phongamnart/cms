@@ -14,7 +14,7 @@ include("_check_session.php");
     include_once('_head.php');
     $conDB = new db_conn();
     $mail = $_SESSION['user_mail'];
-    $name = $_SESSION['user_name'];
+    $myname = $_SESSION['user_name'];
     $strSQL = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
@@ -43,14 +43,14 @@ include("_check_session.php");
         $line_id = $obj['line_id'];
     }
 
-    $sql1 = "SELECT * FROM `approval` WHERE `role` = 'ISO'";
+    $sql1 = "SELECT * FROM `approval` WHERE `role` = 'ISO' LIMIT 1";
     $result1 = $conDB->sqlQuery($sql1);
     while ($obj1 = mysqli_fetch_assoc($result1)) {
         $mail_iso = $obj1['mail'];
         $name_iso = $obj1['name'];
     }
 
-    $sql2 = "SELECT * FROM `approval` WHERE `role` = 'QMR'";
+    $sql2 = "SELECT * FROM `approval` WHERE `role` = 'QMR' LIMIT 1";
     $result2 = $conDB->sqlQuery($sql2);
     while ($obj2 = mysqli_fetch_assoc($result2)) {
         $mail_qmr = $obj2['mail'];
@@ -63,6 +63,8 @@ include("_check_session.php");
     while ($obj3 = mysqli_fetch_assoc($result3)) {
         $role = $obj3['role'];
     }
+
+    $currentTime = date("Y-m-d");
     ?>
 </head>
 
@@ -105,13 +107,13 @@ include("_check_session.php");
                     </button>
                     <?php if ($role == 'ADMIN' || $role == 'Check') { ?>
                         <button type="button" class="btn btn-app flat"
-                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_iso; ?>','<?php echo $name_iso; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create','<?php echo $name; ?>')" title="Approve">
+                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_iso; ?>','<?php echo $name_iso; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create')" title="Approve">
                             <img src="dist/img/icon/approved.svg" width="24"><br>
                             Approve
                         </button>
                     <?php } elseif ($role == 'ADMIN' || $role == 'ISO') {?>
-                        <button type="button" class="btn btn-app flat" 
-                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_qmr; ?>','<?php echo $name_qmr; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create','<?php echo $name; ?>')" title="Approve">
+                        <button type="button" class="btn btn-app flat"
+                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_qmr; ?>','<?php echo $name_qmr; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create')" title="Approve">
                             <img src="dist/img/icon/approved.svg" width="24"><br>
                             Approve
                         </button>
@@ -121,7 +123,7 @@ include("_check_session.php");
                         Approve
                     </button>
                     <?php } ?>
-                    <button type="button" class="btn btn-app flat" onclick="Reject('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>')" title="Reject">
+                    <button type="button" class="btn btn-app flat" onclick="Reject('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>','<?php echo $myname?>','<?php echo $currentTime ?>')" title="Reject">
                         <img src="dist/img/icon/error.svg" width="24"><br>
                         Reject
                     </button>
@@ -131,7 +133,7 @@ include("_check_session.php");
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">General</h3>
+                                <h3 class="card-title">Title Head</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                         <i class="fas fa-minus"></i>
@@ -182,7 +184,7 @@ include("_check_session.php");
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
-                                                    <label>Works <em></em></label>
+                                                    <label>Work <em></em></label>
                                                     <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>

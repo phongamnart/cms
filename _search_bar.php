@@ -48,7 +48,7 @@ $objQuery = $conDB->sqlQuery($strSQL);
     </div>
     <div class="col-sm-3">
         <div class="form-group">
-            <label>Works <em></em></label>
+            <label>Work <em></em></label>
             <select class="custom-select" onchange="setFilter('documents_list_work',this.value)">
                 <option value="" <?php if ($documents_list_work == '') {
                                         echo "selected";

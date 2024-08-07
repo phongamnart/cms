@@ -139,13 +139,13 @@ include("_check_session.php");
                                     <table id="datatable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th width="30">No.<br><em></em></th>
-                                                <th width="90">Tools<br><em></em></th>
+                                                <th width="50">No.<br><em></em></th>
+                                                <th width="150">Tools<br><em></em></th>
                                                 <th width="80">Discipline​<br><em></em></th>
                                                 <th width="90">Document No.​<br><em></em></th>
-                                                <th width="300">Document Title<br><em></em></th>
+                                                <th width="500">Document Title<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
-                                                <th width="150">Prepared By<br><em></em></th>
+                                                <th width="370">Prepared By<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -153,12 +153,12 @@ include("_check_session.php");
                                             $index = 1;
                                             while ($objResult = mysqli_fetch_assoc($objQuery)) {
                                             ?>
-                                                <tr onDblClick="window.location.href='documents_list_edit.php?no=<?php echo md5($objResult['id']); ?>'">
+                                                <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
                                                         <img src="dist/img/icon/download.png" onclick="window.location.href='req_download.php?no=<?php echo md5($objResult['id']) ?>'" title="Download word" width="30" style="padding: 2px;cursor: pointer;" />&nbsp;
                                                         <img src="dist/img/icon/pdf.png" onclick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']) ?>', '_blank');" title="PDF" width="30" style="padding: 2px;cursor: pointer;" />
-                                                        <img src="dist/img/icon/revision.png" onclick="window.location.href='req_revise.php?no=<?php echo md5($objResult['id']); ?>'" title="Revise" width="35" style="padding: 5px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/revision.png" onclick="window.location.href='req_revise.php?no=<?php echo md5($objResult['id']); ?>'" title="Revise" width="40" style="padding: 5px;cursor: pointer;" />
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
@@ -205,6 +205,7 @@ include("_check_session.php");
                     "autoWidth": true,
                     "ordering": true,
                     "info": true,
+                    "scrollX": true,
                 });
             },
             500);

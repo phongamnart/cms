@@ -110,7 +110,7 @@ include("_check_session.php");
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
-                                                <label>Works <em></em></label>
+                                                <label>Work <em></em></label>
                                                 <select class="custom-select" style="width: 100%;" <?php echo $mode_select; ?> onChange="setFilter('documents_work',this.value)">
                                                     <option value="">All</option>
                                                     <?php
@@ -154,10 +154,10 @@ include("_check_session.php");
                                                 <th width="60">Tools<br><em></em></th>
                                                 <th width="80">Discipline​<br><em></em></th>
                                                 <th width="90">Document No.​<br><em></em></th>
-                                                <th width="300">Document Title<br><em></em></th>
+                                                <th width="500">Document Title<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
-                                                <th width="100">Prepared By<br><em></em></th>
-                                                <th width="100">Status<br><em></em></th>
+                                                <th width="300">Prepared By<br><em></em></th>
+                                                <th width="200">Status<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -165,7 +165,7 @@ include("_check_session.php");
                                             $index = 1;
                                             while ($objResult = mysqli_fetch_assoc($objQuery)) {
                                             ?>
-                                                <tr onDblClick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');">
+                                                <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
                                                         <!-- <img src="dist/img/icon/pdf.png" onClick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');" title="Preview" width="35" style="padding: 5px;cursor: pointer;" /> -->
@@ -184,16 +184,18 @@ include("_check_session.php");
                                                     </td>
                                                     <td><?php echo $objResult['preparedby'] ?></td>
                                                     <td>
-                                                        <?php if ($objResult['approved'] == 1) { ?>
-                                                            Prepared
-                                                        <?php } elseif ($objResult['approved'] == 2) { ?>
-                                                            Checked
-                                                        <?php } elseif ($objResult['approved'] == 3) { ?>
-                                                            ISO Review
-                                                        <?php } elseif ($objResult['approved'] == 4) { ?>
-                                                            Approved
-                                                        <?php } else { ?>
-                                                            Not Approved
+                                                        <?php if ($objResult['approved'] == 0) { $class='class="text-info"'?>
+                                                            <span <?php echo $class?>>Draft</span>
+                                                        <?php } elseif ($objResult['approved'] == 1) { $class='class="text-primary"'?>
+                                                            <span <?php echo $class?>>Pending Check</span>
+                                                        <?php } elseif ($objResult['approved'] == 2) { $class='class="text-primary"'?>
+                                                            <span <?php echo $class?>>Pending ISO</span>
+                                                        <?php } elseif ($objResult['approved'] == 3) { $class='class="text-primary"'?>
+                                                            <span <?php echo $class?>>Pending QMR</span>
+                                                        <?php } elseif ($objResult['approved'] == 4) { $class='class="text-success"'?>
+                                                            <span <?php echo $class?>>Approved</span>
+                                                        <?php } elseif ($objResult['approved'] == 5) { $class='class="text-warning"'?>
+                                                            <span <?php echo $class?>>Reject</span>
                                                         <?php } ?>
                                                     </td>
                                                 <?php } ?>
@@ -229,6 +231,7 @@ include("_check_session.php");
                     "autoWidth": true,
                     "ordering": true,
                     "info": true,
+                    "scrollX": true,
                 });
             },
             500);

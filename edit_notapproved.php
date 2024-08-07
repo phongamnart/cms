@@ -86,15 +86,15 @@ include("_check_session.php");
                                     while ($objResult_line = mysqli_fetch_assoc($objQuery_line)) {
                                         $index++;
                                     ?>
-                                        <?php if ($objResult_line['is_image'] != 1) { ?>
+                                        <?php if ($objResult_line['is_image'] == 0) { ?>
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
                                                         <img src="dist/img/icon/edit.svg" onclick="setTextEditor(<?php echo $objResult_line['id'] ?>)" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
                                                         <img src="dist/img/icon/save.svg" id="submit<?php echo $objResult_line['id'] ?>" title="Save" width="30" style="padding: 5px;cursor: pointer;" />
                                                         <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','Content','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
-                                                        <div class="editor-container" style="display: flex;">
+                                                        <div class="editor-container">
                                                             <div class="editorTextArea" style="border: 1px solid #b3b7bb; padding: 12px;" name="editor_content[]" id="editor<?php echo $objResult_line['id'] ?>">
                                                                 <?php echo $objResult_line['content']; ?>
                                                             </div>
@@ -102,11 +102,22 @@ include("_check_session.php");
                                                     </div>
                                                 </div>
                                             </div>
-                                        <?php } else { ?>
+                                        <?php } elseif ($objResult_line['is_image'] == 1) { ?>
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label><br>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
+                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
+                                                        <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php } elseif ($objResult_line['is_image'] == 2) { ?>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
+                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>

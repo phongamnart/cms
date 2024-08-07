@@ -94,19 +94,17 @@ LEFT JOIN `documents_line` ON `documents_line`.`id` = `documents_line_cont`.`lin
 $objQuery7 = $conDB->sqlQuery($strSQL7);
 
 while ($objResult = mysqli_fetch_assoc($objQuery7)) {
-    $strSQL8 = "SELECT * FROM `documents_line` WHERE `content_id` = '" .$objResult['content_id']. "' AND `doc_id` = $last_doc_id";
+    $strSQL8 = "SELECT * FROM `documents_line` WHERE `content_id` = '" .$objResult['content_id']. "' AND `doc_id` = '$last_doc_id'";
     $objQuery8 = $conDB->sqlQuery($strSQL8);
     while ($objResult2 = mysqli_fetch_assoc($objQuery8)) {
         $line_id = $objResult2['id'];
     }
-    $doc_id = $objResult['doc_id'];
     $is_image = $objResult['is_image'];
     $content = $objResult['content'];
     $createdby_cont = $objResult['createdby'];
     $created = $objResult['created'];
-    $comment = $objResult['comment'];
 
-    $strSQL9 = "INSERT INTO `documents_line_cont` (`line_id`, `doc_id`, `is_image`, `content`, `createdby`, `created`, `comment`, `enable`)
-            VALUES ('$line_id', '$last_doc_id', '$is_image', '$content', '$mail_req', '$date', '$comment', 1)";
+    $strSQL9 = "INSERT INTO `documents_line_cont` (`line_id`, `doc_id`, `is_image`, `content`, `createdby`, `created`, `enable`)
+            VALUES ('$line_id', '$last_doc_id', '$is_image', '$content', '$mail_req', '$date', 1)";
     $conDB->sqlQuery($strSQL9);
 }

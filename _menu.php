@@ -1,6 +1,7 @@
 <?php
 $mail = $_SESSION['user_mail'];
 $notify_group = 0;
+$notify_myDoc = 0;
 $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
     $result_approve_download = $conDB->sqlQuery($sql_approve_download);
     while ($obj_approve_download = mysqli_fetch_assoc($result_approve_download)) {
@@ -75,6 +76,19 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
         }
     }
 
+    $sql_reject = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+    $result_reject = $conDB->sqlQuery($sql_reject);
+    while ($obj_reject = mysqli_fetch_assoc($result_reject)) {
+        if ($obj_reject['role'] == 'ADMIN') {
+            $strSQL_reject = "SELECT * FROM `documents` WHERE `admin` = 1  AND `enable` = 1 AND `approved` = 5";
+            $notify_reject = $conDB->sqlNumrows($strSQL_reject);
+            $notify_myDoc += $notify_reject;
+        } else {
+            $strSQL_reject = "SELECT * FROM `documents` WHERE `createdby` = '$mail' AND `enable` = 1 AND `approved` = 5";
+            $notify_reject = $conDB->sqlNumrows($strSQL_reject);
+            $notify_myDoc += $notify_reject;
+        }
+    }
 
 ?>
 
@@ -116,13 +130,7 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
               <a href="documents.php"
                 class="nav-link <?php if($current_menu == "documents"){ echo "active";}?>">
                 <img src="dist/img/icon/file.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>My Document</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="request.php" class="nav-link <?php if($current_menu == "request"){ echo "active";}?>">
-                <img src="dist/img/icon/request.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>My Request</p>
+                <p>My Document<?php if($notify_myDoc > 0){ echo '<span class="right badge badge-danger">'.$notify_myDoc.'</span>'; }?></p>
               </a>
             </li>
           </ul>
@@ -140,7 +148,7 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
           <li class="nav-item">
               <a href="approval_create.php" class="nav-link <?php if($current_menu == "approval_create"){ echo "active";}?>">
                 <img src="dist/img/icon/add.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>Create<?php if($notify_approve_create > 0){ echo '<span class="right badge badge-danger">'.$notify_approve_create.'</span>'; }?></p>
+                <p>Document<?php if($notify_approve_create > 0){ echo '<span class="right badge badge-danger">'.$notify_approve_create.'</span>'; }?></p>
               </a>
             </li>
             <li class="nav-item">
@@ -163,8 +171,16 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
             </li>
           </ul>
         </li>
-        
-        <li class="nav-item <?php if($ismenu == 3){ echo "menu-open";}?>">
+        <?php
+        $sql= "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+        $result= $conDB->sqlQuery($sql);
+        ?>
+        <?php
+        while ($objResult = mysqli_fetch_assoc($result)) {
+          $role = $objResult['role'];
+        }
+        if ($role == "ADMIN") { ?>
+          <li class="nav-item <?php if($ismenu == 3){ echo "menu-open";}?>">
           <a href="#" class="nav-link">
           <img src="dist/img/icon/configuration.png" width="30" style="margin-right: 5px;"/>
             <p>
@@ -180,7 +196,16 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
               </a>
             </li>
           </ul>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="discipline.php" class="nav-link <?php if($current_menu == "discipline"){ echo "active";}?>">
+                <img src="dist/img/icon/new-moon.png" width="16" style="margin: 5px 10px 5px 5px;"/>
+                <p>Discipline</p>
+              </a>
+            </li>
+          </ul>
         </li>
+        <?php } ?>
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

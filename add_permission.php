@@ -24,7 +24,7 @@ include("_check_session.php");
 
     if ($objQuery && mysqli_num_rows($objQuery) > 0) {
         while ($obj = mysqli_fetch_assoc($result)) {
-            if($obj['role'] == 'ADMIN') {
+            if ($obj['role'] == 'ADMIN') {
                 $strSQL = "SELECT * FROM `approval`";
                 $objQuery = $conDB->sqlQuery($strSQL);
             }
@@ -33,7 +33,7 @@ include("_check_session.php");
         echo "No records found.";
         exit;
     }
-    
+
 
     ?>
 </head>
@@ -53,6 +53,12 @@ include("_check_session.php");
                 </div>
             </section>
             <section class="content">
+                <div>
+                    <button type="button" class="btn btn-app flat" onclick="window.location.href='add_user.php'" title="New">
+                        <img src="dist/img/icon/add.svg" style="padding:3px;" width="24"><br>
+                        New
+                    </button>
+                </div>
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
@@ -74,11 +80,11 @@ include("_check_session.php");
                                             $index = 1;
                                             while ($objResult = mysqli_fetch_assoc($objQuery)) {
                                             ?>
-                                                <tr onDblClick="window.location.href='documents_list_edit.php?no=<?php echo md5($objResult['id']); ?>'">
+                                                <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
                                                         <img src="dist/img/icon/edit.svg" onclick="window.location.href='edit_user.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
-                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('approval', '<?php echo $objResult['id']?>', '<?php echo $objResult['name'] ?>', '')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('approval', '<?php echo $objResult['id'] ?>', '<?php echo $objResult['name'] ?>', '')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
                                                     </td>
                                                     <td><?php echo $objResult['role'] ?></td>
                                                     <td><?php echo $objResult['name'] ?></td>

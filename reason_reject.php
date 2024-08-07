@@ -12,6 +12,7 @@ include("_check_session.php");
     $current_menu = "approval_create";
     $get_id = $_GET['no'];
     $mail = $_SESSION['user_mail'];
+    $myname = $_SESSION['user_name'];
     include_once('_head.php');
     $conDB = new db_conn();
     $strSQL = "SELECT `documents_line`.`id` AS `id`, `documents_line`.`doc_id` AS `doc_id`, `contents`.`name` AS `name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`documents_line`.`id`) = '$get_id' LIMIT 1";
@@ -35,13 +36,23 @@ include("_check_session.php");
     while ($objResult = mysqli_fetch_assoc($objQuery3)) {
         $line_id = $objResult['line_id'];
         $next_id = $line_id + 1;
+        $back_id = $line_id - 1;
     }
 
-    $strSQL4 = "SELECT * FROM `documents_line_cont` WHERE `doc_id` = '$doc_id' ORDER BY `id` DESC LIMIT 1";
+    $strSQL4 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' ORDER BY `id` DESC LIMIT 1";
     $objQuery4 = $conDB->sqlQuery($strSQL4);
     while ($objResult = mysqli_fetch_assoc($objQuery4)) {
-        $last_line_id = $objResult['line_id'];
+        $last_line_id = $objResult['id'];
     }
+
+    $strSQL5 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' ORDER BY `id` ASC LIMIT 1";
+    $objQuery5 = $conDB->sqlQuery($strSQL5);
+    while ($objResult = mysqli_fetch_assoc($objQuery5)) {
+        $start_line_id = $objResult['id'];
+    }
+
+
+    $currentTime = date("Y-m-d");
 
     ?>
 </head>
@@ -80,13 +91,19 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         Discard
                     </button>
+                    <?php if ($id > $start_line_id) { ?>
+                        <button type="button" class="btn btn-app flat" onclick="backComment('<?php echo md5($line_id); ?>','<?php echo md5($back_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Next">
+                            <img src="dist/img/icon/back.png" width="24"><br>
+                            Back
+                        </button>
+                    <?php } ?>
                     <?php if ($id < $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="nextComment('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>')" title="Next">
+                        <button type="button" class="btn btn-app flat" onclick="nextComment('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Next">
                             <img src="dist/img/icon/forward.png" width="24"><br>
                             Next
                         </button>
                     <?php } elseif ($id = $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="saveComment('<?php echo md5($line_id); ?>','<?php echo $doc_no; ?>')" title="Save">
+                        <button type="button" class="btn btn-app flat" onclick="saveComment('<?php echo md5($line_id); ?>','<?php echo $doc_no; ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Save">
                             <img src="dist/img/icon/save.svg" width="24"><br>
                             Save
                         </button>
@@ -109,7 +126,7 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
                                                         <div class="editor-container" style="display: flex;">
                                                             <div class="editorTextArea" style="border: 1px solid #b3b7bb; padding: 12px;" name="editor_content[]" id="editor<?php echo $objResult_line['id'] ?>">
                                                                 <?php echo $objResult_line['content']; ?>
@@ -122,7 +139,7 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label><br>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
@@ -131,14 +148,20 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Content <?php echo $index; ?><em></em></label><br>
+                                                        <label>Paragraph <?php echo $index; ?><em></em></label><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
                                             </div>
                                         <?php } ?>
                                         <input type="hidden" name="" id="input_id<?php echo $objResult_line['id'] ?>" value="<?php echo md5($objResult_line['id']) ?>">
-                                        <?php $comment = $objResult_line['comment']; ?>
+                                        <?php
+                                        $strSQL5 = "SELECT * FROM `documents_line` WHERE md5(`id`) = '$get_id' AND`doc_id` = '$doc_id'";
+                                        $objQuery5 = $conDB->sqlQuery($strSQL5);
+                                        while ($objResult5 = mysqli_fetch_assoc($objQuery5)) {
+                                            $comment = $objResult5['comment'];
+                                        }
+                                        ?>
                                     <?php } ?>
                                     <div class="row">
                                         <div class="col-sm-12">

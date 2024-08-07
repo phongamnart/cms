@@ -21,7 +21,8 @@ $result = $conDB->sqlQuery($sql);
 
 if($result && mysqli_num_rows($result) > 0){
     while ($obj = mysqli_fetch_assoc($result)) {
-    //nothing
+        $strSQL3 = "UPDATE `approval` SET `name` = '$name', `depart` = '$depart', `date` = '$date' WHERE `mail` = '$email'";
+        $conDB->sqlQuery($strSQL3);
     }
 } else {
     $strSQL3 = "INSERT INTO `approval` (`role`, `name`, `mail`, `depart`, `date`)

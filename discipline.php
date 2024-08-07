@@ -7,48 +7,54 @@ include("_check_session.php");
 <head>
     <?php
     $document  = 2;
-    $ismenu = 2;
-    $current_menu = "approval_download";
+    $ismenu = 3;
+    $current_menu = "discipline";
     include_once('_head.php');
     $conDB = new db_conn();
-
-    $approve_req_discipline = isset($_SESSION['approve_req_discipline']) ? $_SESSION['approve_req_discipline'] : '';
-    $approve_req_work = isset($_SESSION['approve_req_work']) ? $_SESSION['approve_req_work'] : '';
-    $approve_req_type = isset($_SESSION['approve_req_type']) ? $_SESSION['approve_req_type'] : '';
-    $prepared_by = $_SESSION['user_name'];
     $mail = $_SESSION['user_mail'];
+    $list_discipline = isset($_SESSION['list_discipline']) ? $_SESSION['list_discipline'] : '';
+    $list_work = isset($_SESSION['list_work']) ? $_SESSION['list_work'] : '';
+    $list_type = isset($_SESSION['list_type']) ? $_SESSION['list_type'] : '';
 
-    if ($approve_req_discipline != "") {
-        $condition = " AND `discipline` = '" . $approve_req_discipline . "'";
+    if ($list_discipline != "") {
+        $condition = " AND `discipline` = '" . $list_discipline . "'";
     } else {
         $condition = "";
     }
-    if ($approve_req_work != "") {
-        $condition = " AND `work` = '" . $approve_req_work . "'";
-        $condition .= $condition;
+    if ($list_work != "") {
+        $condition2 = " AND `work` = '" . $list_work . "'";
+        $condition .= $condition2;
     } else {
         $condition .= "";
     }
-    if ($approve_req_type != "") {
-        $condition .= " AND `type` = '" . $approve_req_type . "'";
-        $condition .= $condition;
+    if ($list_type != "") {
+        $condition2 .= " AND `type` = '" . $list_type . "'";
+        $condition .= $condition2;
     } else {
         $condition .= "";
     }
 
     $sql = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
     $result = $conDB->sqlQuery($sql);
-    while ($obj = mysqli_fetch_assoc($result)) {
-        if ($obj['role'] == 'ADMIN' || $obj['role'] == 'ISO') {
-            $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
-            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 1" . $condition;
-            $objQuery = $conDB->sqlQuery($strSQL);
-        } else {
-            $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
-            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 999" . $condition;
-            $objQuery = $conDB->sqlQuery($strSQL);
-        }
+    if ($result) {
+        $objQuery = $result;
+    } else {
+        echo "Denied Permission";
+        exit;
     }
+
+    if ($objQuery && mysqli_num_rows($objQuery) > 0) {
+        while ($obj = mysqli_fetch_assoc($result)) {
+            if ($obj['role'] == 'ADMIN') {
+                $strSQL = "SELECT * FROM `type`";
+                $objQuery = $conDB->sqlQuery($strSQL);
+            }
+        }
+    } else {
+        echo "No records found.";
+        exit;
+    }
+
 
     ?>
 </head>
@@ -62,12 +68,18 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Approve for download document</h1>
+                            <h1>Discipline List</h1>
                         </div>
                     </div>
                 </div>
             </section>
             <section class="content">
+                <div>
+                    <button type="button" class="btn btn-app flat" onclick="window.location.href='add_discipline.php'" title="New">
+                        <img src="dist/img/icon/add.svg" style="padding:3px;" width="24"><br>
+                        New
+                    </button>
+                </div>
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
@@ -77,16 +89,16 @@ include("_check_session.php");
                                         <div class="col-sm-3">
                                             <div class="form-group">
                                                 <label>Discipline <em></em></label>
-                                                <select class="custom-select" onchange="setFilter('approve_req_discipline',this.value)">
-                                                    <option value="" <?php if ($approve_req_discipline == '') {
+                                                <select class="custom-select" onchange="setFilter('list_discipline',this.value)">
+                                                    <option value="" <?php if ($list_discipline == '') {
                                                                             echo "selected";
                                                                         } ?>>All</option>
                                                     <?php
-                                                    $sql2 = "SELECT DISTINCT `discipline` FROM `documents` WHERE `approved` = 4";
+                                                    $sql2 = "SELECT DISTINCT `discipline` FROM `type` WHERE `enable` = 1";
                                                     $objQueryDisc = $conDB->sqlQuery($sql2);
 
                                                     while ($objResult = mysqli_fetch_assoc($objQueryDisc)) { ?>
-                                                        <option value="<?php echo $objResult['discipline']; ?>" <?php if ($approve_req_discipline == $objResult['discipline']) {
+                                                        <option value="<?php echo $objResult['discipline']; ?>" <?php if ($list_discipline == $objResult['discipline']) {
                                                                                                                     echo "selected";
                                                                                                                 } ?>>
                                                             <?php echo $objResult['discipline']; ?>
@@ -98,19 +110,19 @@ include("_check_session.php");
                                         <div class="col-sm-3">
                                             <div class="form-group">
                                                 <label>Work <em></em></label>
-                                                <select class="custom-select" onchange="setFilter('approve_req_work',this.value)">
-                                                    <option value="" <?php if ($approve_req_work == '') {
+                                                <select class="custom-select" onchange="setFilter('list_work',this.value)">
+                                                    <option value="" <?php if ($list_work == '') {
                                                                             echo "selected";
                                                                         } ?>>All</option>
                                                     <?php
-                                                    if ($approve_req_discipline != "") {
-                                                        $condition2 = " AND `discipline` = '$approve_req_discipline'";
+                                                    if ($list_discipline != "") {
+                                                        $condition2 = " AND `discipline` = '$list_discipline'";
                                                     }
-                                                    $sql2 = "SELECT DISTINCT `work` FROM `documents` WHERE `approved` = 4" . $condition2;
+                                                    $sql2 = "SELECT DISTINCT `work` FROM `type` WHERE `enable` = 1" . $condition2;
                                                     $objQueryWork = $conDB->sqlQuery($sql2);
 
                                                     while ($objResult = mysqli_fetch_assoc($objQueryWork)) { ?>
-                                                        <option value="<?php echo $objResult['work']; ?>" <?php if ($approve_req_work == $objResult['work']) {
+                                                        <option value="<?php echo $objResult['work']; ?>" <?php if ($list_work == $objResult['work']) {
                                                                                                                 echo "selected";
                                                                                                             } ?>>
                                                             <?php echo $objResult['work']; ?>
@@ -122,19 +134,19 @@ include("_check_session.php");
                                         <div class="col-sm-3">
                                             <div class="form-group">
                                                 <label>Type <em></em></label>
-                                                <select class="custom-select" onchange="setFilter('approve_req_type',this.value)">
-                                                    <option value="" <?php if ($approve_req_type == '') {
+                                                <select class="custom-select" onchange="setFilter('list_type',this.value)">
+                                                    <option value="" <?php if ($list_type == '') {
                                                                             echo "selected";
                                                                         } ?>>All</option>
                                                     <?php
-                                                    if ($approve_req_work != "") {
-                                                        $condition2 = " AND `work` = '$approve_req_work'";
+                                                    if ($list_work != "") {
+                                                        $condition2 = " AND `work` = '$list_work'";
                                                     }
-                                                    $sql2 = "SELECT DISTINCT `type` FROM `documents` WHERE `approved` = 4" . $condition2;
+                                                    $sql2 = "SELECT DISTINCT `type` FROM `type` WHERE `enable` = 1" . $condition2;
                                                     $objQueryType = $conDB->sqlQuery($sql2);
 
                                                     while ($objResult = mysqli_fetch_assoc($objQueryType)) { ?>
-                                                        <option value="<?php echo $objResult['type']; ?>" <?php if ($approve_req_type == $objResult['type']) {
+                                                        <option value="<?php echo $objResult['type']; ?>" <?php if ($list_type == $objResult['type']) {
                                                                                                                 echo "selected";
                                                                                                             } ?>>
                                                             <?php echo $objResult['type']; ?>
@@ -147,14 +159,11 @@ include("_check_session.php");
                                     <table id="datatable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th width="20">No.<br><em></em></th>
-                                                <th width="60">Tools<br><em></em></th>
-                                                <th width="80">Discipline​<br><em></em></th>
-                                                <th width="90">Document No.​<br><em></em></th>
-                                                <th width="500">Document Title<br><em></em></th>
-                                                <th width="80">Date<br><em></em></th>
-                                                <th width="150">Prepared By<br><em></em></th>
-                                                <th width="200">Status<br><em></em></th>
+                                                <th width="30">No.<br><em></em></th>
+                                                <th width="30">Tools<br><em></em></th>
+                                                <th width="80">Discipline<br><em></em></th>
+                                                <th width="80">Work<br><em></em></th>
+                                                <th width="80">Type<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -165,27 +174,12 @@ include("_check_session.php");
                                                 <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='detail_download.php?no=<?php echo md5($objResult['reqID']); ?>'" title="Approve<?php echo $objResult['reqID']; ?>">
+                                                        <img src="dist/img/icon/edit.svg" onclick="" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('type', '<?php echo $objResult['id'] ?>', '<?php echo $objResult['type'] ?>', '')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
-                                                    <td><?php echo $objResult['doc_no'] ?></td>
-                                                    <td><?php echo $objResult['method_statement'] ?></td>
-                                                    <td>
-                                                        <?php
-                                                        $date = $objResult['date_req'];
-                                                        $convertDate = strtotime($date);
-                                                        $newDate = date("d-m-Y", $convertDate);
-                                                        echo $newDate;
-                                                        ?>
-                                                    </td>
-                                                    <td><?php echo $objResult['createdby'] ?></td>
-                                                    <td>
-                                                        <?php if ($objResult['status_req'] == 1) { ?>
-                                                            Wait approve
-                                                        <?php } elseif ($objResult['status_req'] == 3) { ?>
-                                                            Not approved
-                                                        <?php } ?>
-                                                    </td>
+                                                    <td><?php echo $objResult['work'] ?></td>
+                                                    <td><?php echo $objResult['type'] ?></td>
                                                 <?php } ?>
                                         </tbody>
                                     </table>
@@ -219,7 +213,6 @@ include("_check_session.php");
                     "autoWidth": true,
                     "ordering": true,
                     "info": true,
-                    "scrollX": true,
                 });
             },
             500);

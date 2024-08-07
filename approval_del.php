@@ -97,7 +97,7 @@ include("_check_session.php");
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
-                                                <label>Works <em></em></label>
+                                                <label>Work <em></em></label>
                                                 <select class="custom-select" onchange="setFilter('approve_req_work',this.value)">
                                                     <option value="" <?php if ($approve_req_work == '') {
                                                                             echo "selected";
@@ -151,10 +151,10 @@ include("_check_session.php");
                                                 <th width="60">Tools<br><em></em></th>
                                                 <th width="80">Discipline​<br><em></em></th>
                                                 <th width="90">Document No.​<br><em></em></th>
-                                                <th width="300">Document Title<br><em></em></th>
+                                                <th width="500">Document Title<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
                                                 <th width="150">Prepared By<br><em></em></th>
-                                                <th width="80">Status<br><em></em></th>
+                                                <th width="200">Status<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -162,7 +162,7 @@ include("_check_session.php");
                                             $index = 1;
                                             while ($objResult = mysqli_fetch_assoc($objQuery)) {
                                             ?>
-                                                <tr onDblClick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');">
+                                                <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
                                                         <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='detail_del.php?no=<?php echo md5($objResult['id']); ?>'" title="Approve<?php echo $objResult['id']; ?>">
@@ -217,6 +217,7 @@ include("_check_session.php");
                     "autoWidth": true,
                     "ordering": true,
                     "info": true,
+                    "scrollX": true,
                 });
             },
             500);

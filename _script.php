@@ -150,32 +150,6 @@
             });
     }
 
-    function updateValue_lineid(table, id, field, value) {
-        $('#success-alert').hide();
-        let myPromise = new Promise(function(myResolve, myReject) {
-            setTimeout(function() {
-                myResolve(true);
-            }, 100);
-        });
-        $.post("services/updatevalue_lineid.php", {
-                table: table,
-                id: id,
-                field: field,
-                value: value
-            })
-            .done(function(data) {
-                myPromise.then(function(value) {
-                    var divElement = document.getElementById("success-alert");
-                    divElement.style.display = "block";
-                    console.log(data);
-                    setValue(data);
-                    $('#success-alert').fadeOut(3000, function() {
-                        $('#success-alert').hide();
-                    });
-                });
-            });
-    }
-
     function postValue(table, field, value) {
         $('#success-alert').hide();
         let myPromise = new Promise(function(myResolve, myReject) {
@@ -339,6 +313,16 @@
         $('#messageModal').modal('show');
     }
 
+    function delContent(table, id, name, redirect, line_id) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to delete this <span class=\"text-danger\">"' + name +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary" onclick="deleteContent(' + "'" + table + "','" + id + "','" + redirect + "','" + line_id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+
     function setCopy(table, id, name) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to copy this <span class=\"text-primary\">"' + name +
@@ -372,7 +356,7 @@
     }
 
     //sendmail
-    function sendMail(to, approval_name, method_statement, doc_no, createdby, date, type, from) {
+    function sendMail(to, approval_name, method_statement, doc_no, createdby, date, type) {
         const subject = 'REQUEST TO APPROVE, CONSTRUCTION METHOD STATEMENT';
         const htmlContent = `<html>
         <head>
@@ -387,7 +371,7 @@
             Please click below link to access to platform.</br></br>
             <a href="https://apps.powerapps.com/play/e/default-99e38c91-bab9-419c-84c0-4054b0b25b8b/a/678ec0e2-7e4f-410a-9b0d-60b6a3ffd9d0?tenantId=99e38c91-bab9-419c-84c0-4054b0b25b8b&hint=5f12378a-f320-429c-9d1b-8329f014a7c9&sourcetime=1721374709794&source=portal" 
             target="_blank" style="color:#ffffff; text-decoration:none; font-family:Segoe UI Semibold,SegoeUISemibold,Segoe UI,SegoeUI,Roboto,&quot;Helvetica Neue&quot;,Arial,sans-serif; font-weight:600; padding:12px 16px 12px 16px; text-align:left; line-height:1; font-size:16px; display:inline-block; border:0; border-radius:4px; background: #0078d7;" >CLICK TO OPEN APP</a>
-            </br></br>Thank you</br> ${from}
+            </br></br>Thank you</br>
         </body>
     </html>`;
         $.post("services/sendmail.php", {
@@ -405,19 +389,26 @@
     }
 
     //Function Approve Document
-    function Approved(id, value, to, approval_name, method_statement, doc_no, createdby, date, type, from) {
+    function Approved(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
         let approved = Number(value) + 1;
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
-            '<p>Do you want to approve this document: ' + to +
+            '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="postApproved(' + "'" + id + "'" + ',' + "'" + approved + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ',' + "'" + from + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="postApproved(' + "'" + id + "'" + ',' + "'" + approved + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Approve Document
-    function postApproved(id, value, to, approval_name, method_statement, doc_no, createdby, date, type, from) {
+    function postApproved(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
         updateValue('documents', id, 'approved', value);
-        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type, from);
+        updateValue('documents', id, 'created_approved', date);
+        updateValue('documents', id, 'comment', '');
+        updateValue('documents', id, 'rejectby', '');
+        updateValue('documents', id, 'created_reject', '');
+        updateValue('documents_line', id, 'comment', '');
+        updateValue('documents_line', id, 'rejectby', '');
+        updateValue('documents_line', id, 'created_reject', '');
+        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
         window.location.href = "approval_create.php"
     }
 
@@ -445,14 +436,16 @@
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
+            '<div><textarea class="col-md-12" id="rejectReasonReq" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
             '<button type="button" class="btn btn-success" onclick="rejectReq(' + "'" + id + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Funtion Reject req Download in detail_download.php
     function rejectReq(id) {
+        var reason = document.getElementById('rejectReasonReq').value;
+        updateValue('request', id, 'comment', reason);
         updateValue('request', id, 'status_req', '0');
-        // updateValue('request', id, 'request', null);
         updateValue('request', id, 'expire', null);
         window.location.href = 'approval_download.php';
     }
@@ -494,46 +487,53 @@
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
+            '<div><textarea class="col-md-12" id="rejectReasonRev" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
             '<button type="button" class="btn btn-success" onclick="rejectRev(' + "'" + id + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Funtion Reject req Revise in detail_revise.php
     function rejectRev(id) {
+        var reason = document.getElementById('rejectReasonRev').value;
+        updateValue('request', id, 'comment', reason);
         updateValue('request', id, 'status_rev', '0');
-        // updateValue('request', id, 'req_revise', null);
         window.location.href = 'approval_revise.php';
     }
 
     //Function Reject Document
-    function Reject(id, doc_no) {
+    function Reject(id, doc_no, name, date) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to reject this content: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="postReject(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<div><textarea class="col-md-12" id="rejectReason" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
+            '<button type="button" class="btn btn-success" onclick="postReject(' + "'" + id + "'" + ',' + "'" + name + "'" + ',' + "'" + date + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Reject Document
-    function postReject(id) {
-        updateValue('documents', id, 'approved', '0');
+    function postReject(id, name, date) {
+        var reason = document.getElementById('rejectReason').value;
+        updateValue('documents', id, 'approved', '5');
+        updateValue('documents', id, 'comment', reason);
+        updateValue('documents', id, 'rejectby', name);
+        updateValue('documents', id, 'created_reject', date);
         window.location.href = 'approval_create.php';
     }
 
     //function send req Download
-    function RequestDownload(id, to, approval_name, method_statement, doc_no, createdby, date ,type) {
+    function RequestDownload(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to request download this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="reqDownload(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ',' + "'" + from + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="reqDownload(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //function send req Download
-    function reqDownload(id, to, approval_name, method_statement, doc_no, createdby, date, type, from) {
+    function reqDownload(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
         let request = document.getElementById('request').value;
         postRequestDownload(doc_no, request);
-        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type, from);
+        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
         window.location.href = 'request.php';
     }
 
@@ -542,15 +542,15 @@
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to request revise this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="reqRevise(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ',' + "'" + from + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="reqRevise(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //function send req Revise
-    function reqRevise(id, to, approval_name, method_statement, doc_no, createdby, date, type, from) {
+    function reqRevise(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
         let request = document.getElementById('request').value;
         postRequestRevise(doc_no, request);
-        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type, from);
+        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
         window.location.href = 'request.php';
     }
 
@@ -559,15 +559,15 @@
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to delete this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="sendDeleteDocument(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ',' + "'" + from + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="sendDeleteDocument(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //function send req Delete
-    function sendDeleteDocument(id, to, approval_name, method_statement, doc_no, createdby, date, type, from) {
+    function sendDeleteDocument(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
         let request = document.getElementById('request').value;
         postRequestDelete(doc_no, request)
-        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type, from);
+        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
         window.location.href = 'request.php';
     }
 
@@ -592,60 +592,89 @@
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to delete this document: ' + doc_no +
             '</p></div>' +
+            '<div><textarea class="col-md-12" id="rejectReasonDel" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
             '<button type="button" class="btn btn-success" onclick="deleteReject(' + "'" + id + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Reject req Delete in detail.del.php
     function deleteReject(id) {
+        var reason = document.getElementById('rejectReasonDel').value;
+        updateValue('request', id, 'comment', reason);
         updateValue('request', id, 'status_del', '0');
-        // updateValue('request', id, 'req_delete', null);
         window.location.href = 'approval_del.php';
     }
 
     //Function Save as word in documents_edit.php
-    function saveWord(id, to, approval_name, method_statement, doc_no, createdby, date ,type, from) {
+    function saveWord(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to save this documents: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="updateWord(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ',' + "'" + from + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="updateWord(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Save as word in documents_edit.php
-    function updateWord(id, to, approval_name, method_statement, doc_no, createdby, date, type, from) {
-        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type, from);
+    function updateWord(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
+        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
         updateValue('documents', id, 'approved', '1');
         window.location.href = 'save_word.php?no=' + id;
     }
 
+    function previewWord(id, redirect) {
+        $.post("save_word.php?no=" + id, {
+                id: id,
+            })
+            .done(function(data) {
+                window.location.href = redirect;
+            });
+        return false;
+    };
+
     //Function Save Comment in reason_reject.php
-    function saveComment(id, doc_no) {
+    function saveComment(id, doc_no, name, date) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to save this comment: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="updateComment(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="updateComment(' + "'" + id + "'" + ',' + "'" + name + "'" + ',' + "'" + date + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Save Comment in reason_reject.php
-    function updateComment(id) {
+    function updateComment(id, name, date) {
         let comment = document.getElementById('comment').value;
-        updateValue_lineid('documents_line_cont', id, 'comment', comment);
+        updateValue('documents_line', id, 'comment', comment);
+        updateValue('documents_line', id, 'rejectby', name);
+        updateValue('documents_line', id, 'created_reject', date);
         // window.history.back();
         window.location.reload();
     }
 
     //Function Next page Comment in reason_reject.php
-    function nextComment(id, next_id) {
+    function nextComment(id, next_id, name, date) {
         let comment = document.getElementById('comment').value;
-        updateValue_lineid('documents_line_cont', id, 'comment', comment);
-        // window.history.back();
+        updateValue('documents_line', id, 'comment', comment);
+        updateValue('documents_line', id, 'rejectby', name);
+        updateValue('documents_line', id, 'created_reject', date);
         window.location.href = "reason_reject.php?no=" + next_id;
     }
 
-    function nextReject(id, next_id) {
-        window.location.href = "view_comment.php?no=" + next_id;
+    //Function Next page Comment in reason_reject.php
+    function backComment(id, back_id, name, date) {
+        let comment = document.getElementById('comment').value;
+        updateValue('documents_line', id, 'comment', comment);
+        updateValue('documents_line', id, 'rejectby', name);
+        updateValue('documents_line', id, 'created_reject', date);
+        window.location.href = "reason_reject.php?no=" + back_id;
+    }
+
+    //Function Next page Comment in reason_reject.php
+    function nextContent(next_id, get_mode) {
+        window.location.href = "documents_line_edit.php?no=" + next_id + "&m=" + get_mode;
+    }
+
+    function backContent(back_id, get_mode) {
+        window.location.href = "documents_line_edit.php?no=" + back_id + "&m=" + get_mode;
     }
 
     function setCreateInput(table, name, field) {
@@ -713,6 +742,24 @@
         $.post("services/delete.php", {
                 table: table,
                 id: id
+            })
+            .done(function(data) {
+                console.log(data)
+                if (redirect == '') {
+                    window.location.reload();
+                } else {
+                    window.location.href = redirect;
+                }
+
+            });
+        return false;
+    };
+
+    function deleteContent(table, id, redirect, line_id) {
+        $.post("services/delete_content.php", {
+                table: table,
+                id: id,
+                line_id: line_id
             })
             .done(function(data) {
                 console.log(data)
@@ -906,6 +953,29 @@
         formData.append("file", $('#file')[0].files[0]);
         try {
             const response = await fetch('services/uploadfile.php', {
+                method: "POST",
+                body: formData
+            })
+            window.location.reload();
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    function uploadDoc(doc_id, doc_no) {
+        document.getElementById('doc_id').value = doc_id;
+        document.getElementById('doc_no').value = doc_no;
+    }
+    $("#form_uploadfile").on("submit", function(e) {
+        e.preventDefault();
+        uploadFile_doc();
+    });
+    async function uploadFile_doc() {
+        const form = document.getElementById('form_uploadfile');
+        let formData = new FormData(form);
+        formData.append("file", $('#file')[0].files[0]);
+        try {
+            const response = await fetch('services/uploaddoc.php', {
                 method: "POST",
                 body: formData
             })

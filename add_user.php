@@ -12,16 +12,6 @@ include("_check_session.php");
     $current_menu = "add_permission";
     include_once('_head.php');
     $conDB = new db_conn();
-    $get_id = $_GET['no'];
-    $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
-
-    $strSQL = "SELECT * FROM `approval` WHERE md5(`id`) = '$get_id'";
-    $objQuery = $conDB->sqlQuery($strSQL);
-    while ($objResult = mysqli_fetch_assoc($objQuery)) {
-        $name = $objResult['name'];
-        $mail_user = $objResult['mail'];
-        $depart = $objResult['depart'];
-    }
 
     ?>
 </head>
@@ -35,14 +25,14 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Edit Informations User</h1>
+                            <h1>Add User</h1>
                         </div>
                     </div>
                 </div>
             </section>
             <section class="content">
                 <div>
-                    <form action="services/update_role.php" method="post">
+                    <form action="services/form_add_user.php" method="post">
                         <button type="button" class="btn btn-app flat" onClick="window.location.href='add_permission.php'" title="<?php echo BTN_DISCARD; ?>">
                             <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                             <?php echo BTN_DISCARD; ?>
@@ -73,7 +63,7 @@ include("_check_session.php");
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="">Depart</label>
-                                                        <input type="text" class="form-control" name="depart" id="depart" value="<?php echo $depart ?>" />
+                                                        <input type="text" class="form-control" name="depart" id="depart" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -81,13 +71,13 @@ include("_check_session.php");
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="">Name</label>
-                                                        <input type="text" class="form-control" name="name" id="name" value="<?php echo $name ?>" />
+                                                        <input type="text" class="form-control" name="name" id="name" />
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="">Email</label>
-                                                        <input type="text" class="form-control" name="mail" id="mail" value="<?php echo $mail_user ?>" />
+                                                        <input type="text" class="form-control" name="mail" id="mail" />
                                                     </div>
                                                 </div>
                                             </div>

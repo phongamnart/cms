@@ -6,7 +6,7 @@ include("_check_session.php");
 
 <head>
     <?php
-    $documents  = 2;
+    $documents  = 0;
     $doc_type  = "documents";
     $ismenu = 1;
     $current_menu = "documents_list";
@@ -89,7 +89,7 @@ include("_check_session.php");
                         <?php echo BTN_DISCARD; ?>
                     </button>
                     <button type="button" class="btn btn-app flat" 
-                    onclick="RequestDownload('<?php echo md5($doc_id)?>','<?php echo $approval_mail?>','<?php echo $approval_name?>','<?php echo $method_statement?>','<?php echo $doc_no?>','<?php echo $preparedby?>','<?php echo $date?>','Download','<?php echo $from?>')" title="Send Request">
+                    onclick="RequestDownload('<?php echo md5($doc_id)?>','<?php echo $approval_mail?>','<?php echo $approval_name?>','<?php echo $method_statement?>','<?php echo $doc_no?>','<?php echo $preparedby?>','<?php echo $date?>','Download')" title="Send Request">
                         <img src="dist/img/icon/forward.png" width="24"><br>
                         Send Request
                     </button>
@@ -100,7 +100,7 @@ include("_check_session.php");
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">General</h3>
+                                <h3 class="card-title">Title Head</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                         <i class="fas fa-minus"></i>
@@ -146,31 +146,31 @@ include("_check_session.php");
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Discipline <em></em></label>
-                                                    <input type="text" class="form-control" name="discipline" value="<?php echo $discipline ?>" readonly />
+                                                    <input type="text" class="form-control" name="discipline" value="<?php echo $discipline ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
-                                                    <label>Works <em></em></label>
-                                                    <input type="text" class="form-control" name="work" value="<?php echo $work ?>" readonly />
+                                                    <label>Work <em></em></label>
+                                                    <input type="text" class="form-control" name="work" value="<?php echo $work ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Type <em></em></label>
-                                                    <input type="text" class="form-control" name="type" value="<?php echo $type ?>" readonly />
+                                                    <input type="text" class="form-control" name="type" value="<?php echo $type ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Prepared By <em></em></label>
-                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> readonly />
+                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="form-group">
                                                     <label>Reason <em></em></label>
-                                                    <textarea class="form-control" rows="3" name="request" id="request" <?php echo $mode; ?> required></textarea>
+                                                    <textarea class="form-control" rows="3" name="request" id="request" required></textarea>
                                                 </div>
                                             </div>
                                         </div>

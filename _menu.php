@@ -179,7 +179,7 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
         while ($objResult = mysqli_fetch_assoc($result)) {
           $role = $objResult['role'];
         }
-        if ($role == "ADMIN") { ?>
+        if ($role == "ADMIN" || $role == "ISO") { ?>
           <li class="nav-item <?php if($ismenu == 3){ echo "menu-open";}?>">
           <a href="#" class="nav-link">
           <img src="dist/img/icon/configuration.png" width="30" style="margin-right: 5px;"/>

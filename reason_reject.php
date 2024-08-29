@@ -9,8 +9,11 @@ include("_check_session.php");
     $documents_line  = 2;
     $doc_type  = "documents_line";
     $ismenu = 2;
+    $next_content_id = "";
+    $back_content_id = "";
+    $back_id = "";
     $current_menu = "approval_create";
-    $get_id = $_GET['no'];
+    $get_id = isset($_GET['no']) ? $_GET['no'] : '';
     $mail = $_SESSION['user_mail'];
     $myname = $_SESSION['user_name'];
     include_once('_head.php');
@@ -31,24 +34,56 @@ include("_check_session.php");
     $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id' AND `doc_id` = '$doc_id'";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
 
-    $strSQL3 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
+    $strSQL3 = "SELECT * FROM `documents_line` WHERE md5(`id`) = '$get_id'";
     $objQuery3 = $conDB->sqlQuery($strSQL3);
     while ($objResult = mysqli_fetch_assoc($objQuery3)) {
-        $line_id = $objResult['line_id'];
-        $next_id = $line_id + 1;
-        $back_id = $line_id - 1;
+        $current_content_id = $objResult['content_id'];
     }
 
-    $strSQL4 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' ORDER BY `id` DESC LIMIT 1";
+    $strSQL10 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
+    $objQuery10 = $conDB->sqlQuery($strSQL10);
+    while ($objResult = mysqli_fetch_assoc($objQuery10)) {
+        $line_id = $objResult['line_id'];
+    }
+
+    //next
+    $strSQL6 = "SELECT `content_id` FROM `documents_line` WHERE `content_id` > '$current_content_id' AND `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` ASC LIMIT 1";
+    $objQuery6 = $conDB->sqlQuery($strSQL6);
+    $nextContentId = null;
+    while ($objResult = mysqli_fetch_assoc($objQuery6)) {
+        $next_content_id = $objResult['content_id'];
+    }
+
+    $strSQL7 = "SELECT * FROM `documents_line` WHERE `content_id` = '$next_content_id' AND `doc_id` = '$doc_id'";
+    $objQuery7 = $conDB->sqlQuery($strSQL7);
+    while ($objResult = mysqli_fetch_assoc($objQuery7)) {
+        $next_id = $objResult['id'];
+    }
+
+    //back
+    $strSQL8 = "SELECT `content_id` FROM `documents_line` WHERE `content_id` < '$current_content_id' AND `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` DESC LIMIT 1";
+    $objQuery8 = $conDB->sqlQuery($strSQL8);
+    $backContentId = null;
+    while ($objResult = mysqli_fetch_assoc($objQuery8)) {
+        $back_content_id = $objResult['content_id'];
+    }
+
+    $strSQL9 = "SELECT * FROM `documents_line` WHERE `content_id` = '$back_content_id' AND `doc_id` = '$doc_id'";
+    $objQuery9 = $conDB->sqlQuery($strSQL9);
+    while ($objResult = mysqli_fetch_assoc($objQuery9)) {
+        $back_id = $objResult['id'];
+    }
+
+    $strSQL4 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` DESC LIMIT 1";
     $objQuery4 = $conDB->sqlQuery($strSQL4);
     while ($objResult = mysqli_fetch_assoc($objQuery4)) {
-        $last_line_id = $objResult['id'];
+        $last_line_id = $objResult['content_id'];
     }
 
-    $strSQL5 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' ORDER BY `id` ASC LIMIT 1";
+    $strSQL5 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` ASC LIMIT 1";
     $objQuery5 = $conDB->sqlQuery($strSQL5);
     while ($objResult = mysqli_fetch_assoc($objQuery5)) {
-        $start_line_id = $objResult['id'];
+        $start_line_id = $objResult['content_id'];
     }
 
 
@@ -91,18 +126,18 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         Discard
                     </button>
-                    <?php if ($id > $start_line_id) { ?>
+                    <?php if ($current_content_id > $start_line_id) { ?>
                         <button type="button" class="btn btn-app flat" onclick="backComment('<?php echo md5($line_id); ?>','<?php echo md5($back_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Next">
                             <img src="dist/img/icon/back.png" width="24"><br>
                             Back
                         </button>
                     <?php } ?>
-                    <?php if ($id < $last_line_id) { ?>
+                    <?php if ($current_content_id < $last_line_id) { ?>
                         <button type="button" class="btn btn-app flat" onclick="nextComment('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Next">
                             <img src="dist/img/icon/forward.png" width="24"><br>
                             Next
                         </button>
-                    <?php } elseif ($id = $last_line_id) { ?>
+                    <?php } elseif ($current_content_id = $last_line_id) { ?>
                         <button type="button" class="btn btn-app flat" onclick="saveComment('<?php echo md5($line_id); ?>','<?php echo $doc_no; ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Save">
                             <img src="dist/img/icon/save.svg" width="24"><br>
                             Save

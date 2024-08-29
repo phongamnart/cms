@@ -27,6 +27,7 @@ include("_check_session.php");
         $checkedby = $objResult['checkedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
+        $checkedby = $objResult['checkedby'];
         if ($objResult['date'] != "") {
             $date = date("d/m/Y", strtotime($objResult['date']));
         }
@@ -46,7 +47,7 @@ include("_check_session.php");
         $request = $objResult['request'];
     }
 
-    $sql3 = "SELECT * FROM `approval` WHERE `role` = 'ADMIN'";
+    $sql3 = "SELECT * FROM `approval` WHERE `role` = 'ISO' LIMIT 1";
     $objQuery3 = $conDB->sqlQuery($sql3);
     while ($objResult = mysqli_fetch_assoc($objQuery3)) {
         $approval_name = $objResult['name'];
@@ -74,7 +75,7 @@ include("_check_session.php");
             <section class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                             <h1><?php echo "Request download document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
@@ -88,8 +89,7 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" 
-                    onclick="RequestDownload('<?php echo md5($doc_id)?>','<?php echo $approval_mail?>','<?php echo $approval_name?>','<?php echo $method_statement?>','<?php echo $doc_no?>','<?php echo $preparedby?>','<?php echo $date?>','Download')" title="Send Request">
+                    <button type="button" class="btn btn-app flat" onclick="RequestDownload('<?php echo md5($doc_id) ?>','<?php echo $approval_mail ?>','<?php echo $approval_name ?>','<?php echo $method_statement ?>','<?php echo $doc_no ?>','<?php echo $preparedby ?>','<?php echo $date ?>','Download')" title="Send Request">
                         <img src="dist/img/icon/forward.png" width="24"><br>
                         Send Request
                     </button>
@@ -108,7 +108,7 @@ include("_check_session.php");
                                 </div>
                             </div>
                             <div class="card-body row">
-                                <div class="col-md-8">
+                                <div class="col-md-12">
                                     <form method="post" id="documents" enctype="multipart/form-data">
                                         <div class="row">
                                             <div class="col-sm-6">
@@ -167,10 +167,16 @@ include("_check_session.php");
                                                     <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> <?php echo $mode; ?> />
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-9">
                                                 <div class="form-group">
                                                     <label>Reason <em></em></label>
-                                                    <textarea class="form-control" rows="3" name="request" id="request" required></textarea>
+                                                    <textarea class="form-control" rows="5" name="request" id="request" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label for="checkedby">Check By</label>
+                                                    <input type="text" class="form-control" name="checkedby" value="<?php echo $checkedby; ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
                                         </div>
@@ -186,6 +192,21 @@ include("_check_session.php");
     </div>
     <?php include_once('_script.php'); ?>
     <script>
+        function checkRequestField() {
+            var requestField = document.getElementById('request');
+            var sendRequestButton = document.querySelector('button[onclick^="RequestDownload"]');
+
+            if (requestField.value.trim() === '') {
+                sendRequestButton.disabled = true;
+            } else {
+                sendRequestButton.disabled = false;
+            }
+        }
+
+        document.getElementById('request').addEventListener('input', checkRequestField);
+
+        checkRequestField();
+
         function dataPost(field, value) {
             updateValue('documents', '<?php echo $get_id; ?>', field, value);
         }
@@ -193,6 +214,7 @@ include("_check_session.php");
         function dataPost2(id, field, value) {
             updateAmount('documents_line', id, field, value);
         }
+
         <?php if ($mode == "") { ?>
             $('#date').datepicker({
                 format: 'dd/mm/yyyy'

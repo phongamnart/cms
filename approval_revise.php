@@ -71,6 +71,9 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
+                            <div class="d-flex justify-content-end">
+                                <span style="font-size: 14px" class="text-danger">***ถ้าทำการอนุมัติเอกสารไปแล้ว แต่ยังแสดงข้อมูลอยู่ให้กด Refresh***</span>
+                            </div>
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">

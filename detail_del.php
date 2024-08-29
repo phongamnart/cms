@@ -22,9 +22,10 @@ include("_check_session.php");
         $work = $objResult['work'];
         $type = $objResult['type'];
         $method_statement = $objResult['method_statement'];
-        $prepared_by = $objResult['preparedby'];
+        $preparedby = $objResult['preparedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
+        $checkedby = $objResult['checkedby'];
         if ($objResult['date'] != "") {
             $date = date("d/m/Y", strtotime($objResult['date']));
         }
@@ -38,13 +39,30 @@ include("_check_session.php");
         $line_id = $objResult['line_id'];
     }
 
-    $sql2 = "SELECT * FROM `request` WHERE `doc_no` = '$doc_no' AND `status_del` = 1";
+    $sql2 = "SELECT * FROM `request` WHERE `doc_no` = '$doc_no' AND `status_del` = 1 LIMIT 1";
     $objQuery_req = $conDB->sqlQuery($sql2);
     while ($objResult = mysqli_fetch_assoc($objQuery_req)) {
         $req_delete = $objResult['req_delete'];
         $status_del = $objResult['status_del'];
         $id = $objResult['id'];
+        $to = $objResult['createdby'];
     }
+
+    $sql3 = "SELECT * FROM `approval` WHERE `mail` = '$to' LIMIT 1";
+    $objQuery_name = $conDB->sqlQuery($sql3);
+    while ($objResult = mysqli_fetch_assoc($objQuery_name)) {
+        $to_name = $objResult['name'];
+        
+    }
+
+    $sql3 = "SELECT * FROM `approval` WHERE `role` = 'ISO' LIMIT 1";
+    $objQuery_name = $conDB->sqlQuery($sql3);
+    while ($objResult = mysqli_fetch_assoc($objQuery_name)) {
+        $name_iso = $objResult['name'];
+        $mail_iso = $objResult['mail'];
+    }
+
+    $currentTime = date("Y-m-d");
     ?>
 </head>
 
@@ -67,7 +85,7 @@ include("_check_session.php");
             <section class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                             <h1><?php echo "Request Delete Document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
@@ -86,11 +104,15 @@ include("_check_session.php");
                             <img src="dist/img/icon/pdf.png" width="24"><br>
                             PDF
                         </button>
-                        <button type="button" class="btn btn-app flat" onclick="approveDelete('<?php echo md5($id); ?>','<?php echo $doc_no; ?>','<?php echo md5($doc_id); ?>')" title="Approve">
+                        <button type="button" class="btn btn-app flat" 
+                        onclick="approveDelete('<?php echo md5($id); ?>','<?php echo md5($doc_id); ?>','<?php echo $to; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Delete','<?php echo $mail_iso; ?>','<?php echo $name_iso; ?>')"
+                        title="Approve">
                             <img src="dist/img/icon/approved.svg" width="24"><br>
                             Approve
                         </button>
-                        <button type="button" class="btn btn-app flat" onclick="rejectDelete('<?php echo md5($id); ?>','<?php echo $doc_no; ?>')" title="Save word">
+                        <button type="button" class="btn btn-app flat"
+                        onclick="rejectDelete('<?php echo md5($id); ?>','<?php echo $to; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Delete')"
+                        title="Save word">
                             <img src="dist/img/icon/error.svg" width="24"><br>
                             Reject
                         </button>
@@ -109,7 +131,7 @@ include("_check_session.php");
                                     </div>
                                 </div>
                                 <div class="card-body row">
-                                    <div class="col-md-8">
+                                    <div class="col-md-12">
                                         <form method="post" id="documents" enctype="multipart/form-data">
                                             <div class="row">
                                                 <div class="col-sm-6">
@@ -165,13 +187,19 @@ include("_check_session.php");
                                                 <div class="col-sm-3">
                                                     <div class="form-group">
                                                         <label>Prepared By <em></em></label>
-                                                        <input type="text" class="form-control" name="prepared_by" value="<?php echo $prepared_by; ?>" <?php echo $mode; ?> readonly />
+                                                        <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> readonly />
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-6">
+                                                <div class="col-sm-9">
                                                     <div class="form-group">
-                                                        <label>Request Download <em></em></label>
-                                                        <textarea class="form-control" rows="3" name="req_delete" id="req_delete" <?php echo $mode; ?> required><?php echo $req_delete; ?></textarea>
+                                                        <label>Reason<em></em></label>
+                                                        <textarea class="form-control" rows="5" name="req_delete" id="req_delete" <?php echo $mode; ?> readonly><?php echo $req_delete; ?></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label for="checkedby">Check By</label>
+                                                        <input type="text" class="form-control" name="checkedby" value="<?php echo $checkedby; ?>" <?php echo $mode; ?> disabled />
                                                     </div>
                                                 </div>
                                             </div>

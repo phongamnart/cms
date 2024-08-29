@@ -25,6 +25,8 @@ include("_check_session.php");
         $type = $objResult['type'];
         $method_statement = $objResult['method_statement'];
         $preparedby = $objResult['preparedby'];
+        $createdby = $objResult['createdby'];
+        $checkedby = $objResult['checkedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
         if ($objResult['date'] != "") {
@@ -87,7 +89,7 @@ include("_check_session.php");
             <section class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                             <h1><?php echo "Document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
@@ -123,7 +125,9 @@ include("_check_session.php");
                         Approve
                     </button>
                     <?php } ?>
-                    <button type="button" class="btn btn-app flat" onclick="Reject('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>','<?php echo $myname?>','<?php echo $currentTime ?>')" title="Reject">
+                    <button type="button" class="btn btn-app flat"
+                    onclick="Reject('<?php echo md5($doc_id);?>','<?php echo $myname?>','<?php echo $createdby ?>','<?php echo $preparedby ?>','<?php echo $method_statement ?>','<?php echo $doc_no ?>','<?php echo $preparedby ?>','<?php echo $currentTime ?>','Create')" 
+                    title="Reject">
                         <img src="dist/img/icon/error.svg" width="24"><br>
                         Reject
                     </button>
@@ -141,7 +145,7 @@ include("_check_session.php");
                                 </div>
                             </div>
                             <div class="card-body row">
-                                <div class="col-md-8">
+                                <div class="col-md-12">
                                     <form method="post" id="documents" enctype="multipart/form-data">
                                         <div class="row">
                                             <div class="col-sm-6">
@@ -155,11 +159,6 @@ include("_check_session.php");
                                                     <label>Document No. <em></em></label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control" value="<?php echo $doc_no; ?>" readonly>
-                                                        <?php if ($mode != "readonly") { ?>
-                                                            <span class="input-group-append">
-                                                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#noselectModal"><i class="fas fa-search"></i></button>
-                                                            </span>
-                                                        <?php } ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -200,10 +199,16 @@ include("_check_session.php");
                                                     <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-9">
                                                 <div class="form-group">
                                                     <label>Remark <em></em></label>
-                                                    <textarea class="form-control" rows="3" name="remark" onchange="dataPost('remark', this.value)" <?php echo $mode; ?>><?php echo htmlentities($remark); ?></textarea>
+                                                    <textarea class="form-control" rows="5" name="remark" onchange="dataPost('remark', this.value)" <?php echo $mode; ?> disabled><?php echo htmlentities($remark); ?></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label for="checkedby">Check By</label>
+                                                    <input type="text" class="form-control" name="checkedby" value="<?php echo $checkedby; ?>" <?php echo $mode; ?> disabled />
                                                 </div>
                                             </div>
                                         </div>
@@ -213,7 +218,7 @@ include("_check_session.php");
                         </div>
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Line items</h3>
+                                <h3 class="card-title">Content</h3>
 
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">

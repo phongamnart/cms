@@ -25,33 +25,13 @@ while ($obj = mysqli_fetch_assoc($result)) {
     }
 }
 
-$strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
+$strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name`, `documents_line`.`page_no` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
 $objQuery = $conDB->sqlQuery($strSQL);
 $htmlContent = '';
 $index = 0;
-while ($objResult = mysqli_fetch_assoc($objQuery)) {
-    $index++;
-    $htmlContent .= '<div style="font-size: 20px;"><b>' . $index . ". " . $objResult['name'] . '</b></div>';
-    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE `line_id` = '" . $objResult['id'] . "'";
-    $objQuery_line = $conDB->sqlQuery($strSQL2);
-    while ($objResult_content = mysqli_fetch_assoc($objQuery_line)) {
-        if ($objResult_content['is_image'] == 0) {
-            $encodedText = htmlspecialchars($objResult_content['content']);
-            $encodedText = html_entity_decode($encodedText);
-            $htmlContent .= '<div style="font-size: 20px;">' . $encodedText . '</div>';
-        } elseif ($objResult_content['is_image'] == 1) {
-            $imagePath = substr($objResult_content['content'], 3);
-            $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style=" height: 420px;" alt="Image"></div>';
-        } elseif ($objResult_content['is_image'] == 2) {
-            $imagePath = substr($objResult_content['content'], 3);
-            $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style=" height: 650px;" alt="Image"></div>';
-            $htmlContent .= '<div style="page-break-after: always;"></div>';
-        }
-    }
-}
+$index_toc = 0;
 
-$currentTime = date("YmdHis");
-$randomNum = uniqid();
+// $pageNumbers = [];
 
 $mpdf = new Mpdf([
     'fontDir' => __DIR__ . '/fonts/',
@@ -75,7 +55,7 @@ $mpdf->SetHTMLHeader('
                 <img src="dist/img/logo.svg" alt="logo" width="50">
             </td>
             <td colspan="2" align="left" style="padding: 5px;border-left: 1px solid #222222;font-size: 20px;">
-                <b>Title : '.$method_statement.'</b>
+                <b>Title : ' . $method_statement . '</b>
             </td>
             <td align="left" style="padding: 5px;border-left: 1px solid #222222;font-size: 20px;">
                 <b>Page {PAGENO} of {nb}</b>
@@ -83,10 +63,10 @@ $mpdf->SetHTMLHeader('
         </tr>
         <tr>
             <td align="left" style="padding: 5px;border-left: 1px solid #222222;border-top: 1px solid #222222;font-size: 20px;">
-                <b>Document No. : '.$doc_no.'</b>
+                <b>Document No. : ' . $doc_no . '</b>
             </td>
             <td align="left" style="padding: 5px;border-left: 1px solid #222222;border-top: 1px solid #222222;font-size: 20px;">
-                <b>Effective Date : '.$date.'</b>
+                <b>Effective Date : ' . $date . '</b>
             </td>
             <td align="left" style="padding: 5px;border-left: 1px solid #222222;border-top: 1px solid #222222;font-size: 20px;">
                 <b>Revision :</b>
@@ -96,31 +76,71 @@ $mpdf->SetHTMLHeader('
     </div>
 ');
 
-// $revisionTable = '
-// <h2>Revision History</h2>
-// <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-//     <tr style="background-color: #f2f2f2;">
-//         <th style="border: 1px solid black; padding: 5px;">Rev.</th>
-//         <th style="border: 1px solid black; padding: 5px;">'.$date.'</th>
-//         <th style="border: 1px solid black; padding: 5px;">Revision Details</th>
-//         <th style="border: 1px solid black; padding: 5px;">Prepared</th>
-//         <th style="border: 1px solid black; padding: 5px;">Checked</th>
-//         <th style="border: 1px solid black; padding: 5px;">Approved</th>
-//     </tr>
-//     <tr>
-//         <td style="border: 1px solid black; padding: 5px;">0</td>
-//         <td style="border: 1px solid black; padding: 5px;">29-03-2024</td>
-//         <td style="border: 1px solid black; padding: 5px;">First Issuing</td>
-//         <td style="border: 1px solid black; padding: 5px;">KITTIPONG</td>
-//         <td style="border: 1px solid black; padding: 5px;">KITTIPONG</td>
-//         <td style="border: 1px solid black; padding: 5px;">CHAIYOD</td>
-//     </tr>
-// </table>
-// ';
+$tocHtml = '<br>';
+$tocHtml .= '<table style="width: 100%; border-collapse: collapse;">';
+$tocHtml .= '<thead>';
+$tocHtml .= '<tr>';
+$tocHtml .= '<th style="border: 1px solid #000; padding: 10px; font-size: 20px; width: 10%;">Category</th>';
+$tocHtml .= '<th style="border: 1px solid #000; padding: 10px; font-size: 20px; width: 70%;">Content</th>';
+$tocHtml .= '<th style="border: 1px solid #000; padding: 10px; font-size: 20px; width: 10%;">Page</th>';
+$tocHtml .= '</tr>';
+$tocHtml .= '</thead>';
+$tocHtml .= '<tbody>';
 
-// $mpdf->WriteHTML($revisionTable);
-// $mpdf->AddPage();
+while ($objResult = mysqli_fetch_assoc($objQuery)) {
+    $index_toc++;
+    $tocHtml .= '<tr>';
+    $tocHtml .= '<td style="border: 1px solid #000; padding: 10px; font-size: 20px; width: 10%; text-align: center;">' . $index_toc . '</td>';
+    $tocHtml .= '<td style="border: 1px solid #000; padding: 10px; font-size: 20px; width: 80%;">' . $objResult['name'] . '</td>';
+    $tocHtml .= '<td style="border: 1px solid #000; padding: 10px; font-size: 20px; width: 10%; text-align: center;">' . $objResult['page_no'] . '</td>';
+    $tocHtml .= '</tr>';
+}
 
+$tocHtml .= '</tbody>';
+$tocHtml .= '</table>';
+
+$mpdf->AddPage();
+$mpdf->WriteHTML($tocHtml);
+
+mysqli_data_seek($objQuery, 0);
+
+while ($objResult = mysqli_fetch_assoc($objQuery)) {
+    $index++;
+    if (stripos($objResult['name'], 'Appendix') !== false) {
+        $htmlContent .= '<div style="page-break-before: always;"></div>';
+    }
+    $htmlContent .= '<div style="font-size: 20px;"><b>' . $index . ". " . $objResult['name'] . ' </b></div>';
+    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE `line_id` = '" . $objResult['id'] . "' ORDER BY `index_num` ASC";
+    $objQuery_line = $conDB->sqlQuery($strSQL2);
+    while ($objResult_content = mysqli_fetch_assoc($objQuery_line)) {
+        if ($objResult_content['is_image'] == 0) {
+            $encodedText = htmlspecialchars($objResult_content['content']);
+            $encodedText = html_entity_decode($encodedText);
+            $htmlContent .= '<style>
+                                table {
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                    border-spacing: 0;
+                                }
+                                th, td {
+                                    border: 1px solid #000;
+                                    padding: 5px;
+                                }
+                            </style>';
+            $htmlContent .= '<div style="font-size: 20px;">' . $encodedText . '</div>';
+        } elseif ($objResult_content['is_image'] == 1) {
+            $imagePath = substr($objResult_content['content'], 3);
+            $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style=" height: 420px;" alt="Image"></div>';
+        } elseif ($objResult_content['is_image'] == 2) {
+            $imagePath = substr($objResult_content['content'], 3);
+            $htmlContent .= '<div style="page-break-after: always;"></div>';
+            $htmlContent .= '<div style="text-align: center;"><img src="' . $imagePath . '" style=" height: 950px;" alt="Image"></div>';
+        } elseif ($objResult_content['is_image'] == 3) {
+            $htmlContent .= '<div style="page-break-after: always;"></div>';
+        }
+    }
+}
+
+$mpdf->AddPage();
 $mpdf->WriteHTML($htmlContent);
 $mpdf->Output('document.pdf', 'I');
-?>

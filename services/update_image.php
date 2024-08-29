@@ -4,24 +4,16 @@ include("../config/app.php");
 $conDB = new db_conn();
 $myObj = (object)array();
 $id = "";
-$doc_id = "";
 $filename = "";
-$type = "";
 $redirect = "";
-$selectSize = "";
 $doc_no = "";
-$next_index = "";
 $createdby = $_SESSION['user_mail'];
 $date = date('Y-m-d');
 
 if(isset($_POST)){
     $id = $conDB->sqlEscapestr($_POST['id']);
-    $doc_id = $conDB->sqlEscapestr($_POST['doc_id']);
-    $type = $conDB->sqlEscapestr($_POST['type']);
     $redirect = $conDB->sqlEscapestr($_POST['redirect']);
-    $selectSize = $conDB->sqlEscapestr($_POST['selectSize']);
     $doc_no = $conDB->sqlEscapestr($_POST['doc_no']);
-    $next_index = $conDB->sqlEscapestr($_POST['next_index']);
     $filename = $_FILES['file']['name'];
     $path = "../upload/files/images/" .$doc_no;
     
@@ -35,7 +27,7 @@ if(isset($_POST)){
         $newfilename = date('Ymdhis').".".$ext;
         $location = $path."/".$newfilename;
         if ( move_uploaded_file($_FILES['file']['tmp_name'], $location) ) {
-            $str = "INSERT INTO `documents_line_cont` (`line_id`, `doc_id`, `is_image`, `index_num`, `content`, `createdby`, `created`) VALUES ('".$id."', '".$doc_id."', '".$selectSize."', '".$next_index."', '".$location."', '".$createdby."', '".$date."')";
+            $str = "UPDATE `documents_line_cont` SET `content` = '$location' WHERE `id` = '$id'";
             $conDB->sqlQuery($str);
         }
     }

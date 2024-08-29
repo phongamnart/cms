@@ -86,6 +86,9 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
+                            <div class="d-flex justify-content-end">
+                                <span style="font-size: 14px" class="text-danger">***ถ้าทำการอนุมัติเอกสารไปแล้ว แต่ยังแสดงข้อมูลอยู่ให้กด Refresh***</span>
+                            </div>
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">
@@ -184,18 +187,24 @@ include("_check_session.php");
                                                     </td>
                                                     <td><?php echo $objResult['preparedby'] ?></td>
                                                     <td>
-                                                        <?php if ($objResult['approved'] == 0) { $class='class="text-info"'?>
-                                                            <span <?php echo $class?>>Draft</span>
-                                                        <?php } elseif ($objResult['approved'] == 1) { $class='class="text-primary"'?>
-                                                            <span <?php echo $class?>>Pending Check</span>
-                                                        <?php } elseif ($objResult['approved'] == 2) { $class='class="text-primary"'?>
-                                                            <span <?php echo $class?>>Pending ISO</span>
-                                                        <?php } elseif ($objResult['approved'] == 3) { $class='class="text-primary"'?>
-                                                            <span <?php echo $class?>>Pending QMR</span>
-                                                        <?php } elseif ($objResult['approved'] == 4) { $class='class="text-success"'?>
-                                                            <span <?php echo $class?>>Approved</span>
-                                                        <?php } elseif ($objResult['approved'] == 5) { $class='class="text-warning"'?>
-                                                            <span <?php echo $class?>>Reject</span>
+                                                        <?php if ($objResult['approved'] == 0) {
+                                                            $class = 'class="text-info"' ?>
+                                                            <span <?php echo $class ?>>Draft</span>
+                                                        <?php } elseif ($objResult['approved'] == 1) {
+                                                            $class = 'class="text-primary"' ?>
+                                                            <span <?php echo $class ?>>Pending Check</span>
+                                                        <?php } elseif ($objResult['approved'] == 2) {
+                                                            $class = 'class="text-primary"' ?>
+                                                            <span <?php echo $class ?>>Pending ISO</span>
+                                                        <?php } elseif ($objResult['approved'] == 3) {
+                                                            $class = 'class="text-primary"' ?>
+                                                            <span <?php echo $class ?>>Pending QMR</span>
+                                                        <?php } elseif ($objResult['approved'] == 4) {
+                                                            $class = 'class="text-success"' ?>
+                                                            <span <?php echo $class ?>>Approved</span>
+                                                        <?php } elseif ($objResult['approved'] == 5) {
+                                                            $class = 'class="text-warning"' ?>
+                                                            <span <?php echo $class ?>>Reject</span>
                                                         <?php } ?>
                                                     </td>
                                                 <?php } ?>

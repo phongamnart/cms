@@ -112,13 +112,14 @@
             <div class="col-sm-12">
               <label>Choose file <em>เลือกไฟล์</em></label><span class="text-danger"> * file size maximum 30mb</span>
               <div class="input-group mb-3">
-                <input type="file" class="form-control" id="file" name="file" required />
+                <input type="file" class="form-control" id="file" name="file" accept=".jpg,.jpeg,.png" required />
                 <input type="hidden" class="form-control" id="id" name="id" />
                 <input type="hidden" class="form-control" id="doc_id" name="doc_id" />
                 <input type="hidden" class="form-control" id="type" name="type" />
                 <input type="hidden" class="form-control" id="redirect" name="redirect" />
                 <input type="hidden" class="form-control" id="selectSize" name="selectSize" />
                 <input type="hidden" class="form-control" id="doc_no" name="doc_no" />
+                <input type="hidden" class="form-control" id="next_index" name="next_index" />
               </div>
             </div>
             <div class="col-sm-12">

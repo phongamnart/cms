@@ -150,6 +150,57 @@
             });
     }
 
+    function updateValue_reload(table, id, field, value) {
+        $('#success-alert').hide();
+        let myPromise = new Promise(function(myResolve, myReject) {
+            setTimeout(function() {
+                myResolve(true);
+            }, 100);
+        });
+        $.post("services/updatevalue_reload.php", {
+                table: table,
+                id: id,
+                field: field,
+                value: value
+            })
+            .done(function(data) {
+                myPromise.then(function(value) {
+                    var divElement = document.getElementById("success-alert");
+                    divElement.style.display = "block";
+                    console.log(data);
+                    setValue(data);
+                    $('#success-alert').fadeOut(3000, function() {
+                        $('#success-alert').hide();
+                    });
+                });
+                window.location.reload();
+            });
+    }
+
+    function moveUp(id, line_id, index_num) {
+        $.post("services/move_up.php", {
+                id: id,
+                line_id: line_id,
+                index_num: index_num
+            })
+            .done(function(data) {
+                console.log(data);
+                window.location.reload();
+            });
+    }
+
+    function moveDown(id, line_id, index_num) {
+        $.post("services/move_down.php", {
+                id: id,
+                line_id: line_id,
+                index_num: index_num
+            })
+            .done(function(data) {
+                console.log(data);
+                window.location.reload();
+            });
+    }
+
     function postValue(table, field, value) {
         $('#success-alert').hide();
         let myPromise = new Promise(function(myResolve, myReject) {
@@ -363,7 +414,106 @@
             <title>CONSTRUCTION METHOD STATEMENT</title>
         </head>
         <body>
-            <h2>Dear ${approval_name}, requires you to approve ${type} document</h2>
+            <h2>Dear ${approval_name}, Requires you to approve ${type} document</h2>
+            Document no. : ${doc_no}</br>
+            Method Statement : ${method_statement}</br>
+            Created By : ${createdby}</br>
+            Report Date : ${date}</br>
+            Please click below link to access to platform.</br></br>
+            <a href="https://apps.powerapps.com/play/e/default-99e38c91-bab9-419c-84c0-4054b0b25b8b/a/678ec0e2-7e4f-410a-9b0d-60b6a3ffd9d0?tenantId=99e38c91-bab9-419c-84c0-4054b0b25b8b&hint=5f12378a-f320-429c-9d1b-8329f014a7c9&sourcetime=1721374709794&source=portal" 
+            target="_blank" style="color:#ffffff; text-decoration:none; font-family:Segoe UI Semibold,SegoeUISemibold,Segoe UI,SegoeUI,Roboto,&quot;Helvetica Neue&quot;,Arial,sans-serif; font-weight:600; padding:12px 16px 12px 16px; text-align:left; line-height:1; font-size:16px; display:inline-block; border:0; border-radius:4px; background: #0078d7;" >CLICK TO OPEN APP</a>
+            </br></br>Thank you</br>
+        </body>
+    </html>`;
+        $.post("services/sendmail.php", {
+                to: to,
+                subject: subject,
+                htmlContent: htmlContent
+            })
+            .done(function(data) {
+                var myObj = JSON.parse(data);
+                if (myObj.alert != '') {
+                    alert(myObj.alert)
+                }
+            });
+        return false;
+    }
+
+    //sendmail after approved
+    function sendMailDelete(to, to_name, method_statement, doc_no, createdby, date, type) {
+        const subject = 'DOCUMENT DELETED, CONSTRUCTION METHOD STATEMENT';
+        const htmlContent = `<html>
+        <head>
+            <title>CONSTRUCTION METHOD STATEMENT</title>
+        </head>
+        <body>
+            <h2>Dear ${to_name}, Document requested Delete has been deleted</h2>
+            Document no. : ${doc_no}</br>
+            Method Statement : ${method_statement}</br>
+            Created By : ${createdby}</br>
+            Report Date : ${date}</br>
+            Please click below link to access to platform.</br></br>
+            <a href="https://apps.powerapps.com/play/e/default-99e38c91-bab9-419c-84c0-4054b0b25b8b/a/678ec0e2-7e4f-410a-9b0d-60b6a3ffd9d0?tenantId=99e38c91-bab9-419c-84c0-4054b0b25b8b&hint=5f12378a-f320-429c-9d1b-8329f014a7c9&sourcetime=1721374709794&source=portal" 
+            target="_blank" style="color:#ffffff; text-decoration:none; font-family:Segoe UI Semibold,SegoeUISemibold,Segoe UI,SegoeUI,Roboto,&quot;Helvetica Neue&quot;,Arial,sans-serif; font-weight:600; padding:12px 16px 12px 16px; text-align:left; line-height:1; font-size:16px; display:inline-block; border:0; border-radius:4px; background: #0078d7;" >CLICK TO OPEN APP</a>
+            </br></br>Thank you</br>
+        </body>
+    </html>`;
+        $.post("services/sendmail.php", {
+                to: to,
+                subject: subject,
+                htmlContent: htmlContent
+            })
+            .done(function(data) {
+                var myObj = JSON.parse(data);
+                if (myObj.alert != '') {
+                    alert(myObj.alert)
+                }
+            });
+        return false;
+    }
+
+    //sendmail after approved
+    function sendMailApproved(to, to_name, method_statement, doc_no, createdby, date, type) {
+        const subject = 'REQUEST APPROVED, CONSTRUCTION METHOD STATEMENT';
+        const htmlContent = `<html>
+        <head>
+            <title>CONSTRUCTION METHOD STATEMENT</title>
+        </head>
+        <body>
+            <h2>Dear ${to_name}, Document you requested to ${type} has been approved</h2>
+            Document no. : ${doc_no}</br>
+            Method Statement : ${method_statement}</br>
+            Created By : ${createdby}</br>
+            Report Date : ${date}</br>
+            Please click below link to access to platform.</br></br>
+            <a href="https://apps.powerapps.com/play/e/default-99e38c91-bab9-419c-84c0-4054b0b25b8b/a/678ec0e2-7e4f-410a-9b0d-60b6a3ffd9d0?tenantId=99e38c91-bab9-419c-84c0-4054b0b25b8b&hint=5f12378a-f320-429c-9d1b-8329f014a7c9&sourcetime=1721374709794&source=portal" 
+            target="_blank" style="color:#ffffff; text-decoration:none; font-family:Segoe UI Semibold,SegoeUISemibold,Segoe UI,SegoeUI,Roboto,&quot;Helvetica Neue&quot;,Arial,sans-serif; font-weight:600; padding:12px 16px 12px 16px; text-align:left; line-height:1; font-size:16px; display:inline-block; border:0; border-radius:4px; background: #0078d7;" >CLICK TO OPEN APP</a>
+            </br></br>Thank you</br>
+        </body>
+    </html>`;
+        $.post("services/sendmail.php", {
+                to: to,
+                subject: subject,
+                htmlContent: htmlContent
+            })
+            .done(function(data) {
+                var myObj = JSON.parse(data);
+                if (myObj.alert != '') {
+                    alert(myObj.alert)
+                }
+            });
+        return false;
+    }
+
+    //sendmail reject
+    function sendMailReject(to, to_name, method_statement, doc_no, createdby, date, type) {
+        const subject = 'REQUEST REJECTED, CONSTRUCTION METHOD STATEMENT';
+        const htmlContent = `<html>
+        <head>
+            <title>CONSTRUCTION METHOD STATEMENT</title>
+        </head>
+        <body>
+            <h2>Dear ${to_name}, Document you requested to ${type} was rejected</h2>
             Document no. : ${doc_no}</br>
             Method Statement : ${method_statement}</br>
             Created By : ${createdby}</br>
@@ -413,55 +563,58 @@
     }
 
     //Function Approve req Download in detail_download.php
-    function reqApproved(id, doc_no) {
+    function reqApproved(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="acceptReq(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="acceptReq(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Approve req Download in detail_download.php
-    function acceptReq(id) {
+    function acceptReq(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         updateValue('request', id, 'status_req', '2');
         const currentDate = new Date();
         currentDate.setDate(currentDate.getDate() + 7);
         const expire = currentDate.toISOString().split('T')[0];
         updateValue('request', id, 'expire', expire);
+        sendMailApproved(to, to_name, method_statement, doc_no, createdby, date, type);
         window.location.href = 'approval_download.php';
     }
 
     //Funtion Reject req Download in detail_download.php
-    function reqReject(id, doc_no) {
+    function reqReject(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
             '<div><textarea class="col-md-12" id="rejectReasonReq" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
-            '<button type="button" class="btn btn-success" onclick="rejectReq(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="rejectReq(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Funtion Reject req Download in detail_download.php
-    function rejectReq(id) {
+    function rejectReq(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         var reason = document.getElementById('rejectReasonReq').value;
         updateValue('request', id, 'comment', reason);
         updateValue('request', id, 'status_req', '0');
         updateValue('request', id, 'expire', null);
+        sendMailReject(to, to_name, method_statement, doc_no, createdby, date, type)
         window.location.href = 'approval_download.php';
     }
 
     //Function Approve req Download in detail_revise.php
-    function revApproved(id, doc_no, doc_id) {
+    function revApproved(id, doc_id, to, to_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="acceptRev(' + "'" + id + "'" + ',' + "'" + doc_id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="acceptRev(' + "'" + id + "'" + ',' + "'" + doc_id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Approve req Download in detail_revise.php
-    function acceptRev(id, doc_id) {
+    function acceptRev(id, doc_id, to, to_name, method_statement, doc_no, createdby, date, type) {
         updateValue('request', id, 'status_rev', '2');
+        sendMailApproved(to, to_name, method_statement, doc_no, createdby, date, type);
         draftDocument(id, doc_id);
         window.location.href = 'approval_revise.php';
     }
@@ -483,40 +636,42 @@
     };
 
     //Funtion Reject req Revise in detail_revise.php
-    function revReject(id, doc_no) {
+    function revReject(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
             '<div><textarea class="col-md-12" id="rejectReasonRev" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
-            '<button type="button" class="btn btn-success" onclick="rejectRev(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="rejectRev(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Funtion Reject req Revise in detail_revise.php
-    function rejectRev(id) {
+    function rejectRev(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         var reason = document.getElementById('rejectReasonRev').value;
         updateValue('request', id, 'comment', reason);
         updateValue('request', id, 'status_rev', '0');
+        sendMailReject(to, to_name, method_statement, doc_no, createdby, date, type)
         window.location.href = 'approval_revise.php';
     }
 
     //Function Reject Document
-    function Reject(id, doc_no, name, date) {
+    function Reject(id, rejectby, to, to_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to reject this content: ' + doc_no +
             '</p></div>' +
             '<div><textarea class="col-md-12" id="rejectReason" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
-            '<button type="button" class="btn btn-success" onclick="postReject(' + "'" + id + "'" + ',' + "'" + name + "'" + ',' + "'" + date + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="postReject(' + "'" + id + "'" + ',' + "'" + rejectby + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Reject Document
-    function postReject(id, name, date) {
+    function postReject(id, rejectby, to, to_name, method_statement, doc_no, createdby, date, type) {
         var reason = document.getElementById('rejectReason').value;
         updateValue('documents', id, 'approved', '5');
         updateValue('documents', id, 'comment', reason);
-        updateValue('documents', id, 'rejectby', name);
+        updateValue('documents', id, 'rejectby', rejectby);
         updateValue('documents', id, 'created_reject', date);
+        sendMailReject(to, to_name, method_statement, doc_no, createdby, date, type)
         window.location.href = 'approval_create.php';
     }
 
@@ -572,36 +727,39 @@
     }
 
     //Function Approve req Delete in detail.del.php
-    function approveDelete(id, doc_no, doc_id) {
+    function approveDelete(id, doc_id, to, to_name, method_statement, doc_no, createdby, date, type, mail_iso, name_iso) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to delete this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="acceptDelete(' + "'" + id + "'" + ',' + "'" + doc_id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="acceptDelete(' + "'" + id + "'" + ',' + "'" + doc_id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ',' + "'" + mail_iso + "'" + ',' + "'" + name_iso + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Approve req Delete in detail.del.php
-    function acceptDelete(id, doc_id) {
+    function acceptDelete(id, doc_id, to, to_name, method_statement, doc_no, createdby, date, type, mail_iso, name_iso) {
         updateValue('documents', doc_id, 'enable', '0');
         updateValue('request', id, 'status_del', '2');
+        sendMailDelete(to, to_name, method_statement, doc_no, createdby, date, type);
+        sendMailDelete(mail_iso, name_iso, method_statement, doc_no, createdby, date, type);
         window.location.href = 'approval_del.php';
     }
 
     //Function Reject req Delete in detail.del.php
-    function rejectDelete(id, doc_no) {
+    function rejectDelete(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to delete this document: ' + doc_no +
             '</p></div>' +
             '<div><textarea class="col-md-12" id="rejectReasonDel" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
-            '<button type="button" class="btn btn-success" onclick="deleteReject(' + "'" + id + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="deleteReject(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
     //Function Reject req Delete in detail.del.php
-    function deleteReject(id) {
+    function deleteReject(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         var reason = document.getElementById('rejectReasonDel').value;
         updateValue('request', id, 'comment', reason);
         updateValue('request', id, 'status_del', '0');
+        sendMailReject(to, to_name, method_statement, doc_no, createdby, date, type)
         window.location.href = 'approval_del.php';
     }
 
@@ -935,32 +1093,161 @@
     }
 
     //Function upload image in documents_line_edit.php
-    function setUpload(type, id, doc_id, redirect, selectSize, doc_no) {
+    function setUpload(type, id, doc_id, redirect, selectSize, doc_no, next_index) {
         document.getElementById('type').value = type;
         document.getElementById('id').value = id;
         document.getElementById('doc_id').value = doc_id;
         document.getElementById('redirect').value = redirect;
         document.getElementById('selectSize').value = selectSize;
         document.getElementById('doc_no').value = doc_no;
+        document.getElementById('next_index').value = next_index;
     }
+
     $("#form_uploadfile").on("submit", function(e) {
         e.preventDefault();
         uploadFile();
     });
+
     async function uploadFile() {
         const form = document.getElementById('form_uploadfile');
+        let fileInput = document.getElementById('file');
+        let file = fileInput.files[0];
+
+        const allowedExtensions = ['jpg', 'jpeg', 'png'];
+        let fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert('Invalid file type. Only JPG, JPEG, PNG files are allowed.');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) { // 2 MB in bytes
+            file = await resizeImage(file);
+        }
+
         let formData = new FormData(form);
-        formData.append("file", $('#file')[0].files[0]);
+        formData.append("file", file);
+
         try {
             const response = await fetch('services/uploadfile.php', {
                 method: "POST",
                 body: formData
-            })
+            });
             window.location.reload();
         } catch (error) {
             console.error("Error:", error);
         }
     }
+
+    function setUpdateImage(id, redirect, doc_no) {
+        document.getElementById('id').value = id;
+        document.getElementById('redirect').value = redirect;
+        document.getElementById('doc_no').value = doc_no;
+    }
+
+    $("#form_uploadfile").on("submit", function(e) {
+        e.preventDefault();
+        updateFile();
+    });
+
+    async function updateFile() {
+        const form = document.getElementById('form_uploadfile');
+        let fileInput = document.getElementById('file');
+        let file = fileInput.files[0];
+
+        const allowedExtensions = ['jpg', 'jpeg', 'png'];
+        let fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert('Invalid file type. Only JPG, JPEG, PNG files are allowed.');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) { // 2 MB in bytes
+            file = await resizeImage(file);
+        }
+
+        let formData = new FormData(form);
+        formData.append("file", file);
+
+        try {
+            const response = await fetch('services/update_image.php', {
+                method: "POST",
+                body: formData
+            });
+            window.location.reload();
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    function resizeImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    const maxFileSize = 2 * 1024 * 1024; // 2 MB in bytes
+                    let width = img.width;
+                    let height = img.height;
+
+                    // ลดขนาดภาพโดยรักษาอัตราส่วนเดิม
+                    const maxWidth = 2000; // ขนาดสูงสุดที่ต้องการ (ปรับตามความต้องการ)
+                    const maxHeight = 2000; // ขนาดสูงสุดที่ต้องการ (ปรับตามความต้องการ)
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const mimeType = file.type; // รักษาประเภทไฟล์เดิม
+                    const dataUrl = canvas.toDataURL(mimeType, 1.0); // คงคุณภาพที่ดีที่สุด
+                    const resizedFile = dataURLToFile(dataUrl, file.name);
+
+                    // ตรวจสอบขนาดของไฟล์ใหม่
+                    if (resizedFile.size > maxFileSize) {
+                        alert("Unable to resize image under 2 MB.");
+                        reject(new Error("Unable to resize image under 2 MB."));
+                    } else {
+                        resolve(resizedFile);
+                    }
+                };
+            };
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    function dataURLToFile(dataurl, filename) {
+        const arr = dataurl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, {
+            type: mime
+        });
+    }
+
 
     function uploadDoc(doc_id, doc_no) {
         document.getElementById('doc_id').value = doc_id;

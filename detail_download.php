@@ -13,7 +13,7 @@ include("_check_session.php");
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
-    $strSQL = "SELECT `documents`.*, `request`.*, `request`.`id` AS `reqID`, `documents`.`id` AS `doc_id` FROM `request` 
+    $strSQL = "SELECT `documents`.*, `request`.*, `request`.`id` AS `reqID`, `documents`.`id` AS `doc_id`, `request`.`createdby` AS `createReq` FROM `request` 
     LEFT JOIN `documents` ON `request`.`doc_no` = `documents`.`doc_no` WHERE md5(`request`.`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
@@ -28,20 +28,29 @@ include("_check_session.php");
         $approved = $objResult['approved'];
         $request = $objResult['request'];
         $status_req = $objResult['status_req'];
+        $createReq = $objResult['createReq'];
+        $checkedby = $objResult['checkedby'];
         $id = $objResult['reqID'];
         if ($objResult['date'] != "") {
             $date = date("d/m/Y", strtotime($objResult['date']));
         }
     }
-    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
-    $objQuery_line = $conDB->sqlQuery($strSQL);
+    $strSQL2 = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
+    $objQuery_line = $conDB->sqlQuery($strSQL2);
 
     $sql = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
     $objQuery_cont = $conDB->sqlQuery($sql);
     while ($objResult = mysqli_fetch_assoc($objQuery_cont)) {
         $line_id = $objResult['line_id'];
     }
-    
+
+    $strSQL3 = "SELECT * FROM `approval` WHERE `mail` = '$createReq'";
+    $objQuery_name = $conDB->sqlQuery($strSQL3);
+    while ($objResult = mysqli_fetch_assoc($objQuery_name)) {
+        $to_name = $objResult['name'];
+    }
+
+    $currentTime = date("Y-m-d");
     ?>
 </head>
 
@@ -64,7 +73,7 @@ include("_check_session.php");
             <section class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                             <h1><?php echo "Request Download Document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
@@ -83,11 +92,11 @@ include("_check_session.php");
                             <img src="dist/img/icon/pdf.png" width="24"><br>
                             PDF
                         </button>
-                        <button type="button" class="btn btn-app flat" onclick="reqApproved('<?php echo md5($id); ?>','<?php echo $doc_no; ?>')" title="Approve">
+                        <button type="button" class="btn btn-app flat" onclick="reqApproved('<?php echo md5($id); ?>','<?php echo $createReq; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Download')" title="Approve">
                             <img src="dist/img/icon/approved.svg" width="24"><br>
                             Approve
                         </button>
-                        <button type="button" class="btn btn-app flat" onclick="reqReject('<?php echo md5($id); ?>','<?php echo $doc_no; ?>')" title="Reject">
+                        <button type="button" class="btn btn-app flat" onclick="reqReject('<?php echo md5($id); ?>','<?php echo $createReq; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Download')" title="Reject">
                             <img src="dist/img/icon/error.svg" width="24"><br>
                             Reject
                         </button>
@@ -106,7 +115,7 @@ include("_check_session.php");
                                     </div>
                                 </div>
                                 <div class="card-body row">
-                                    <div class="col-md-8">
+                                    <div class="col-md-12">
                                         <form method="post" id="documents" enctype="multipart/form-data">
                                             <div class="row">
                                                 <div class="col-sm-6">
@@ -165,10 +174,16 @@ include("_check_session.php");
                                                         <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> readonly />
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-6">
+                                                <div class="col-sm-9">
                                                     <div class="form-group">
                                                         <label>Reason <em></em></label>
-                                                        <textarea class="form-control" rows="3" name="request" id="request" <?php echo $mode; ?> required><?php echo $request; ?></textarea>
+                                                        <textarea class="form-control" rows="5" name="request" id="request" <?php echo $mode; ?> readonly><?php echo $request; ?></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label for="checkedby">Check By</label>
+                                                        <input type="text" class="form-control" name="checkedby" value="<?php echo $checkedby; ?>" <?php echo $mode; ?> disabled />
                                                     </div>
                                                 </div>
                                             </div>

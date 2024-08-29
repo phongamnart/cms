@@ -32,7 +32,7 @@ include("_check_session.php");
             $date = date("d/m/Y", strtotime($objResult['date']));
         }
     }
-    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` 
+    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name`, `documents_line`.`page_no` AS `page_no`
     FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` 
     WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
     $objQuery_line = $conDB->sqlQuery($strSQL);
@@ -86,6 +86,10 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
+                    <button type="button" class="btn btn-app flat" onclick="window.location.reload()" title="Refresh">
+                        <img src="dist/img/icon/renew.svg" style="padding:3px;" width="24"><br>
+                        Refresh
+                    </button>
                     <?php if ($mode != "readonly") { ?>
                         <button type="button" class="btn btn-app flat" onclick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
                             <img src="dist/img/icon/pdf.png" width="24"><br>
@@ -97,15 +101,25 @@ include("_check_session.php");
                         </button>
 
                         <?php
-                        $sql_check = "SELECT COUNT(*) as `total`, SUM(`checked`) as `total_checked` FROM `documents_line` WHERE md5(`doc_id`) = '$get_id'";
+                        $sql_check_all = "SELECT COUNT(*) as `total` FROM `documents_line` WHERE md5(`doc_id`) = '$get_id' AND `enable` = 1";
+                        $result_check_all = $conDB->sqlQuery($sql_check_all);
+                        while ($objResult_check_all = mysqli_fetch_assoc($result_check_all)) {
+                            $total = $objResult_check_all['total'];
+                        }
+
+                        $sql_check = "SELECT COUNT(*) as `check` FROM `documents_line` WHERE md5(`doc_id`) = '$get_id' AND `checked` = 1 AND `enable` = 1";
                         $result_check = $conDB->sqlQuery($sql_check);
                         while ($objResult_check = mysqli_fetch_assoc($result_check)) {
-                            $total = $objResult_check['total'];
-                            $total_checked = $objResult_check['total_checked'];
-                            $all_checked = ($total == $total_checked);
+                            $check = $objResult_check['check'];
+                        }
+
+                        $sql_page = "SELECT COUNT(*) AS `count_page` FROM `documents_line` WHERE md5(`doc_id`) = '$get_id' AND `checked` = 1 AND `enable` = 1 AND `page_no` IS NULL OR `page_no` = ''";
+                        $result_page = $conDB->sqlQuery($sql_page);
+                        while ($objResult_page = mysqli_fetch_assoc($result_page)) {
+                            $page_no = $objResult_page['count_page'];
                         }
                         ?>
-                        <?php if ($all_checked) { ?>
+                        <?php if ($total == $check && $page_no == 0) { ?>
                             <button type="button" class="btn btn-app flat" onclick="saveWord('<?php echo md5($doc_id); ?>','<?php echo $checkedby; ?>','<?php echo $approval_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Create')" title="Save">
                                 <img src="dist/img/icon/send.png" width="24"><br>
                                 Send Approve
@@ -121,6 +135,9 @@ include("_check_session.php");
                 <div class="row" style="padding: 0px 10px;">
                     <!-- General 1 -->
                     <div class="col-md-12">
+                        <div class="d-flex justify-content-start">
+                            <span style="font-size: 14px" class="text-danger">***ถ้ากรอกข้อมูลครบแล้ว แต่ไม่สามารถส่งขออนุมัติได้ให้กด Refresh***</span>
+                        </div>
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Title Head</h3>
@@ -147,7 +164,7 @@ include("_check_session.php");
                                         </div>
                                     <?php } ?>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-12">
                                     <form method="post" id="documents" enctype="multipart/form-data">
                                         <div class="row">
                                             <div class="col-sm-6">
@@ -161,11 +178,6 @@ include("_check_session.php");
                                                     <label>Document No. <em></em></label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control" value="<?php echo $doc_no; ?>" readonly>
-                                                        <?php if ($mode != "readonly") { ?>
-                                                            <span class="input-group-append">
-                                                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#noselectModal"><i class="fas fa-search"></i></button>
-                                                            </span>
-                                                        <?php } ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -185,31 +197,82 @@ include("_check_session.php");
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Discipline <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" value="<?php echo $discipline ?>" <?php echo $mode; ?> readonly />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
-                                                    <label>Work <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $work ?>" <?php echo $mode; ?> />
+                                                    <label for="work">Work</label>
+                                                    <select name="work" id="work" class="custom-select" style="width: 100%;" <?php if ($mode == 'readonly') { ?> disabled <?php } ?> onchange="handleChange_work(this)">
+                                                        <option value="" <?php if ($work == '') {
+                                                                                echo "selected";
+                                                                            } ?>>Select</option>
+                                                        <?php
+                                                        if ($discipline != "") {
+                                                            $condition2 = " AND `discipline` = '$discipline'";
+                                                        }
+                                                        $sql2 = "SELECT DISTINCT `work` FROM `type` WHERE `enable` = 1" . $condition2;
+                                                        $objQuery = $conDB->sqlQuery($sql2);
+
+                                                        while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
+                                                            <option value="<?php echo $objResult['work']; ?>" <?php if ($work == $objResult['work']) {
+                                                                                                                    echo "selected";
+                                                                                                                } ?>><?php echo $objResult['work']; ?></option>
+                                                        <?php } ?>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
-                                                    <label>Type <em></em></label>
-                                                    <input type="text" class="form-control" value="<?php echo $type ?>" <?php echo $mode; ?> />
+                                                    <label for="type">Type</label>
+                                                    <select name="type" id="type" class="custom-select" style="width: 100%;" <?php if ($mode == 'readonly') { ?> disabled <?php } ?> onchange="handleChange_type(this)">
+                                                        <option value="" <?php if ($type == '') {
+                                                                                echo "selected";
+                                                                            } ?>>Select</option>
+                                                        <?php
+                                                        if ($work != "") {
+                                                            $condition2 = " AND `work` = '$work'";
+                                                        }
+                                                        $sql2 = "SELECT DISTINCT `type` FROM `type` WHERE `enable` = 1" . $condition2;
+                                                        $objQuery = $conDB->sqlQuery($sql2);
+
+                                                        while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
+                                                            <option value="<?php echo $objResult['type']; ?>" <?php if ($type == $objResult['type']) {
+                                                                                                                    echo "selected";
+                                                                                                                } ?>><?php echo $objResult['type']; ?></option>
+                                                        <?php } ?>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Prepared By <em></em></label>
-                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" name="preparedby" value="<?php echo $preparedby; ?>" readonly />
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-9">
                                                 <div class="form-group">
                                                     <label>Remark <em></em></label>
-                                                    <textarea class="form-control" rows="3" name="remark" onchange="dataPost('remark', this.value)" <?php echo $mode; ?>><?php echo htmlentities($remark); ?></textarea>
+                                                    <textarea class="form-control" rows="5" name="remark" onchange="dataPost('remark', this.value)" <?php echo $mode; ?>><?php echo htmlentities($remark); ?></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label for="checkedby">Check By</label>
+                                                    <select name="checkedby" id="checkedby" class="custom-select" style="width: 100%;" <?php if ($mode == 'readonly') { ?> disabled <?php } ?> onchange="handleChange(this)">
+                                                        <option value="" <?php if ($checkedby == '') {
+                                                                                echo "selected";
+                                                                            } ?>>Select</option>
+                                                        <?php
+                                                        $sql2 = "SELECT `mail` FROM `checker`";
+                                                        $objQuery = $conDB->sqlQuery($sql2);
+
+                                                        while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
+                                                            <option value="<?php echo $objResult['mail']; ?>" <?php if ($checkedby == $objResult['mail']) {
+                                                                                                                    echo "selected";
+                                                                                                                } ?>><?php echo $objResult['mail']; ?></option>
+                                                        <?php } ?>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -219,7 +282,7 @@ include("_check_session.php");
                         </div>
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Content Discription</h3>
+                                <h3 class="card-title">Content</h3>
 
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -253,6 +316,7 @@ include("_check_session.php");
                                             <th width="80">Written</th>
                                             <th width="80">Reject</th>
                                             <th>Content<br><em></em></th>
+                                            <th width="100">Page No.</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -272,7 +336,7 @@ include("_check_session.php");
                                             <tr>
                                                 <td>
                                                     <span><?php echo $index; ?></span>
-
+                                                </td>
                                                 <td align="center">
                                                     <?php if ($mode != "readonly") { ?>
                                                         <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']) . '&m=' . md5($doc_no . '1'); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="30" style="padding-right: 10px;cursor: pointer;" />
@@ -295,6 +359,9 @@ include("_check_session.php");
                                                 </td>
                                                 <td>
                                                     <span><?php echo $objResult['name']; ?></span>
+                                                </td>
+                                                <td contenteditable="true" style="text-align: center;" onkeypress="return isNumberKey(event);" onblur="updateValue_reload('documents_line', '<?php echo md5($objResult['id']); ?>', 'page_no', this.innerText);" inputmode="numeric">
+                                                    <?php echo $objResult['page_no']; ?>
                                                 </td>
                                             </tr>
                                         <?php $index++;
@@ -365,17 +432,63 @@ include("_check_session.php");
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
+                            <?php
+                            $sql_warning = "SELECT `documents_line`.`id` AS `id`,`contents`.`name`, `documents_line`.`checked` AS `checked`
+                                        FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id`
+                                        WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 AND (`documents_line`.`checked` = 0 OR `documents_line`.`page_no` IS NULL 
+                                        OR `documents_line`.`page_no` = '') ORDER BY `documents_line`.`content_id` ASC";
+                            $objQuery_warning = $conDB->sqlQuery($sql_warning);
+                            ?>
+
                             <div class="card-body">
-                                <em>
-                                    <p>Unable to send request Because incomplete content</p>
-                                </em>
-                                <em>
-                                    <p>If you want to save, press the discard button to exit.</p>
-                                </em>
+                                <div class="col-sm-12">
+                                    <em>
+                                        <p>คุณกรอกเนื้อหาหรือเลขหน้าสารบัญยังไม่ครบทุกหัวข้อ กรุณากรอกให้ครบก่อนส่งขออนุมัติ</p>
+                                    </em>
+                                    <?php while ($objResult_warning = mysqli_fetch_assoc($objQuery_warning)) { ?>
+                                        <p class="text-danger"><?php echo $objResult_warning['name'] ?></p>
+                                    <?php } ?>
+                                </div>
+                                <div class="col-sm-12">
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal" style="width: 100px; height: 40px">OK</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- <div id="pageCheck" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Warning</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <?php
+                            $sql_warning = "SELECT `documents_line`.`id` AS `id`,`contents`.`name`, `documents_line`.`page_no` AS `page_no`
+                                        FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id`
+                                        WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 AND `documents_line`.`page_no` IS NULL OR `page_no` = '' ORDER BY `documents_line`.`content_id` ASC";
+                            $objQuery_warning = $conDB->sqlQuery($sql_warning);
+                            ?>
+
+                            <div class="card-body">
+                                <div class="col-sm-12">
+                                    <em>
+                                        <p>คุณกรอกเลขหน้าสารบัญยังไม่ครบ กรุณากรอกให้ครบก่อนส่งขออนุมัติ</p>
+                                    </em>
+                                    <?php while ($objResult_warning = mysqli_fetch_assoc($objQuery_warning)) { ?>
+                                        <p class="text-danger"><?php echo $objResult_warning['name'] ?></p>
+                                    <?php } ?>
+                                </div>
+                                <div class="col-sm-12">
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal" style="width: 100px; height: 40px">OK</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
 
                 <!-- /General 1 -->
                 <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
@@ -393,6 +506,31 @@ include("_check_session.php");
     </div>
     <?php include_once('_script.php'); ?>
     <script>
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+        function handleChange_check(selectElement) {
+            var value = selectElement.value;
+            dataPost('checkedby', value);
+            setFilter('checkedby', value);
+        }
+
+        function handleChange_work(selectElement) {
+            var value = selectElement.value;
+            dataPost('work', value);
+            setFilter('work', value);
+        }
+
+        function handleChange_type(selectElement) {
+            var value = selectElement.value;
+            dataPost('type', value);
+            setFilter('type', value);
+        }
+
         function dataPost(field, value) {
             updateValue('documents', '<?php echo $get_id; ?>', field, value);
         }

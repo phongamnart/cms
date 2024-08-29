@@ -9,6 +9,9 @@ include("_check_session.php");
     $documents_line  = 0;
     $doc_type  = "documents_line";
     $ismenu = 1;
+    $next_content_id = "";
+    $back_content_id = "";
+    $current_content_id = "";
     $current_menu = "documents";
     $get_id = isset($_GET['no']) ? $_GET['no'] : '';
     $get_mode = isset($_GET['m']) ? $_GET['m'] : '';
@@ -27,32 +30,61 @@ include("_check_session.php");
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
         $doc_no = $objResult['doc_no'];
     }
-    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
+    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id' AND `doc_id` = '$doc_id' ORDER BY `index_num` ASC";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
 
     $strSQL3 = "SELECT * FROM `documents_line` WHERE md5(`id`) = '$get_id'";
     $objQuery3 = $conDB->sqlQuery($strSQL3);
     while ($objResult = mysqli_fetch_assoc($objQuery3)) {
-        $line_id = $objResult['id'];
-        $next_id = $line_id + 1;
-        $back_id = $line_id - 1;
+        $current_content_id = $objResult['content_id'];
     }
 
-    $strSQL4 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' ORDER BY `id` DESC LIMIT 1";
+    //next
+    $strSQL6 = "SELECT `content_id` FROM `documents_line` WHERE `content_id` > '$current_content_id' AND `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` ASC LIMIT 1";
+    $objQuery6 = $conDB->sqlQuery($strSQL6);
+    $nextContentId = null;
+    while ($objResult = mysqli_fetch_assoc($objQuery6)) {
+        $next_content_id = $objResult['content_id'];
+    }
+
+    $strSQL7 = "SELECT * FROM `documents_line` WHERE `content_id` = '$next_content_id' AND `doc_id` = '$doc_id'";
+    $objQuery7 = $conDB->sqlQuery($strSQL7);
+    while ($objResult = mysqli_fetch_assoc($objQuery7)) {
+        $next_id = $objResult['id'];
+    }
+
+    //back
+    $strSQL8 = "SELECT `content_id` FROM `documents_line` WHERE `content_id` < '$current_content_id' AND `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` DESC LIMIT 1";
+    $objQuery8 = $conDB->sqlQuery($strSQL8);
+    $backContentId = null;
+    while ($objResult = mysqli_fetch_assoc($objQuery8)) {
+        $back_content_id = $objResult['content_id'];
+    }
+
+    $strSQL9 = "SELECT * FROM `documents_line` WHERE `content_id` = '$back_content_id' AND `doc_id` = '$doc_id'";
+    $objQuery9 = $conDB->sqlQuery($strSQL9);
+    while ($objResult = mysqli_fetch_assoc($objQuery9)) {
+        $back_id = $objResult['id'];
+    }
+
+    $strSQL4 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` DESC LIMIT 1";
     $objQuery4 = $conDB->sqlQuery($strSQL4);
     while ($objResult = mysqli_fetch_assoc($objQuery4)) {
-        $last_line_id = $objResult['id'];
+        $last_line_id = $objResult['content_id'];
     }
 
-    $strSQL5 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' ORDER BY `id` ASC LIMIT 1";
+    $strSQL5 = "SELECT * FROM `documents_line` WHERE `doc_id` = '$doc_id' AND `enable` = 1 ORDER BY `content_id` ASC LIMIT 1";
     $objQuery5 = $conDB->sqlQuery($strSQL5);
     while ($objResult = mysqli_fetch_assoc($objQuery5)) {
-        $start_line_id = $objResult['id'];
+        $start_line_id = $objResult['content_id'];
     }
 
     if (md5($doc_no . '1') == $get_mode) {
         $documents_line  = 2;
     }
+
+
+
 
     ?>
 </head>
@@ -97,13 +129,17 @@ include("_check_session.php");
                             Discard
                         </button>
                     <?php } ?>
-                    <?php if ($id > $start_line_id) { ?>
+                    <button type="button" class="btn btn-app flat" onclick="window.location.reload()" title="Refresh">
+                        <img src="dist/img/icon/renew.svg" style="padding:3px;" width="24"><br>
+                        Refresh
+                    </button>
+                    <?php if ($current_content_id > $start_line_id) { ?>
                         <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { backContent('<?php echo md5($back_id); ?>','<?php echo $get_mode; ?>') })" title="Next">
                             <img src="dist/img/icon/back.png" width="24"><br>
                             Back
                         </button>
                     <?php } ?>
-                    <?php if ($id < $last_line_id) { ?>
+                    <?php if ($current_content_id < $last_line_id) { ?>
                         <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { nextContent('<?php echo md5($next_id); ?>','<?php echo $get_mode; ?>') })" title="Next">
                             <img src="dist/img/icon/forward.png" width="24"><br>
                             Next
@@ -113,6 +149,9 @@ include("_check_session.php");
                 <div class="row" style="padding: 0px 10px;">
                     <!-- General 1 -->
                     <div class="col-md-12">
+                        <div class="d-flex justify-content-start">
+                            <span style="font-size: 14px" class="text-danger">***ถ้าอัพรูปแล้วรูปไม่ขึ้นให้กด Refresh หน้านี้***</span>
+                        </div>
                         <div class="card">
                             <div class="card-body row">
                                 <div class="col-md-12">
@@ -134,18 +173,43 @@ include("_check_session.php");
                                 <div class="col-md-12">
                                     <?php
                                     $index = 0;
+                                    $next_index = 1;
                                     while ($objResult_line = mysqli_fetch_assoc($objQuery_line)) {
                                         $index++;
+                                        
+                                        $strSQL10 = "SELECT MAX(`index_num`) AS max_index_num FROM `documents_line_cont` WHERE `line_id` = '" . $objResult_line['line_id'] . "'";
+                                        $objQuery10 = $conDB->sqlQuery($strSQL10);
+                                        while ($objResult = mysqli_fetch_assoc($objQuery10)) {
+                                            $max_index_num = $objResult['max_index_num'];
+                                        }
+
+                                        $next_index = $max_index_num + 1;
                                     ?>
                                         <?php if ($objResult_line['is_image'] == 0) { ?>
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <div class="form-group">
-                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
+                                                        <label>Paragraph <?php echo $objResult_line['index_num']; ?><em></em></label>
                                                         <?php if ($mode != "readonly") { ?>
                                                             <img src="dist/img/icon/edit.svg" onclick="setTextEditor(<?php echo $objResult_line['id'] ?>)" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
-                                                            <img src="dist/img/icon/save.svg" id="submit<?php echo $objResult_line['id'] ?>" title="Save" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/save.svg" onclick="saveEditorContent('<?php echo $objResult_line['id'] ?>')" id="submit<?php echo $objResult_line['id'] ?>" title="Save" width="30" style="padding: 5px;cursor: pointer;" />
                                                             <img src="dist/img/icon/delete.png" onclick="delContent('documents_line_cont','<?php echo $objResult_line['id']; ?>','Content','','<?php echo $objResult_line['line_id']; ?>')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
+
+
+                                                            <?php if ($objResult_line['index_num'] == 1) { ?>
+                                                                <img src="dist/img/icon/up.png" title="Edit" width="30" style="padding: 5px;cursor: not-allowed; opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/up.png" onclick="moveUp('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+
+
+                                                            <?php if ($objResult_line['index_num'] == $max_index_num) { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="" title="Edit" width="30" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="moveDown('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+
+
                                                             <span id="warning<?php echo $objResult_line['id'] ?>" class="text-danger" style="font-size: 14px; display: none;"> * ยังไม่กด Save ระวังข้อมูลหาย!!!</span>
                                                         <?php } ?>
                                                         <div class="editor-container">
@@ -160,10 +224,27 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
+                                                        <label>Paragraph <?php echo $objResult_line['index_num']; ?><em></em></label>
                                                         <?php if ($mode != "readonly") { ?>
-                                                            <img src="dist/img/icon/delete.png" onclick="delContent('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','','<?php echo $objResult_line['line_id']; ?>')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
-                                                        <?php } ?>
+                                                            <img src="dist/img/icon/edit.svg" onclick="checkUnsavedChanges(() => { setUpdateImage('<?php echo $objResult_line['id']; ?>', '', '<?php echo $doc_no; ?>'); $('#uploadfile').modal('show'); })" title="Edit Image" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/delete.png" onclick="delContent('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','','<?php echo $objResult_line['line_id']; ?>')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
+
+
+                                                            <?php if ($objResult_line['index_num'] == 1) { ?>
+                                                                <img src="dist/img/icon/up.png" title="Edit" width="30" style="padding: 5px;cursor: not-allowed; opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/up.png" onclick="moveUp('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+
+
+                                                            <?php if ($objResult_line['index_num'] == $max_index_num) { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="" title="Edit" width="30" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="moveDown('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+
+
+                                                        <?php } ?><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
@@ -172,34 +253,80 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
+                                                        <label>Paragraph <?php echo $objResult_line['index_num']; ?><em></em></label>
                                                         <?php if ($mode != "readonly") { ?>
-                                                            <img src="dist/img/icon/delete.png" onclick="delContent('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','','<?php echo $objResult_line['line_id']; ?>')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" /><br>
+                                                            <img src="dist/img/icon/edit.svg" onclick="checkUnsavedChanges(() => { setUpdateImage('<?php echo $objResult_line['id']; ?>', '', '<?php echo $doc_no; ?>'); $('#uploadfile').modal('show'); })" title="Edit Image" width="30" style="padding: 5px;cursor: pointer;" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <img src="dist/img/icon/delete.png" onclick="delContent('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','','<?php echo $objResult_line['line_id']; ?>')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
+
+
+                                                            <?php if ($objResult_line['index_num'] == 1) { ?>
+                                                                <img src="dist/img/icon/up.png" title="Edit" width="30" style="padding: 5px;cursor: not-allowed; opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/up.png" onclick="moveUp('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+
+
+                                                            <?php if ($objResult_line['index_num'] == $max_index_num) { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="" title="Edit" width="30" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="moveDown('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+                                                            <br>
+
                                                         <?php } ?>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
                                             </div>
-                                        <?php } ?>
-                                        <input type="hidden" name="" id="input_id<?php echo $objResult_line['id'] ?>" value="<?php echo md5($objResult_line['id']) ?>">
-                                    <?php } ?>
+                                        <?php } elseif ($objResult_line['is_image'] == 3) { ?>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>Paragraph <?php echo $objResult_line['index_num']; ?> : Page Break<em></em></label>
+                                                        <?php if ($mode != "readonly") { ?>
+                                                            <img src="dist/img/icon/delete.png" onclick="delContent('documents_line_cont','<?php echo $objResult_line['id']; ?>','Image','','<?php echo $objResult_line['line_id']; ?>')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
 
-                                    <div class="row">
-                                        <?php if ($mode != "readonly") { ?>
-                                            <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { addContent('<?php echo $id; ?>', '0', '<?php echo $doc_id; ?>') })" title="Add Text">
-                                                <img src="dist/img/icon/text.svg" width="24"><br>
-                                                Add Text
-                                            </button>
-                                            <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','1', '<?php echo $doc_no; ?>'); $('#uploadfile').modal('show'); })" title="Add Image">
-                                                <img src="dist/img/icon/image.png" width="24"><br>
-                                                Add Image
-                                            </button>
-                                            <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','2', '<?php echo $doc_no; ?>'); $('#uploadfile').modal('show'); })" title="Add Image Full Page">
-                                                <img src="dist/img/icon/image.png" width="24"><br>
-                                                Add Image One Page
-                                            </button>
+                                                            <?php if ($objResult_line['index_num'] == 1) { ?>
+                                                                <img src="dist/img/icon/up.png" title="Edit" width="30" style="padding: 5px;cursor: not-allowed; opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/up.png" onclick="moveUp('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+
+
+                                                            <?php if ($objResult_line['index_num'] == $max_index_num) { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="" title="Edit" width="30" style="padding: 5px;cursor: not-allowed;opacity:0.2;" />
+                                                            <?php } else { ?>
+                                                                <img src="dist/img/icon/down.png" onclick="moveDown('<?php echo $objResult_line['id'] ?>','<?php echo $objResult_line['line_id'] ?>','<?php echo $objResult_line['index_num'] ?>')" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
+                                                            <?php } ?>
+
+                                                        <?php } ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php } ?>
+                                            <input type="hidden" name="" id="input_id<?php echo $objResult_line['id'] ?>" value="<?php echo md5($objResult_line['id']) ?>">
                                         <?php } ?>
-                                    </div>
+
+                                        <div class="row">
+                                            <?php if ($mode != "readonly") { ?>
+                                                <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { addContent('<?php echo $id; ?>', '0', '<?php echo $doc_id; ?>','<?php echo $next_index ?>') })" title="Add Text">
+                                                    <img src="dist/img/icon/text.svg" width="24"><br>
+                                                    Add Text
+                                                </button>
+                                                <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','1', '<?php echo $doc_no; ?>','<?php echo $next_index ?>'); $('#uploadfile').modal('show'); })" title="Add Image">
+                                                    <img src="dist/img/icon/image.png" width="24"><br>
+                                                    Add Image
+                                                </button>
+                                                <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { setUpload('documents_line_cont','<?php echo $id; ?>','<?php echo $doc_id; ?>','','2', '<?php echo $doc_no; ?>','<?php echo $next_index ?>'); $('#uploadfile').modal('show'); })" title="Add Image One Page">
+                                                    <img src="dist/img/icon/image.png" width="24"><br>
+                                                    Add Image One Page
+                                                </button>
+                                                <button type="button" class="btn btn-app flat" onclick="checkUnsavedChanges(() => { addContent('<?php echo $id; ?>', '3', '<?php echo $doc_id; ?>','<?php echo $next_index ?>') })" title="Page Break">
+                                                    <img src="dist/img/icon/break.png" width="24"><br>
+                                                    Page Break
+                                                </button>
+                                            <?php } ?>
+                                        </div>
                                 </div>
                             </div>
                         </div>
@@ -225,11 +352,12 @@ include("_check_session.php");
         let editors = {};
         let saveTimeouts = {};
 
-        function addContent(line_id, is_image, doc_id) {
+        function addContent(line_id, is_image, doc_id, next_index) {
             $.post("services/add_content.php", {
                     line_id: line_id,
                     is_image: is_image,
-                    doc_id: doc_id
+                    doc_id: doc_id,
+                    next_index: next_index
                 })
                 .done(function(data) {
                     console.log(data);
@@ -321,7 +449,7 @@ include("_check_session.php");
 
                         saveTimeouts[id] = setTimeout(() => {
                             saveEditorContent(id);
-                        }, 2000); // Wait 2 seconds before saving
+                        }, 5000);
                     });
                 })
                 .catch(error => {

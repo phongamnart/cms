@@ -131,13 +131,21 @@ include("_check_session.php");
                                                                                     echo "selected";
                                                                                 } ?>>Select</option>
                                                             <?php
-                                                            $sql2 = "SELECT `mail` FROM `checker`";
+                                                            if ($discipline == "Civil") {
+                                                                $condition3 = " WHERE `system` = 'CE' OR `system` = 'ALL'";
+                                                            } elseif ($discipline == "Electrical") {
+                                                                $condition3 = " WHERE `system` = 'EE' OR `system` = 'ALL'";
+                                                            } elseif ($discipline == "Mechanical") {
+                                                                $condition3 = " WHERE `system` = 'ME' OR `system` = 'ALL'";
+                                                            }
+
+                                                            echo $sql2 = "SELECT `mail` FROM `checker`" . $condition3;
                                                             $objQuery = $conDB->sqlQuery($sql2);
 
                                                             while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
                                                                 <option value="<?php echo $objResult['mail']; ?>" <?php if ($checkedby == $objResult['mail']) {
-                                                                                                                            echo "selected";
-                                                                                                                        } ?>><?php echo $objResult['mail']; ?></option>
+                                                                                                                        echo "selected";
+                                                                                                                    } ?>><?php echo $objResult['mail']; ?></option>
                                                             <?php } ?>
                                                         </select>
                                                     </div>
@@ -155,7 +163,17 @@ include("_check_session.php");
                                                 <?php } ?>
                                             </div>
                                             <div class="row">
-                                                <div class="col-sm-12">
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label for="type_doc">Language</label><span class="text-danger"> *</span>
+                                                        <select name="type_doc" id="type_doc" class="custom-select" style="width: 100%;" required>
+                                                            <option value="" selected>Select Language</option>
+                                                            <option value="en">English</option>
+                                                            <option value="th">Thai</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-8">
                                                     <div class="form-group">
                                                         <label for="">Document Title</label><span class="text-danger"> *</span>
                                                         <input type="text" class="form-control" name="document_title" id="document_title" required />

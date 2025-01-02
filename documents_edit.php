@@ -12,6 +12,7 @@ include("_check_session.php");
     $current_menu = "documents";
     $get_id = isset($_GET['no']) ? $_GET['no'] : '';
     $get_mode = isset($_GET['m']) ? $_GET['m'] : '';
+    $type_doc = isset($_GET['l']) ? $_GET['l'] : '';
     include_once('_head.php');
     $conDB = new db_conn();
     $from = $_SESSION['user_name'];
@@ -28,8 +29,8 @@ include("_check_session.php");
         $checkedby = $objResult['checkedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
-        if ($objResult['date'] != "") {
-            $date = date("d/m/Y", strtotime($objResult['date']));
+        if ($objResult['date_prepared'] != "") {
+            $date_prepared = date("d/m/Y", strtotime($objResult['date_prepared']));
         }
     }
     $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name`, `documents_line`.`page_no` AS `page_no`
@@ -38,11 +39,19 @@ include("_check_session.php");
     $objQuery_line = $conDB->sqlQuery($strSQL);
     $check_content = $conDB->sqlNumrows($strSQL);
 
-    $strSQL2 = "SELECT * FROM `approval` WHERE `mail` = '$checkedby' ";
+    $strSQL2 = "SELECT * FROM `approval` WHERE `mail` = '$checkedby'";
     $objQuery2 = $conDB->sqlQuery($strSQL2);
     while ($objResult = mysqli_fetch_assoc($objQuery2)) {
         $approval_name = $objResult['name'];
     }
+
+    $strSQL3 = "SELECT DISTINCT `type_doc` FROM `documents` WHERE `doc_no` = '$doc_no'";
+    $objQuery3 = $conDB->sqlQuery($strSQL3);
+    $typeDocs = [];
+    while ($objResult = mysqli_fetch_assoc($objQuery3)) {
+        $typeDocs[] = $objResult['type_doc'];
+    }
+    $buttonDisabled = (in_array('en', $typeDocs) && in_array('th', $typeDocs)) ? true : false;
 
     if (md5($doc_no . '1') == $get_mode) {
         $documents  = 2;
@@ -73,7 +82,11 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1><?php echo "Document No. : " . $doc_no; ?></h1>
+                            <h1>Document No. <?php echo $doc_no ?> : Version. <?php if ($type_doc == "en") { ?>
+                                    English
+                                <?php } else { ?>
+                                    Thai
+                                <?php } ?></h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -90,8 +103,17 @@ include("_check_session.php");
                         <img src="dist/img/icon/renew.svg" style="padding:3px;" width="24"><br>
                         Refresh
                     </button>
+                    <button type="button" class="btn btn-app flat" onclick="window.location.href='view_doc.php?no=<?php echo md5($doc_id) . '&l=' . $type_doc; ?>'" title="Preview">
+                        <img src="dist/img/icon/preview.png" width="24"><br>
+                        Preview
+                    </button>
                     <?php if ($mode != "readonly") { ?>
-                        <button type="button" class="btn btn-app flat" onclick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
+                        <button type="button" class="btn btn-app flat" onclick="addLanguage('<?php echo $doc_no ?>', '<?php echo $type_doc ?>')" title="Add" style="<?php echo $buttonDisabled ? 'opacity: 0.2; cursor: not-allowed;' : ''; ?>"
+                        <?php echo $buttonDisabled ? 'disabled' : ''; ?>>
+                            <img src="dist/img/icon/add-button.png" width="24"><br>
+                            Add
+                        </button>
+                        <button type="button" class="btn btn-app flat" onclick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>#toolbar=0', '_blank');" title="PDF">
                             <img src="dist/img/icon/pdf.png" width="24"><br>
                             PDF
                         </button>
@@ -99,7 +121,6 @@ include("_check_session.php");
                             <img src="dist/img/icon/doc.png" width="24"><br>
                             Word
                         </button>
-
                         <?php
                         $sql_check_all = "SELECT COUNT(*) as `total` FROM `documents_line` WHERE md5(`doc_id`) = '$get_id' AND `enable` = 1";
                         $result_check_all = $conDB->sqlQuery($sql_check_all);
@@ -113,19 +134,19 @@ include("_check_session.php");
                             $check = $objResult_check['check'];
                         }
 
-                        $sql_page = "SELECT COUNT(*) AS `count_page` FROM `documents_line` WHERE md5(`doc_id`) = '$get_id' AND `checked` = 1 AND `enable` = 1 AND `page_no` IS NULL OR `page_no` = ''";
+                        $sql_page = "SELECT COUNT(*) AS `count_page` FROM `documents_line` WHERE md5(`doc_id`) = '$get_id' AND `checked` = 1 AND `enable` = 1 AND (`page_no` IS NULL OR `page_no` = '')";
                         $result_page = $conDB->sqlQuery($sql_page);
                         while ($objResult_page = mysqli_fetch_assoc($result_page)) {
                             $page_no = $objResult_page['count_page'];
                         }
                         ?>
                         <?php if ($total == $check && $page_no == 0) { ?>
-                            <button type="button" class="btn btn-app flat" onclick="saveWord('<?php echo md5($doc_id); ?>','<?php echo $checkedby; ?>','<?php echo $approval_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Create')" title="Save">
+                            <button type="button" class="btn btn-app flat" onclick="saveWord('<?php echo md5($doc_id); ?>','<?php echo $checkedby; ?>','<?php echo $approval_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Create')" title="Send Approve">
                                 <img src="dist/img/icon/send.png" width="24"><br>
                                 Send Approve
                             </button>
                         <?php } else { ?>
-                            <button type="button" class="btn btn-app flat" data-toggle="modal" data-target="#alertCheck" title="Save">
+                            <button type="button" class="btn btn-app flat" data-toggle="modal" data-target="#alertCheck" title="Send Approve">
                                 <img src="dist/img/icon/send.png" width="24"><br>
                                 Send Approve
                             </button>
@@ -170,7 +191,7 @@ include("_check_session.php");
                                             <div class="col-sm-6">
                                                 <div class="form-group">
                                                     <label>Title <em></em></label>
-                                                    <input type="text" class="form-control" name="method_statement" onchange="dataPost('method_statement', this.value)" value="<?php echo htmlentities($method_statement); ?>" <?php echo $mode; ?> />
+                                                    <input type="text" class="form-control" name="method_statement" id="method_statement" onchange="dataPost('method_statement', this.value)" value="<?php echo htmlentities($method_statement); ?>" <?php echo $mode; ?> />
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
@@ -185,7 +206,7 @@ include("_check_session.php");
                                                 <div class="form-group">
                                                     <label>Date <em></em></label>
                                                     <div class="input-group date" id="date" data-target-input="nearest">
-                                                        <input type="text" onchange="dataPost('date', convertDateFormat(this.value))" value="<?php echo $date; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date">
+                                                        <input type="text" onchange="dataPost('date_prepared', convertDateFormat(this.value))" value="<?php echo $date_prepared; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date">
                                                         <div class="input-group-append" data-target="#date" data-toggle="datetimepicker">
                                                             <div class="input-group-text"><i class="fa fa-calendar"></i>
                                                             </div>
@@ -264,7 +285,15 @@ include("_check_session.php");
                                                                                 echo "selected";
                                                                             } ?>>Select</option>
                                                         <?php
-                                                        $sql2 = "SELECT `mail` FROM `checker`";
+                                                        if ($discipline == "Civil") {
+                                                            $condition3 = " WHERE `system` = 'CE' OR `system` = 'ALL'";
+                                                        } elseif ($discipline == "Electrical") {
+                                                            $condition3 = " WHERE `system` = 'EE' OR `system` = 'ALL'";
+                                                        } elseif ($discipline == "Mechanical") {
+                                                            $condition3 = " WHERE `system` = 'ME' OR `system` = 'ALL'";
+                                                        }
+
+                                                        $sql2 = "SELECT `mail` FROM `checker`" . $condition3;
                                                         $objQuery = $conDB->sqlQuery($sql2);
 
                                                         while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
@@ -339,9 +368,9 @@ include("_check_session.php");
                                                 </td>
                                                 <td align="center">
                                                     <?php if ($mode != "readonly") { ?>
-                                                        <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']) . '&m=' . md5($doc_no . '1'); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="30" style="padding-right: 10px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/edit.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']) . '&l=' . $type_doc . '&m=' . md5($doc_no . '1'); ?>'" title="Edit" width="30" style="padding-right: 10px;cursor: pointer;" />
                                                     <?php } else { ?>
-                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="View<?php echo $objResult['id']; ?>" width="30" style="padding-right: 10px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='documents_line_edit.php?no=<?php echo md5($objResult['id']); ?>'" title="View" width="30" style="padding-right: 10px;cursor: pointer;" />
                                                     <?php } ?>
 
                                                 </td>
@@ -403,9 +432,9 @@ include("_check_session.php");
                                                 <label><?php echo $objResult_content['number'] . ". " . $objResult_content['name']; ?> <em></em></label>
                                                 <?php if ($checked == 0) { ?>
                                                     <div class="custom-control custom-switch">
-                                                        <input type="checkbox" class="custom-control-input" id="enable<?php echo $objResult_content['id'] ?>" onChange="switchChange('<?php echo $doc_id; ?>','<?php echo $objResult_content['id']; ?>',this)" value="<?php echo $enable; ?>" <?php if ($enable == "1") {
-                                                                                                                                                                                                                                                                                                    echo "checked";
-                                                                                                                                                                                                                                                                                                } ?> <?php echo $mode; ?> />
+                                                        <input type="checkbox" class="custom-control-input" id="enable<?php echo $objResult_content['id'] ?>" onChange="switchChange('<?php echo $doc_id; ?>','<?php echo $type_doc; ?>','<?php echo $objResult_content['id']; ?>',this)" value="<?php echo $enable; ?>" <?php if ($enable == "1") {
+                                                                                                                                                                                                                                                                                                                                echo "checked";
+                                                                                                                                                                                                                                                                                                                            } ?> <?php echo $mode; ?> />
                                                         <label class="custom-control-label" for="enable<?php echo $objResult_content['id'] ?>"></label>
                                                     </div>
                                                 <?php } else { ?>
@@ -416,7 +445,7 @@ include("_check_session.php");
                                     <?php
                                         $index++;
                                     } ?>
-                                    <button class="btn btn-primary" onclick="reloadContent(<?php echo $doc_id ?>)">Select</button>
+                                    <button class="btn btn-primary" onclick="reloadContent('<?php echo $doc_id ?>', '<?php echo $type_doc ?>')">Select</button>
                                 </div>
                             </div>
                         </div>

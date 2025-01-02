@@ -7,7 +7,7 @@ include("_check_session.php");
 <head>
     <?php
     $document  = 2;
-    $ismenu = 3;
+    $ismenu = 4;
     $current_menu = "add_permission";
     include_once('_head.php');
     $conDB = new db_conn();
@@ -73,6 +73,7 @@ include("_check_session.php");
                                                 <th width="150">Name​<br><em></em></th>
                                                 <th width="200">Mail<br><em></em></th>
                                                 <th width="80">Depart<br><em></em></th>
+                                                <th width="80">System<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -90,6 +91,7 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['name'] ?></td>
                                                     <td><?php echo $objResult['mail'] ?></td>
                                                     <td><?php echo $objResult['depart'] ?></td>
+                                                    <td><?php echo $objResult['system'] ?></td>
                                                 <?php } ?>
                                         </tbody>
                                     </table>

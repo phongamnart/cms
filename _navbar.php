@@ -115,6 +115,7 @@
                 <input type="file" class="form-control" id="file" name="file" accept=".jpg,.jpeg,.png" required />
                 <input type="hidden" class="form-control" id="id" name="id" />
                 <input type="hidden" class="form-control" id="doc_id" name="doc_id" />
+                <input type="hidden" class="form-control" id="type_doc" name="type_doc" />
                 <input type="hidden" class="form-control" id="type" name="type" />
                 <input type="hidden" class="form-control" id="redirect" name="redirect" />
                 <input type="hidden" class="form-control" id="selectSize" name="selectSize" />

@@ -41,11 +41,11 @@ include("_check_session.php");
     while ($obj = mysqli_fetch_assoc($result)) {
         if ($obj['role'] == 'ADMIN' || $obj['role'] == 'ISO') {
             $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
-            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 1" . $condition;
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 1 OR `request`.`status_pdf` = 1" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         } else {
             $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
-            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 999" . $condition;
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 999 OR `request`.`status_pdf` = 999" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         }
     }
@@ -62,7 +62,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Approve for download document</h1>
+                            <h1>Approve for Download document</h1>
                         </div>
                     </div>
                 </div>
@@ -155,6 +155,7 @@ include("_check_session.php");
                                                 <th width="80">Discipline​<br><em></em></th>
                                                 <th width="90">Document No.​<br><em></em></th>
                                                 <th width="500">Document Title<br><em></em></th>
+                                                <th width="80">Request<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
                                                 <th width="150">Prepared By<br><em></em></th>
                                                 <th width="200">Status<br><em></em></th>
@@ -168,17 +169,37 @@ include("_check_session.php");
                                                 <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='detail_download.php?no=<?php echo md5($objResult['reqID']); ?>'" title="Approve<?php echo $objResult['reqID']; ?>">
+                                                        <?php if ($objResult['status_req'] == 1) { ?>
+                                                            <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='detail_download.php?no=<?php echo md5($objResult['reqID']); ?>'" title="View">
+                                                        <?php } elseif ($objResult['status_pdf'] == 1) { ?>
+                                                            <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='detail_pdf.php?no=<?php echo md5($objResult['reqID']); ?>'" title="View">
+                                                        <?php } ?>
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
                                                     <td>
                                                         <?php
-                                                        $date = $objResult['date_req'];
-                                                        $convertDate = strtotime($date);
-                                                        $newDate = date("d-m-Y", $convertDate);
-                                                        echo $newDate;
+                                                        if ($objResult['status_req'] == 1) { ?>
+                                                            Word
+                                                        <?php } elseif ($objResult['status_pdf'] == 1) { ?>
+                                                            PDF
+                                                        <?php } ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php
+                                                        $date_word = $objResult['date_req'];
+                                                        $convertDate_word = strtotime($date_word);
+                                                        $newDate_word = date("d-m-Y", $convertDate_word);
+
+                                                        $date_pdf = $objResult['date_pdf'];
+                                                        $convertDate_pdf = strtotime($date_pdf);
+                                                        $newDate_pdf = date("d-m-Y", $convertDate_pdf);
+                                                        if ($objResult['status_req'] == 1) {
+                                                            echo $newDate_word;
+                                                        } elseif ($objResult['status_pdf'] == 1) {
+                                                            echo $newDate_pdf;
+                                                        }
                                                         ?>
                                                     </td>
                                                     <td><?php echo $objResult['createdby'] ?></td>

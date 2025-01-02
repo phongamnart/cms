@@ -29,8 +29,8 @@ include("_check_session.php");
         $checkedby = $objResult['checkedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
-        if ($objResult['date'] != "") {
-            $date = date("d/m/Y", strtotime($objResult['date']));
+        if ($objResult['date_prepared'] != "") {
+            $date_prepared = date("d/m/Y", strtotime($objResult['date_prepared']));
         }
     }
     $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line`
@@ -57,7 +57,6 @@ include("_check_session.php");
     while ($obj2 = mysqli_fetch_assoc($result2)) {
         $mail_qmr = $obj2['mail'];
         $name_qmr = $obj2['name'];
-
     }
 
     $sql3 = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
@@ -103,31 +102,37 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
+
+                    <!-- <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>#toolbar=0', '_blank');" title="PDF">
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
+                    </button> -->
+
+                    <button type="button" class="btn btn-app flat" onclick="window.location.href='view_approve.php?no=<?php echo md5($doc_id); ?>'" title="Preview">
+                        <img src="dist/img/icon/preview.png" width="24"><br>
+                        Preview
                     </button>
                     <?php if ($role == 'ADMIN' || $role == 'Check') { ?>
                         <button type="button" class="btn btn-app flat"
-                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_iso; ?>','<?php echo $name_iso; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create')" title="Approve">
+                            onclick="Approved2('<?php echo md5($doc_id) ?>','<?php echo $approved; ?>','<?php echo $mail_iso; ?>','<?php echo $name_iso; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Create')" title="Approve">
                             <img src="dist/img/icon/approved.svg" width="24"><br>
                             Approve
                         </button>
-                    <?php } elseif ($role == 'ADMIN' || $role == 'ISO') {?>
+                    <?php } elseif ($role == 'ADMIN' || $role == 'ISO') { ?>
                         <button type="button" class="btn btn-app flat"
-                        onclick="Approved('<?php echo md5($doc_id)?>','<?php echo $approved; ?>','<?php echo $mail_qmr; ?>','<?php echo $name_qmr; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $date; ?>','Create')" title="Approve">
+                            onclick="Approved3('<?php echo md5($doc_id) ?>','<?php echo $approved; ?>','<?php echo $mail_qmr; ?>','<?php echo $name_qmr; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Create')" title="Approve">
                             <img src="dist/img/icon/approved.svg" width="24"><br>
                             Approve
                         </button>
-                    <?php } elseif ($role == 'ADMIN' || $role == 'QMR') {?>
-                        <button type="button" class="btn btn-app flat" onclick="Approved('<?php echo md5($doc_id); ?>','<?php echo $doc_no; ?>','<?php echo $approved; ?>')" title="Approve">
-                        <img src="dist/img/icon/approved.svg" width="24"><br>
-                        Approve
-                    </button>
+                    <?php } elseif ($role == 'ADMIN' || $role == 'QMR') { ?>
+                        <button type="button" class="btn btn-app flat" onclick="Approved('<?php echo md5($doc_id); ?>','<?php echo $approved; ?>','<?php echo $doc_no; ?>','<?php echo $currentTime; ?>')" title="Approve">
+                            <img src="dist/img/icon/approved.svg" width="24"><br>
+                            Approve
+                        </button>
                     <?php } ?>
                     <button type="button" class="btn btn-app flat"
-                    onclick="Reject('<?php echo md5($doc_id);?>','<?php echo $myname?>','<?php echo $createdby ?>','<?php echo $preparedby ?>','<?php echo $method_statement ?>','<?php echo $doc_no ?>','<?php echo $preparedby ?>','<?php echo $currentTime ?>','Create')" 
-                    title="Reject">
+                        onclick="Reject('<?php echo md5($doc_id); ?>','<?php echo $myname ?>','<?php echo $createdby ?>','<?php echo $preparedby ?>','<?php echo $method_statement ?>','<?php echo $doc_no ?>','<?php echo $preparedby ?>','<?php echo $currentTime ?>','Create')"
+                        title="Reject">
                         <img src="dist/img/icon/error.svg" width="24"><br>
                         Reject
                     </button>
@@ -166,7 +171,7 @@ include("_check_session.php");
                                                 <div class="form-group">
                                                     <label>Date <em></em></label>
                                                     <div class="input-group date" id="date" data-target-input="nearest">
-                                                        <input type="text" onchange="dataPost('date', convertDateFormat(this.value))" value="<?php echo $date; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date" disabled>
+                                                        <input type="text" onchange="dataPost('date_prepared', convertDateFormat(this.value))" value="<?php echo $date_prepared; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date" disabled>
                                                         <div class="input-group-append" data-target="#date" data-toggle="datetimepicker">
                                                             <div class="input-group-text"><i class="fa fa-calendar"></i>
                                                             </div>
@@ -249,7 +254,7 @@ include("_check_session.php");
                                                 </td>
                                                 <?php if ($mode != "readonly") { ?>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="Edit<?php echo $objResult['id']; ?>" width="40" style="padding-right: 10px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='reason_reject.php?no=<?php echo md5($objResult['id']); ?>'" title="View" width="40" style="padding-right: 10px;cursor: pointer;" />
                                                     </td>
                                                 <?php } ?>
                                                 <td>

@@ -1,18 +1,19 @@
 <?php
 $mail = $_SESSION['user_mail'];
 $notify_group = 0;
-$notify_myDoc = 0;
+$notify_MS = 0;
+$current_time = date('Y-m-d');
 $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
     $result_approve_download = $conDB->sqlQuery($sql_approve_download);
     while ($obj_approve_download = mysqli_fetch_assoc($result_approve_download)) {
         if ($obj_approve_download['role'] == 'ADMIN' || $obj_approve_download['role'] == 'ISO') {
             $strSQL_approve_download = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
-            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 1";
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 1 OR `request`.`status_pdf` = 1";
             $notify_approve_download = $conDB->sqlNumrows($strSQL_approve_download);
             $notify_group += $notify_approve_download;
         } else {
             $strSQL_approve_download = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` AS `reqID` FROM `documents`
-            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 999";
+            LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no` WHERE `request`.`status_req` = 999 OR `request`.`status_pdf` = 999";
             $notify_approve_download = $conDB->sqlNumrows($strSQL_approve_download);
             $notify_group += $notify_approve_download;
         }
@@ -82,11 +83,27 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
         if ($obj_reject['role'] == 'ADMIN') {
             $strSQL_reject = "SELECT * FROM `documents` WHERE `admin` = 1  AND `enable` = 1 AND `approved` = 5";
             $notify_reject = $conDB->sqlNumrows($strSQL_reject);
-            $notify_myDoc += $notify_reject;
+            $notify_MS += $notify_reject;
         } else {
             $strSQL_reject = "SELECT * FROM `documents` WHERE `createdby` = '$mail' AND `enable` = 1 AND `approved` = 5";
             $notify_reject = $conDB->sqlNumrows($strSQL_reject);
-            $notify_myDoc += $notify_reject;
+            $notify_MS += $notify_reject;
+        }
+    }
+
+    $sql_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
+    $result_download = $conDB->sqlQuery($sql_download);
+    while ($obj_download = mysqli_fetch_assoc($result_download)) {
+        if ($obj_download['role'] == 'ADMIN') {
+            $strSQL_download = "SELECT `documents`.`enable` AS `enable`, `request`.* FROM `documents` LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no`
+            WHERE `request`.`admin` = 1 AND `documents`.`enable` = 1 AND ((`request`.`status_req` = 2 AND `request`.`expire` > '$current_time') OR (`request`.`status_pdf` = 2 AND `request`.`expire_pdf` > '$current_time'))";
+            $notify_download = $conDB->sqlNumrows($strSQL_download);
+            $notify_MS += $notify_download;
+        } else {
+            $strSQL_download = "SELECT `documents`.`enable` AS `enable`, `request`.* FROM `documents` LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no`
+            WHERE `request`.`createdby` = '$mail' AND `documents`.`enable` = 1 AND ((`request`.`status_req` = 2 AND `request`.`expire` > '$current_time') OR (`request`.`status_pdf` = 2 AND `request`.`expire_pdf` > '$current_time'))";
+            $notify_download = $conDB->sqlNumrows($strSQL_download);
+            $notify_MS += $notify_download;
         }
     }
 
@@ -116,7 +133,11 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
           <a href="#" class="nav-link <?php if($current_menu == ""){ echo "active";}?>">
           <img src="dist/img/icon/folder.png" width="30" style="margin-right: 5px;"/>
             <p>Method Statement
-              <i class="right fas fa-angle-left"></i>
+              <?php if($notify_MS > 0) { ?>
+                <span class="right badge badge-danger"><?php echo $notify_MS ?></span> 
+              <?php } else { ?>
+                <i class="right fas fa-angle-left"></i>
+              <?php } ?>
             </p>
           </a>
           <ul class="nav nav-treeview">
@@ -130,7 +151,14 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
               <a href="documents.php"
                 class="nav-link <?php if($current_menu == "documents"){ echo "active";}?>">
                 <img src="dist/img/icon/file.png" width="25" style="margin: 5px 10px 5px 5px;"/>
-                <p>My Document<?php if($notify_myDoc > 0){ echo '<span class="right badge badge-danger">'.$notify_myDoc.'</span>'; }?></p>
+                <p>My Document<?php if($notify_reject > 0){ echo '<span class="right badge badge-danger">'.$notify_reject.'</span>'; }?></p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="myrequest.php"
+                class="nav-link <?php if($current_menu == "myrequest"){ echo "active";}?>">
+                <img src="dist/img/icon/download.png" width="25" style="margin: 5px 10px 5px 5px;"/>
+                <p>Download<?php if($notify_download > 0){ echo '<span class="right badge badge-danger">'.$notify_download.'</span>'; }?></p>
               </a>
             </li>
           </ul>
@@ -182,6 +210,26 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
         if ($role == "ADMIN" || $role == "ISO") { ?>
           <li class="nav-item <?php if($ismenu == 3){ echo "menu-open";}?>">
           <a href="#" class="nav-link">
+          <img src="dist/img/icon/iso-symbol.png" width="30" style="margin-right: 5px;"/>
+            <p>
+              ISO Management
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="discipline.php" class="nav-link <?php if($current_menu == "discipline"){ echo "active";}?>">
+                <img src="dist/img/icon/new-moon.png" width="16" style="margin: 5px 10px 5px 5px;"/>
+                <p>Discipline</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <?php } ?>
+        <?php
+        if ($role == "ADMIN") { ?>
+          <li class="nav-item <?php if($ismenu == 4){ echo "menu-open";}?>">
+          <a href="#" class="nav-link">
           <img src="dist/img/icon/configuration.png" width="30" style="margin-right: 5px;"/>
             <p>
               Administrator
@@ -193,14 +241,6 @@ $sql_approve_download = "SELECT * FROM `approval` WHERE `mail` = '$mail'";
               <a href="add_permission.php" class="nav-link <?php if($current_menu == "add_permission"){ echo "active";}?>">
                 <img src="dist/img/icon/new-moon.png" width="16" style="margin: 5px 10px 5px 5px;"/>
                 <p>Add Permission</p>
-              </a>
-            </li>
-          </ul>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="discipline.php" class="nav-link <?php if($current_menu == "discipline"){ echo "active";}?>">
-                <img src="dist/img/icon/new-moon.png" width="16" style="margin: 5px 10px 5px 5px;"/>
-                <p>Discipline</p>
               </a>
             </li>
           </ul>

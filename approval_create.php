@@ -172,15 +172,15 @@ include("_check_session.php");
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
                                                         <!-- <img src="dist/img/icon/pdf.png" onClick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']); ?>', '_blank');" title="Preview" width="35" style="padding: 5px;cursor: pointer;" /> -->
-                                                        <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='preview.php?no=<?php echo md5($objResult['id']); ?>'" title="Approve">
+                                                        <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='preview.php?no=<?php echo md5($objResult['id']); ?>'" title="View">
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
                                                     <td>
                                                         <?php
-                                                        $date = $objResult['date'];
-                                                        $convertDate = strtotime($date);
+                                                        $date_prepared = $objResult['date_prepared'];
+                                                        $convertDate = strtotime($date_prepared);
                                                         $newDate = date("d-m-Y", $convertDate);
                                                         echo $newDate;
                                                         ?>

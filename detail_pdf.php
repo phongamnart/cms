@@ -9,14 +9,15 @@ include("_check_session.php");
     $documents  = 2;
     $doc_type  = "documents";
     $ismenu = 2;
-    $current_menu = "approval_del";
+    $current_menu = "approval_download";
     $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
-    $strSQL = "SELECT * FROM `documents` WHERE md5(`id`) = '$get_id' LIMIT 1";
+    $strSQL = "SELECT `documents`.*, `request`.*, `request`.`id` AS `reqID`, `documents`.`id` AS `doc_id`, `request`.`createdby` AS `createReq` FROM `request` 
+    LEFT JOIN `documents` ON `request`.`doc_no` = `documents`.`doc_no` WHERE md5(`request`.`id`) = '$get_id' LIMIT 1";
     $objQuery = $conDB->sqlQuery($strSQL);
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
-        $doc_id = $objResult['id'];
+        $doc_id = $objResult['doc_id'];
         $doc_no = $objResult['doc_no'];
         $discipline = $objResult['discipline'];
         $work = $objResult['work'];
@@ -25,13 +26,17 @@ include("_check_session.php");
         $preparedby = $objResult['preparedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
+        $request = $objResult['req_pdf'];
+        $status_req = $objResult['status_pdf'];
+        $createReq = $objResult['createReq'];
         $checkedby = $objResult['checkedby'];
+        $id = $objResult['reqID'];
         if ($objResult['date_prepared'] != "") {
             $date_prepared = date("d/m/Y", strtotime($objResult['date_prepared']));
         }
     }
-    $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
-    $objQuery_line = $conDB->sqlQuery($strSQL);
+    $strSQL2 = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
+    $objQuery_line = $conDB->sqlQuery($strSQL2);
 
     $sql = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id'";
     $objQuery_cont = $conDB->sqlQuery($sql);
@@ -39,27 +44,10 @@ include("_check_session.php");
         $line_id = $objResult['line_id'];
     }
 
-    $sql2 = "SELECT * FROM `request` WHERE `doc_no` = '$doc_no' AND `status_del` = 1 LIMIT 1";
-    $objQuery_req = $conDB->sqlQuery($sql2);
-    while ($objResult = mysqli_fetch_assoc($objQuery_req)) {
-        $req_delete = $objResult['req_delete'];
-        $status_del = $objResult['status_del'];
-        $id = $objResult['id'];
-        $to = $objResult['createdby'];
-    }
-
-    $sql3 = "SELECT * FROM `approval` WHERE `mail` = '$to' LIMIT 1";
-    $objQuery_name = $conDB->sqlQuery($sql3);
+    $strSQL3 = "SELECT * FROM `approval` WHERE `mail` = '$createReq'";
+    $objQuery_name = $conDB->sqlQuery($strSQL3);
     while ($objResult = mysqli_fetch_assoc($objQuery_name)) {
         $to_name = $objResult['name'];
-        
-    }
-
-    $sql3 = "SELECT * FROM `approval` WHERE `role` = 'ISO' LIMIT 1";
-    $objQuery_name = $conDB->sqlQuery($sql3);
-    while ($objResult = mysqli_fetch_assoc($objQuery_name)) {
-        $name_iso = $objResult['name'];
-        $mail_iso = $objResult['mail'];
     }
 
     $currentTime = date("Y-m-d");
@@ -86,7 +74,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-8">
-                            <h1><?php echo "Request Delete Document No. : " . $doc_no; ?></h1>
+                            <h1><?php echo "Request PDF Document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -96,23 +84,19 @@ include("_check_session.php");
                 <form action="services/add_request.php" method="post">
                     <div>
                         <!-- menu header -->
-                        <button type="button" class="btn btn-app flat" onClick="window.location.href='approval_del.php'" title="<?php echo BTN_DISCARD; ?>">
+                        <button type="button" class="btn btn-app flat" onClick="window.location.href='approval_download.php'" title="<?php echo BTN_DISCARD; ?>">
                             <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                             <?php echo BTN_DISCARD; ?>
                         </button>
-                        <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>#toolbar=0', '_blank');" title="PDF">
+                        <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id) ?>', '_blank');" title="PDF">
                             <img src="dist/img/icon/pdf.png" width="24"><br>
                             PDF
                         </button>
-                        <button type="button" class="btn btn-app flat" 
-                        onclick="approveDelete('<?php echo md5($id); ?>','<?php echo md5($doc_id); ?>','<?php echo $to; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Delete','<?php echo $mail_iso; ?>','<?php echo $name_iso; ?>')"
-                        title="Approve">
+                        <button type="button" class="btn btn-app flat" onclick="pdfApproved('<?php echo md5($id); ?>','<?php echo $createReq; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Download')" title="Approve">
                             <img src="dist/img/icon/approved.svg" width="24"><br>
                             Approve
                         </button>
-                        <button type="button" class="btn btn-app flat"
-                        onclick="rejectDelete('<?php echo md5($id); ?>','<?php echo $to; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Delete')"
-                        title="Save word">
+                        <button type="button" class="btn btn-app flat" onclick="pdfReject('<?php echo md5($id); ?>','<?php echo $createReq; ?>','<?php echo $to_name; ?>','<?php echo $method_statement; ?>','<?php echo $doc_no; ?>','<?php echo $preparedby; ?>','<?php echo $currentTime; ?>','Download')" title="Reject">
                             <img src="dist/img/icon/error.svg" width="24"><br>
                             Reject
                         </button>
@@ -192,8 +176,8 @@ include("_check_session.php");
                                                 </div>
                                                 <div class="col-sm-9">
                                                     <div class="form-group">
-                                                        <label>Reason<em></em></label>
-                                                        <textarea class="form-control" rows="5" name="req_delete" id="req_delete" <?php echo $mode; ?> readonly><?php echo $req_delete; ?></textarea>
+                                                        <label>Reason <em></em></label>
+                                                        <textarea class="form-control" rows="5" name="request" id="request" <?php echo $mode; ?> readonly><?php echo $request; ?></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-3">

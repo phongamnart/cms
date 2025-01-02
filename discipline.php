@@ -45,8 +45,8 @@ include("_check_session.php");
 
     if ($objQuery && mysqli_num_rows($objQuery) > 0) {
         while ($obj = mysqli_fetch_assoc($result)) {
-            if ($obj['role'] == 'ADMIN') {
-                $strSQL = "SELECT * FROM `type`";
+            if ($obj['role'] == 'ADMIN' || $obj['role'] == 'ISO') {
+                $strSQL = "SELECT * FROM `type` WHERE `enable` = 1" . $condition;
                 $objQuery = $conDB->sqlQuery($strSQL);
             }
         }
@@ -174,8 +174,8 @@ include("_check_session.php");
                                                 <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/edit.svg" onclick="" title="Edit" width="30" style="padding: 5px;cursor: pointer;" />
-                                                        <img src="dist/img/icon/delete.png" onclick="setDelete('type', '<?php echo $objResult['id'] ?>', '<?php echo $objResult['type'] ?>', '')" title="Delete" width="30" style="padding: 5px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/edit.svg" onclick="window.location.href='edit_discipline.php?no=<?php echo md5($objResult['id']) ?>'" title="Edit" width="30" style="padding: 5px;cursor: pointer;"/>
+                                                        <img src="dist/img/icon/delete.png" onclick="delete_discipline('type', '<?php echo md5($objResult['id']) ?>', '<?php echo $objResult['type'] ?>', '')" title="Delete" width="30" style="padding: 5px;cursor: pointer;"/>
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['work'] ?></td>

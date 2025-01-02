@@ -124,6 +124,32 @@
         return false;
     }
 
+    function clearComment(table, id, field, value) {
+        $('#success-alert').hide();
+        let myPromise = new Promise(function(myResolve, myReject) {
+            setTimeout(function() {
+                myResolve(true);
+            }, 100);
+        });
+        $.post("services/clearcomment.php", {
+                table: table,
+                id: id,
+                field: field,
+                value: value
+            })
+            .done(function(data) {
+                myPromise.then(function(value) {
+                    var divElement = document.getElementById("success-alert");
+                    divElement.style.display = "block";
+                    console.log(data);
+                    setValue(data);
+                    $('#success-alert').fadeOut(3000, function() {
+                        $('#success-alert').hide();
+                    });
+                });
+            });
+    }
+
     function updateValue(table, id, field, value) {
         $('#success-alert').hide();
         let myPromise = new Promise(function(myResolve, myReject) {
@@ -234,6 +260,30 @@
             }, 100);
         });
         $.post("services/add_request.php", {
+                doc_no: doc_no,
+                request: request
+            })
+            .done(function(data) {
+                myPromise.then(function(value) {
+                    var divElement = document.getElementById("success-alert");
+                    divElement.style.display = "block";
+                    console.log(data);
+                    setValue(data);
+                    $('#success-alert').fadeOut(3000, function() {
+                        $('#success-alert').hide();
+                    });
+                });
+            });
+    }
+
+    function postRequestPDF(doc_no, request) {
+        $('#success-alert').hide();
+        let myPromise = new Promise(function(myResolve, myReject) {
+            setTimeout(function() {
+                myResolve(true);
+            }, 100);
+        });
+        $.post("services/add_pdf.php", {
                 doc_no: doc_no,
                 request: request
             })
@@ -362,6 +412,22 @@
             redirect + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
+    }
+
+    function delete_discipline(table, id, name, redirect) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to delete this <span class=\"text-danger\">"' + name +
+            '"</span> <?php echo "<em>Yes or No?</em>"; ?></p>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary" onclick="del_discipline(' + "'" + table + "','" + id + "','" +
+            redirect + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+
+    function del_discipline (table, id) {
+        updateValue(table, id, 'enable', '0');
+        window.location.href = "discipline.php"
     }
 
     function delContent(table, id, name, redirect, line_id) {
@@ -538,20 +604,66 @@
         return false;
     }
 
-    //Function Approve Document
-    function Approved(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
+    //Function Approve Document QMR
+    function Approved(id, value, doc_no, date) {
         let approved = Number(value) + 1;
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
             '<p>Do you want to approve this document: ' + doc_no +
             '</p></div>' +
-            '<button type="button" class="btn btn-success" onclick="postApproved(' + "'" + id + "'" + ',' + "'" + approved + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-success" onclick="postApproved(' + "'" + id + "'" + ',' + "'" + approved + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + date + "'" + ')">Yes</button> ' +
             '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
         $('#messageModal').modal('show');
     }
-    //Function Approve Document
-    function postApproved(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
+    //Function Approve Document QMR
+    function postApproved(id, value, doc_no, date) {
         updateValue('documents', id, 'approved', value);
-        updateValue('documents', id, 'created_approved', date);
+        updateValue('documents', id, 'date_approved', date);
+        updateValue('documents', id, 'comment', '');
+        updateValue('documents', id, 'rejectby', '');
+        updateValue('documents', id, 'created_reject', '');
+        updateValue('documents_line', id, 'comment', '');
+        updateValue('documents_line', id, 'rejectby', '');
+        updateValue('documents_line', id, 'created_reject', '');
+        window.location.href = "approval_create.php"
+    }
+
+    //Function Approve Document Check
+    function Approved2(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
+        let approved = Number(value) + 1;
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to approve this document: ' + doc_no +
+            '</p></div>' +
+            '<button type="button" class="btn btn-success" onclick="postApproved2(' + "'" + id + "'" + ',' + "'" + approved + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+    //Function Approve Document Check
+    function postApproved2(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
+        updateValue('documents', id, 'approved', value);
+        updateValue('documents', id, 'date_checked', date);
+        updateValue('documents', id, 'comment', '');
+        updateValue('documents', id, 'rejectby', '');
+        updateValue('documents', id, 'created_reject', '');
+        updateValue('documents_line', id, 'comment', '');
+        updateValue('documents_line', id, 'rejectby', '');
+        updateValue('documents_line', id, 'created_reject', '');
+        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
+        window.location.href = "approval_create.php"
+    }
+
+    //Function Approve Document ISO
+    function Approved3(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
+        let approved = Number(value) + 1;
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to approve this document: ' + doc_no +
+            '</p></div>' +
+            '<button type="button" class="btn btn-success" onclick="postApproved3(' + "'" + id + "'" + ',' + "'" + approved + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+    //Function Approve Document ISO
+    function postApproved3(id, value, to, approval_name, method_statement, doc_no, createdby, date, type) {
+        updateValue('documents', id, 'approved', value);
         updateValue('documents', id, 'comment', '');
         updateValue('documents', id, 'rejectby', '');
         updateValue('documents', id, 'created_reject', '');
@@ -582,6 +694,26 @@
         window.location.href = 'approval_download.php';
     }
 
+    //Function Approve req Download in detail_download.php
+    function pdfApproved(id, to, to_name, method_statement, doc_no, createdby, date, type) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to approve this document: ' + doc_no +
+            '</p></div>' +
+            '<button type="button" class="btn btn-success" onclick="acceptPDF(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+    //Function Approve req Download in detail_download.php
+    function acceptPDF(id, to, to_name, method_statement, doc_no, createdby, date, type) {
+        updateValue('request', id, 'status_pdf', '2');
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() + 7);
+        const expire = currentDate.toISOString().split('T')[0];
+        updateValue('request', id, 'expire_pdf', expire);
+        sendMailApproved(to, to_name, method_statement, doc_no, createdby, date, type);
+        window.location.href = 'approval_download.php';
+    }
+
     //Funtion Reject req Download in detail_download.php
     function reqReject(id, to, to_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
@@ -600,6 +732,26 @@
         updateValue('request', id, 'expire', null);
         sendMailReject(to, to_name, method_statement, doc_no, createdby, date, type)
         window.location.href = 'approval_download.php';
+    }
+
+    //Funtion Reject req Download in detail_download.php
+    function pdfReject(id, to, to_name, method_statement, doc_no, createdby, date, type) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to approve this document: ' + doc_no +
+            '</p></div>' +
+            '<div><textarea class="col-md-12" id="rejectReasonPDF" placeholder="Reason Reject..." rows="3"></textarea></div><br>' +
+            '<button type="button" class="btn btn-success" onclick="rejectPDF(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + to_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+    //Funtion Reject req Download in detail_download.php
+    function rejectPDF(id, to, to_name, method_statement, doc_no, createdby, date, type) {
+        var reason = document.getElementById('rejectReasonPDF').value;
+        updateValue('request', id, 'comment', reason);
+        updateValue('request', id, 'status_pdf', '0');
+        updateValue('request', id, 'expire', null);
+        sendMailReject(to, to_name, method_statement, doc_no, createdby, date, type)
+        window.location.href = 'approval_pdf.php';
     }
 
     //Function Approve req Download in detail_revise.php
@@ -692,6 +844,23 @@
         window.location.href = 'request.php';
     }
 
+    //function send req PDF
+    function RequestPDF(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
+        document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
+            '<p>Do you want to request PDF this document: ' + doc_no +
+            '</p></div>' +
+            '<button type="button" class="btn btn-success" onclick="reqPDF(' + "'" + id + "'" + ',' + "'" + to + "'" + ',' + "'" + approval_name + "'" + ',' + "'" + method_statement + "'" + ',' + "'" + doc_no + "'" + ',' + "'" + createdby + "'" + ',' + "'" + date + "'" + ',' + "'" + type + "'" + ')">Yes</button> ' +
+            '<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>';
+        $('#messageModal').modal('show');
+    }
+    //function send req PDF
+    function reqPDF(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
+        let request = document.getElementById('request').value;
+        postRequestPDF(doc_no, request);
+        sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
+        window.location.href = 'request.php';
+    }
+
     //function send req Revise
     function RequestRevise(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
         document.getElementById('messageContent').innerHTML = '<div class="row col-md-12">' +
@@ -776,6 +945,7 @@
     function updateWord(id, to, approval_name, method_statement, doc_no, createdby, date, type) {
         sendMail(to, approval_name, method_statement, doc_no, createdby, date, type);
         updateValue('documents', id, 'approved', '1');
+        clearComment('documents_line', id, 'comment', null);
         window.location.href = 'save_word.php?no=' + id;
     }
 
@@ -1035,18 +1205,19 @@
         return false;
     };
 
-    function switchChange(doc_id, content_id, value) {
+    function switchChange(doc_id, type_doc, content_id, value) {
         if (value.value === '0') {
             value.value = '1';
         } else {
             value.value = '0';
         }
-        checkDocLine(doc_id, content_id, value.value);
+        checkDocLine(doc_id, type_doc, content_id, value.value);
     }
 
-    function checkDocLine(doc_id, content_id, value) {
+    function checkDocLine(doc_id, type_doc, content_id, value) {
         $.post("services/updatedoc_line.php", {
                 doc_id: doc_id,
+                type_doc: type_doc,
                 content_id: content_id,
                 value: value
             })
@@ -1056,10 +1227,23 @@
         return false;
     }
 
+    function addLanguage(doc_no, type_doc) {
+        $.post("services/add_language.php", {
+                doc_no: doc_no,
+                type_doc: type_doc,
+            })
+            .done(function(data) {
+                console.log(data)
+                window.location.href = "documents.php";
+            });
+        return false;
+    }
+
     //Function reload content in documents_edit.php
-    function reloadContent(doc_id) {
+    function reloadContent(doc_id, type_doc) {
         $.post("services/updatedoc_content.php", {
                 doc_id: doc_id,
+                type_doc: type_doc,
             })
             .done(function(data) {
                 window.location.reload()
@@ -1093,10 +1277,11 @@
     }
 
     //Function upload image in documents_line_edit.php
-    function setUpload(type, id, doc_id, redirect, selectSize, doc_no, next_index) {
+    function setUpload(type, id, doc_id, type_doc, redirect, selectSize, doc_no, next_index) {
         document.getElementById('type').value = type;
         document.getElementById('id').value = id;
         document.getElementById('doc_id').value = doc_id;
+        document.getElementById('type_doc').value = type_doc;
         document.getElementById('redirect').value = redirect;
         document.getElementById('selectSize').value = selectSize;
         document.getElementById('doc_no').value = doc_no;
@@ -1133,7 +1318,7 @@
                 method: "POST",
                 body: formData
             });
-            window.location.reload();
+            // window.location.reload();
         } catch (error) {
             console.error("Error:", error);
         }

@@ -40,15 +40,15 @@ include("_check_session.php");
                     <div class="col-sm-8  col-12">
                         <div class="row">
                             <div class="col-sm-4 col-12">
-                                <div class="info-box" onclick="window.location.href='documents_list.php?documents_list_discipline=Civil'">
+                                <div class="info-box" onclick="window.location.href='documents_list.php?documents_list_discipline=CSA'">
                                     <span class="info-box-icon bg-info " style="padding: 20px; width:100px;"><img src="dist/img/icon/civil.png" width="100" /></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">CIVIL</span>
+                                        <span class="info-box-text">CSA</span>
                                         <?php
-                                        $strSQL = "SELECT COUNT(*) as civil FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Civil' AND `enable` = 1";
+                                        $strSQL = "SELECT COUNT(*) as csa FROM `documents` WHERE `approved` = 4 AND `discipline` = 'CSA' AND `enable` = 1";
                                         $objQuery = $conDB->sqlQuery($strSQL);
                                         while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
-                                            <span class="info-box-number"><?php echo $objResult['civil']?></span>
+                                            <span class="info-box-number"><?php echo $objResult['csa']?></span>
                                         <?php } ?>
                                     </div>
                                     <!-- /.info-box-content -->
@@ -90,6 +90,24 @@ include("_check_session.php");
                                 <!-- /.info-box -->
                             </div>
                             <!-- /.col -->
+
+                            <div class="col-sm-4 col-12">
+                                <div class="info-box" onclick="window.location.href='documents_list.php?documents_list_discipline=Safety Health and Environment'">
+                                    <span class="info-box-icon bg-info " style="padding: 20px; width:100px;"><img src="dist/img/icon/she.png" width="100" /></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">SHE</span>
+                                        <?php
+                                        $strSQL = "SELECT COUNT(*) as she FROM `documents` WHERE `approved` = 4 AND `discipline` = 'Safety Health and Environment' AND `enable` = 1";
+                                        $objQuery = $conDB->sqlQuery($strSQL);
+                                        while ($objResult = mysqli_fetch_assoc($objQuery)) { ?>
+                                            <span class="info-box-number"><?php echo $objResult['she']?></span>
+                                        <?php } ?>
+                                    </div>
+                                    <!-- /.info-box-content -->
+                                </div>
+                                <!-- /.info-box -->
+                            </div>
+
                             <div class="col-sm-4 col-12">
                                 <div class="info-box" onclick="window.location.href='documents_list.php?documents_list_discipline='" style="cursor: pointer;">
                                     <span class="info-box-icon bg-warning" style="padding: 20px; width:100px;"><img src="dist/img/icon/folder.png" width="100" /></span>

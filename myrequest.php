@@ -9,7 +9,7 @@ include("_check_session.php");
     $document = 2;
     $ismenu = 1;
     $condition2 = "";
-    $current_menu = "documents";
+    $current_menu = "myrequest";
     include_once('_head.php');
     $conDB = new db_conn();
     $current_time = date('Y-m-d');
@@ -43,11 +43,12 @@ include("_check_session.php");
     while ($obj = mysqli_fetch_assoc($result)) {
         if ($obj['role'] == 'ADMIN') {
             $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` as `reqID` FROM `documents` LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no`
-            WHERE `documents`.`admin` = 1 AND `documents`.`enable` = 1 AND `documents`.`approved` = 4" . $condition;
+            WHERE `documents`.`admin` = 1 AND `documents`.`enable` = 1 AND `documents`.`approved` = 4 AND ((`request`.`type_request` = 'Download' AND `request`.`status_req` = 2 AND `request`.`expire` > '$current_time')
+            OR (`request`.`type_request` = 'PDF' AND `request`.`status_pdf` = 2 AND `request`.`expire_pdf` > '$current_time'))" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         } else {
             $strSQL = "SELECT `documents`.*, `request`.*, `documents`.`id` AS `id`, `request`.`id` as `reqID` FROM `documents` LEFT JOIN `request` ON `documents`.`doc_no` = `request`.`doc_no`
-            WHERE `documents`.`enable` = 1 AND `request`.`createdby` = '$mail'" . $condition;
+            WHERE `documents`.`enable` = 1 AND `documents`.`approved` = 4 AND `request`.`createdby` = '$mail' AND `request`.`type_request` = 'Download' AND `request`.`status_req` = 2 AND `request`.`expire` > '$current_time'" . $condition;
             $objQuery = $conDB->sqlQuery($strSQL);
         }
     }
@@ -64,18 +65,12 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>History request</h1>
+                            <h1>Download</h1>
                         </div>
                     </div>
                 </div>
             </section>
             <section class="content">
-                <div>
-                    <button type="button" class="btn btn-app flat" onclick="window.location.href='documents.php'" title="<?php echo BTN_DISCARD; ?>">
-                        <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
-                        <?php echo BTN_DISCARD; ?>
-                    </button>
-                </div>
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
@@ -158,13 +153,11 @@ include("_check_session.php");
                                                 <th width="30">No.<br><em></em></th>
                                                 <th width="30">Tools<br><em></em></th>
                                                 <th width="80">Discipline​<br><em></em></th>
-                                                <th width="120">Document No.​<br><em></em></th>
+                                                <th width="90">Document No.​<br><em></em></th>
                                                 <th width="500">Document Title<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
                                                 <th width="200">Create By<br><em></em></th>
                                                 <th width="150">Status<br><em></em></th>
-                                                <th width="150">Type of request<br><em></em></th>
-                                                <th width="500">Reject reason<br><em></em></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -207,35 +200,12 @@ include("_check_session.php");
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
                                                     <td>
-                                                        <?php if ($objResult['type_request'] == 'Download') { ?>
-                                                            <?php
-                                                            $date = $objResult['date_req'];
-                                                            $convertDate = strtotime($date);
-                                                            $newDate = date("d-m-Y", $convertDate);
-                                                            echo $newDate;
-                                                            ?>
-                                                        <?php } elseif ($objResult['type_request'] == 'Delete') { ?>
-                                                            <?php
-                                                            $date = $objResult['date_delete'];
-                                                            $convertDate = strtotime($date);
-                                                            $newDate = date("d-m-Y", $convertDate);
-                                                            echo $newDate;
-                                                            ?>
-                                                        <?php } elseif ($objResult['type_request'] == 'Revise') { ?>
-                                                            <?php
-                                                            $date = $objResult['date_revise'];
-                                                            $convertDate = strtotime($date);
-                                                            $newDate = date("d-m-Y", $convertDate);
-                                                            echo $newDate;
-                                                            ?>
-                                                        <?php } else { ?>
-                                                            <?php
-                                                            $date = $objResult['date_pdf'];
-                                                            $convertDate = strtotime($date);
-                                                            $newDate = date("d-m-Y", $convertDate);
-                                                            echo $newDate;
-                                                            ?>
-                                                        <?php } ?>
+                                                        <?php
+                                                        $date = $objResult['date_pdf'];
+                                                        $convertDate = strtotime($date);
+                                                        $newDate = date("d-m-Y", $convertDate);
+                                                        echo $newDate;
+                                                        ?>
                                                     </td>
                                                     <td><?php echo $objResult['createdby'] ?></td>
                                                     <td>
@@ -258,30 +228,9 @@ include("_check_session.php");
                                                                 $class = 'class="text-danger"' ?>
                                                                 <span <?php echo $class ?>>Not approved</span>
                                                             <?php } ?>
-                                                        <?php } elseif ($objResult['type_request'] == 'Delete') { ?>
-                                                            <?php if ($objResult['status_del'] == 2) {
-                                                                $class = 'class="text-success"' ?>
-                                                                <span <?php echo $class ?>>Approved</span>
-                                                            <?php } elseif ($objResult['status_del'] == 1) {
-                                                                $class = 'class="text-primary"' ?>
-                                                                <span <?php echo $class ?>>Wait approve</span>
-                                                            <?php } else {
-                                                                $class = 'class="text-danger"' ?>
-                                                                <span <?php echo $class ?>>Not approved</span>
-                                                            <?php } ?>
-                                                        <?php } elseif ($objResult['type_request'] == 'Revise') { ?>
-                                                            <?php if ($objResult['status_rev'] == 2) {
-                                                                $class = 'class="text-success"' ?>
-                                                                <span <?php echo $class ?>>Approved</span>
-                                                            <?php } elseif ($objResult['status_rev'] == 1) {
-                                                                $class = 'class="text-primary"' ?>
-                                                                <span <?php echo $class ?>>Wait approve</span>
-                                                            <?php } else {
-                                                                $class = 'class="text-danger"' ?>
-                                                                <span <?php echo $class ?>>Not approved</span>
-                                                            <?php } ?>
-                                                        <?php } else { ?>
-                                                            <?php if ($objResult['status_pdf'] == 2) { 
+
+                                                        <?php } elseif ($objResult['type_request'] == 'PDF') { ?>
+                                                            <?php if ($objResult['status_pdf'] == 2) {
                                                                 $expire = $objResult['expire_pdf'];
                                                                 $convertDate = strtotime($expire);
                                                                 $newExpire = date("d-m-Y", $convertDate);
@@ -291,7 +240,7 @@ include("_check_session.php");
                                                                 } else {
                                                                     echo "Expire " . $newExpire;
                                                                 }
-                                                                ?>
+                                                            ?>
                                                             <?php } elseif ($objResult['status_pdf'] == 1) {
                                                                 $class = 'class="text-primary"' ?>
                                                                 <span <?php echo $class ?>>Wait approve</span>
@@ -301,8 +250,6 @@ include("_check_session.php");
                                                             <?php } ?>
                                                         <?php } ?>
                                                     </td>
-                                                    <td><?php echo $objResult['type_request'] ?></td>
-                                                    <td><?php echo $objResult['comment'] ?></td>
                                                 <?php } ?>
                                         </tbody>
                                     </table>

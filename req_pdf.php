@@ -10,7 +10,7 @@ include("_check_session.php");
     $doc_type  = "documents";
     $ismenu = 1;
     $current_menu = "documents_list";
-    $get_id = isset($_GET['no']) ? $_GET['no'] : '';
+    $get_id = $_GET['no'];
     include_once('_head.php');
     $conDB = new db_conn();
     $from = $_SESSION['user_name'];
@@ -53,7 +53,6 @@ include("_check_session.php");
         $approval_name = $objResult['name'];
         $approval_mail = $objResult['mail'];
     }
-
     ?>
 </head>
 
@@ -77,7 +76,7 @@ include("_check_session.php");
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-8">
-                            <h1><?php echo "Request Revise Document No. : " . $doc_no; ?></h1>
+                            <h1><?php echo "Request PDF Document No. : " . $doc_no; ?></h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -90,8 +89,7 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" 
-                    onclick="RequestRevise('<?php echo md5($doc_id)?>','<?php echo $approval_mail?>','<?php echo $approval_name?>','<?php echo $method_statement?>','<?php echo $doc_no?>','<?php echo $preparedby?>','<?php echo $date_prepared?>','Revise')" title="Send Request">
+                    <button type="button" class="btn btn-app flat" onclick="RequestPDF('<?php echo md5($doc_id) ?>','<?php echo $approval_mail ?>','<?php echo $approval_name ?>','<?php echo $method_statement ?>','<?php echo $doc_no ?>','<?php echo $preparedby ?>','<?php echo $date_prepared ?>','PDF')" title="Send Request">
                         <img src="dist/img/icon/forward.png" width="24"><br>
                         Send Request
                     </button>
@@ -115,7 +113,7 @@ include("_check_session.php");
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label >Title <em></em></label>
+                                                    <label>Title <em></em></label>
                                                     <input type="text" class="form-control" name="method_statement" onchange="dataPost('method_statement', this.value)" value="<?php echo htmlentities($method_statement); ?>" <?php echo $mode; ?> readonly />
                                                 </div>
                                             </div>
@@ -196,7 +194,7 @@ include("_check_session.php");
     <script>
         function checkRequestField() {
             var requestField = document.getElementById('request');
-            var sendRequestButton = document.querySelector('button[onclick^="RequestRevise"]');
+            var sendRequestButton = document.querySelector('button[onclick^="RequestPDF"]');
 
             if (requestField.value.trim() === '') {
                 sendRequestButton.disabled = true;
@@ -216,6 +214,7 @@ include("_check_session.php");
         function dataPost2(id, field, value) {
             updateAmount('documents_line', id, field, value);
         }
+
         <?php if ($mode == "") { ?>
             $('#date').datepicker({
                 format: 'dd/mm/yyyy'

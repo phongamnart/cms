@@ -25,8 +25,8 @@ include("_check_session.php");
         $preparedby = $objResult['preparedby'];
         $remark = $objResult['remark'];
         $approved = $objResult['approved'];
-        if ($objResult['date'] != "") {
-            $date = date("d/m/Y", strtotime($objResult['date']));
+        if ($objResult['date_prepared'] != "") {
+            $date_prepared = date("d/m/Y", strtotime($objResult['date_prepared']));
         }
     }
     $strSQL = "SELECT `documents_line`.`id` AS `id`,`contents`.`name` FROM `documents_line` LEFT JOIN `contents` ON `documents_line`.`content_id` = `contents`.`id` WHERE md5(`doc_id`) = '$get_id' AND `documents_line`.`enable` = 1 ORDER BY `documents_line`.`content_id` ASC";
@@ -73,7 +73,7 @@ include("_check_session.php");
                         <img src="dist/img/icon/multiply.svg" style="padding:3px;" width="24"><br>
                         <?php echo BTN_DISCARD; ?>
                     </button>
-                    <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>', '_blank');" title="PDF">
+                    <button type="button" class="btn btn-app flat" onClick="window.open('documents_pdf.php?no=<?php echo md5($doc_id); ?>#toolbar=0', '_blank');" title="PDF">
                         <img src="dist/img/icon/pdf.png" width="24"><br>
                         PDF
                     </button>
@@ -121,7 +121,7 @@ include("_check_session.php");
                                                 <div class="form-group">
                                                     <label>Date <em></em></label>
                                                     <div class="input-group date" id="date" data-target-input="nearest">
-                                                        <input type="text" onchange="dataPost('date', convertDateFormat(this.value))" value="<?php echo $date; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date">
+                                                        <input type="text" onchange="dataPost('date_prepared', convertDateFormat(this.value))" value="<?php echo $date_prepared; ?>" <?php echo $mode; ?> class="form-control datetimepicker-input" data-target="#date">
                                                         <div class="input-group-append" data-target="#date" data-toggle="datetimepicker">
                                                             <div class="input-group-text"><i class="fa fa-calendar"></i>
                                                             </div>

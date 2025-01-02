@@ -168,7 +168,7 @@ include("_check_session.php");
                                                 <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='detail_revise.php?no=<?php echo md5($objResult['reqID']); ?>'" title="Approve<?php echo $objResult['reqID']; ?>">
+                                                        <img src="dist/img/icon/search.svg" style="padding: 5px;cursor: pointer;" width="35" onclick="window.location.href='detail_revise.php?no=<?php echo md5($objResult['reqID']); ?>'" title="View">
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>

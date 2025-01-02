@@ -142,8 +142,9 @@ include("_check_session.php");
                                                 <th width="50">No.<br><em></em></th>
                                                 <th width="150">Tools<br><em></em></th>
                                                 <th width="80">Discipline​<br><em></em></th>
-                                                <th width="90">Document No.​<br><em></em></th>
+                                                <th width="120">Document No.​<br><em></em></th>
                                                 <th width="500">Document Title<br><em></em></th>
+                                                <th width="370">Change/Modify<br><em></em></th>
                                                 <th width="80">Date<br><em></em></th>
                                                 <th width="370">Prepared By<br><em></em></th>
                                             </tr>
@@ -156,23 +157,26 @@ include("_check_session.php");
                                                 <tr>
                                                     <td><?php echo $index++; ?></td>
                                                     <td align="center">
-                                                        <img src="dist/img/icon/download.png" onclick="window.location.href='req_download.php?no=<?php echo md5($objResult['id']) ?>'" title="Download word" width="30" style="padding: 2px;cursor: pointer;" />&nbsp;
-                                                        <img src="dist/img/icon/pdf.png" onclick="window.open('documents_pdf.php?no=<?php echo md5($objResult['id']) ?>', '_blank');" title="PDF" width="30" style="padding: 2px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/search.svg" onclick="window.location.href='view_doc_list.php?no=<?php echo md5($objResult['id']); ?>'" title="Preview" width="35" style="padding: 5px;cursor: pointer;" />
+                                                        <img src="dist/img/icon/download.png" onclick="window.location.href='req_download.php?no=<?php echo md5($objResult['id']) ?>'" title="Download Word" width="30" style="padding: 2px;cursor: pointer;" />&nbsp;
+                                                        <img src="dist/img/icon/pdf.png" onclick="window.location.href='req_pdf.php?no=<?php echo md5($objResult['id']) ?>'" title="PDF" width="30" style="padding: 2px;cursor: pointer;" />
                                                         <img src="dist/img/icon/revision.png" onclick="window.location.href='req_revise.php?no=<?php echo md5($objResult['id']); ?>'" title="Revise" width="40" style="padding: 5px;cursor: pointer;" />
                                                     </td>
                                                     <td><?php echo $objResult['discipline'] ?></td>
                                                     <td><?php echo $objResult['doc_no'] ?></td>
                                                     <td><?php echo $objResult['method_statement'] ?></td>
+                                                    <td><?php echo $objResult['remark'] ?></td>
                                                     <td>
-                                                        <?php 
-                                                        $date = $objResult['date'];
-                                                        $convertDate = strtotime($date);
-                                                        $newDate = date("d-m-Y", $convertDate); 
+                                                        <?php
+                                                        $date_approved = $objResult['date_approved'];
+                                                        $convertDate = strtotime($date_approved);
+                                                        $newDate = date("d-m-Y", $convertDate);
                                                         echo $newDate;
                                                         ?>
                                                     </td>
                                                     <td><?php echo $objResult['preparedby'] ?></td>
-                                                <?php } ?>
+                                                </tr>
+                                            <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>

@@ -31,7 +31,7 @@ include("_check_session.php");
     while ($objResult = mysqli_fetch_assoc($objQuery)) {
         $doc_no = $objResult['doc_no'];
     }
-    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id' AND `doc_id` = '$doc_id'";
+    $strSQL2 = "SELECT * FROM `documents_line_cont` WHERE md5(`line_id`) = '$get_id' AND `doc_id` = '$doc_id' ORDER BY `index_num` ASC";
     $objQuery_line = $conDB->sqlQuery($strSQL2);
 
     $strSQL3 = "SELECT * FROM `documents_line` WHERE md5(`id`) = '$get_id'";
@@ -127,27 +127,29 @@ include("_check_session.php");
                         Discard
                     </button>
                     <?php if ($current_content_id > $start_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="backComment('<?php echo md5($line_id); ?>','<?php echo md5($back_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Next">
+                        <button type="button" class="btn btn-app flat" onclick="backComment('<?php echo md5($line_id); ?>','<?php echo md5($back_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Back & Save">
                             <img src="dist/img/icon/back.png" width="24"><br>
                             Back
                         </button>
                     <?php } ?>
                     <?php if ($current_content_id < $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="nextComment('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Next">
+                        <button type="button" class="btn btn-app flat" onclick="nextComment('<?php echo md5($line_id); ?>','<?php echo md5($next_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Next & Save">
                             <img src="dist/img/icon/forward.png" width="24"><br>
                             Next
                         </button>
-                    <?php } elseif ($current_content_id = $last_line_id) { ?>
-                        <button type="button" class="btn btn-app flat" onclick="saveComment('<?php echo md5($line_id); ?>','<?php echo $doc_no; ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Save">
-                            <img src="dist/img/icon/save.svg" width="24"><br>
-                            Save
-                        </button>
-                    <?php } ?>
+                    <?php }  ?>
+                    <button type="button" class="btn btn-app flat" onclick="updateComment('<?php echo md5($line_id); ?>','<?php echo $myname; ?>','<?php echo $currentTime; ?>')" title="Save">
+                        <img src="dist/img/icon/save.svg" width="24"><br>
+                        Save
+                    </button>
 
                 </div><!-- /menu header -->
                 <div class="row" style="padding: 0px 10px;">
                     <!-- General 1 -->
                     <div class="col-md-12">
+                        <div class="d-flex justify-content-start">
+                            <!-- <span style="font-size: 14px" class="text-danger">***กดปุ่ม Next หรือ Back เพื่อบันทึกความคิดเห็น***</span> -->
+                        </div>
                         <div class="card">
                             <div class="card-body row">
                                 <div class="col-md-12">
@@ -161,7 +163,7 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <div class="form-group">
-                                                        <label>Paragraph <?php echo $index; ?><em></em></label>
+                                                        <label>Paragraph <?php echo $objResult_line['index_num'];; ?><em></em></label>
                                                         <div class="editor-container" style="display: flex;">
                                                             <div class="editorTextArea" style="border: 1px solid #b3b7bb; padding: 12px;" name="editor_content[]" id="editor<?php echo $objResult_line['id'] ?>">
                                                                 <?php echo $objResult_line['content']; ?>
@@ -174,17 +176,25 @@ include("_check_session.php");
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Paragraph <?php echo $index; ?><em></em></label><br>
+                                                        <label>Paragraph <?php echo $objResult_line['index_num'];; ?><em></em></label><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
                                                     </div>
                                                 </div>
                                             </div>
-                                        <?php } else { ?>
+                                        <?php } elseif ($objResult_line['is_image'] == 2) { ?>
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="form-group">
-                                                        <label>Paragraph <?php echo $index; ?><em></em></label><br>
+                                                        <label>Paragraph <?php echo $objResult_line['index_num'];; ?><em></em></label><br>
                                                         <img src="<?php echo substr($objResult_line['content'], 3) ?>" alt="" height="300px" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php } elseif ($objResult_line['is_image'] == 3) { ?>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>Paragraph <?php echo $objResult_line['index_num'];; ?> : Page Break<em></em></label><br>
                                                     </div>
                                                 </div>
                                             </div>
@@ -201,6 +211,7 @@ include("_check_session.php");
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <textarea class="form-control" name="comment" id="comment" placeholder="Comment..."><?php echo $comment ?></textarea>
+                                            <span id="auto-save-status"></span>
                                         </div>
                                     </div>
                                 </div>

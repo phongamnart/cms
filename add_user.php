@@ -66,6 +66,16 @@ include("_check_session.php");
                                                         <input type="text" class="form-control" name="depart" id="depart" />
                                                     </div>
                                                 </div>
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label for="system">System</label>
+                                                        <select name="system" id="system" class="custom-select" style="width: 100%;">
+                                                            <option value="CE">CE</option>
+                                                            <option value="EE">EE</option>
+                                                            <option value="ME">ME</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-sm-4">
